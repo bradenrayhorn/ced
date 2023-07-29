@@ -1,0 +1,38 @@
+name: Lint Backend
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.20.0"
+          cache: false
+      - name: Install
+        run: |
+          go install github.com/gordonklaus/ineffassign@latest
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          go install github.com/kisielk/errcheck@latest
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Format
+        if: always()
+        run: test -z $(gofmt -l ./.. | grep -v vendor)
+      - name: Vet
+        if: always()
+        run: go vet ./...
+      - name: errcheck
+        if: always()
+        run: errcheck ./...
+      - name: ineffassign
+        if: always()
+        run: ineffassign ./...
+      - name: staticcheck
+        if: always()
+        run: staticcheck ./...
