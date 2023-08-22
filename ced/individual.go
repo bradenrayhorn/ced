@@ -18,7 +18,7 @@ type IndividualContract interface {
 	GetInGroup(ctx context.Context, groupID ID) ([]Individual, error)
 
 	// Update an individual's response.
-	Respond(ctx context.Context, individualID ID, response bool) error
+	SetResponse(ctx context.Context, individualID ID, response bool) error
 }
 
 type IndividualRespository interface {
