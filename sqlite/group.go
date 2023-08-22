@@ -8,6 +8,8 @@ import (
 	"zombiezen.com/go/sqlite/sqlitex"
 )
 
+var _ ced.GroupRespository = (*groupRepository)(nil)
+
 type groupRepository struct {
 	pool *Pool
 }
