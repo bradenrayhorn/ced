@@ -6,7 +6,7 @@ require (
 	github.com/matryer/is v1.4.1
 	github.com/rs/zerolog v1.29.1
 	github.com/segmentio/ksuid v1.0.4
-	zombiezen.com/go/sqlite v0.13.0
+	zombiezen.com/go/sqlite v0.13.1
 )
 
 require (
