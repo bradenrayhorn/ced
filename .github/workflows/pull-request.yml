@@ -1,4 +1,4 @@
-name: Lint Backend
+name: Pull request
 
 on:
   pull_request:
@@ -6,25 +6,25 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint Go
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version: ">=1.20.0"
+          go-version-file: "go.mod"
           cache: false
       - name: Install
         run: |
           go install github.com/gordonklaus/ineffassign@latest
           go install honnef.co/go/tools/cmd/staticcheck@latest
           go install github.com/kisielk/errcheck@latest
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Format
+      - name: format
         if: always()
         run: test -z $(gofmt -l ./.. | grep -v vendor)
-      - name: Vet
+      - name: vet
         if: always()
         run: go vet ./...
       - name: errcheck
@@ -36,3 +36,17 @@ jobs:
       - name: staticcheck
         if: always()
         run: staticcheck ./...
+
+  test:
+    name: Test Go
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+          cache: false
+      - name: Run tests
+        run: "go test ./..."
