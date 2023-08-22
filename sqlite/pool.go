@@ -14,7 +14,7 @@ type Pool struct {
 }
 
 func CreatePool(ctx context.Context, config ced.Config) (*Pool, error) {
-	pool, err := sqlitex.Open(config.DbPath, 0, 10)
+	pool, err := sqlitex.Open(config.DbPath, 0, 20)
 	if err != nil {
 		return nil, err
 	}

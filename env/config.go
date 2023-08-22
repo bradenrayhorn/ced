@@ -11,6 +11,7 @@ func LoadConfig() ced.Config {
 	return ced.Config{
 		PrettyLog: isTrue(os.Getenv("PRETTY_LOG")),
 		DbPath:    os.Getenv("DB_PATH"),
+		HttpPort:  os.Getenv("HTTP_PORT"),
 	}
 }
 
