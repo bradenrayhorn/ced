@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 
-	"github.com/bradenrayhorn/ced/ced"
 	"zombiezen.com/go/sqlite"
 	"zombiezen.com/go/sqlite/sqlitemigration"
 	"zombiezen.com/go/sqlite/sqlitex"
@@ -13,8 +12,8 @@ type Pool struct {
 	pool *sqlitex.Pool
 }
 
-func CreatePool(ctx context.Context, config ced.Config) (*Pool, error) {
-	pool, err := sqlitex.Open(config.DbPath, 0, 20)
+func CreatePool(ctx context.Context, uri string) (*Pool, error) {
+	pool, err := sqlitex.Open(uri, 0, 20)
 	if err != nil {
 		return nil, err
 	}
