@@ -8,12 +8,12 @@ import (
 func Individual(stmt *sqlite.Stmt) (ced.Individual, error) {
 	id, err := ced.IDFromString(stmt.GetText("id"))
 	if err != nil {
-		return ced.Individual{}, nil
+		return ced.Individual{}, err
 	}
 
 	groupID, err := ced.IDFromString(stmt.GetText("group_id"))
 	if err != nil {
-		return ced.Individual{}, nil
+		return ced.Individual{}, err
 	}
 
 	return ced.Individual{

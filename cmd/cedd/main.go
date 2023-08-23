@@ -1,16 +1,13 @@
 package main
 
 import (
-	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
 
 	"github.com/bradenrayhorn/ced/ced"
-	"github.com/bradenrayhorn/ced/contract"
 	"github.com/bradenrayhorn/ced/env"
-	"github.com/bradenrayhorn/ced/http"
-	"github.com/bradenrayhorn/ced/sqlite"
 )
 
 func main() {
@@ -18,35 +15,31 @@ func main() {
 
 	setupLogger(config)
 
-	slog.Info("starting cedd...")
-
-	pool, err := sqlite.CreatePool(context.Background(), config)
+	application, err := NewApplication(config)
 	if err != nil {
-		slog.Error("failed to create sqlite pool", "error", err)
+		slog.Error("failed to construct", "error", err.Error())
 		os.Exit(1)
 		return
 	}
-	defer func() { _ = pool.Close(context.Background()) }()
+	defer func() {
+		if err := application.Stop(); err != nil {
+			slog.Error("failed to shutdown", "error", err.Error())
+		}
+	}()
 
-	httpServer := http.NewServer(
-		contract.NewIndividualContract(sqlite.NewIndividualRepository(pool)),
-	)
-
-	if err := httpServer.Open(":" + config.HttpPort); err != nil {
-		slog.Error("failed to start http server", "error", err)
+	if err := application.Start(); err != nil {
+		slog.Error("failed to start cedd", "error", err.Error())
 		os.Exit(1)
 		return
 	}
+
+	slog.Info(fmt.Sprintf("listening on port %s", config.HttpPort))
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
 	<-c
 	slog.Info("shutting down cedd...")
-
-	if err := httpServer.Close(); err != nil {
-		slog.Error("failed to stop http server", "error", err)
-	}
 }
 
 func setupLogger(config ced.Config) {
