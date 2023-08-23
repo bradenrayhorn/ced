@@ -7,7 +7,6 @@ import (
 	"github.com/bradenrayhorn/ced/ced"
 	"github.com/bradenrayhorn/ced/sqlite/mapper"
 	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 var _ ced.IndividualRespository = (*individualRepository)(nil)
@@ -21,9 +20,6 @@ func NewIndividualRepository(pool *Pool) *individualRepository {
 }
 
 func (r *individualRepository) Create(ctx context.Context, individual ced.Individual) error {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
 	query := `INSERT INTO individuals (
 		id,
 		group_id,
@@ -32,22 +28,16 @@ func (r *individualRepository) Create(ctx context.Context, individual ced.Indivi
 		has_responded
 	) VALUES (?, ?, ?, ?, ?);`
 
-	return sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{
-			individual.ID.String(),
-			individual.GroupID.String(),
-			string(individual.Name),
-			individual.Response,
-			individual.HasResponded,
-		},
+	return execute(ctx, r.pool, query, []any{
+		individual.ID.String(),
+		individual.GroupID.String(),
+		string(individual.Name),
+		individual.Response,
+		individual.HasResponded,
 	})
 }
 
 func (r *individualRepository) Get(ctx context.Context, id ced.ID) (ced.Individual, error) {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
-	var individual ced.Individual
 	query := `
 	SELECT
 		id,
@@ -57,26 +47,16 @@ func (r *individualRepository) Get(ctx context.Context, id ced.ID) (ced.Individu
 		has_responded
 	FROM individuals WHERE id = ?;`
 
-	err := sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{id.String()},
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			mapped, err := mapper.Individual(stmt)
-			if err != nil {
-				return err
-			}
-			individual = mapped
-
-			return nil
-		},
-	})
-
-	return mustFindResult(individual, err)
+	return mustFindResult(
+		selectOne(ctx, r.pool, query,
+			[]any{id.String()},
+			func(stmt *sqlite.Stmt) (ced.Individual, error) {
+				return mapper.Individual(stmt)
+			}),
+	)
 }
 
 func (r *individualRepository) Update(ctx context.Context, individual ced.Individual) error {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
 	query := `UPDATE individuals
 		SET group_id = ?,
 			name = ?,
@@ -84,21 +64,16 @@ func (r *individualRepository) Update(ctx context.Context, individual ced.Indivi
 			has_responded = ?
 		WHERE id = ?;`
 
-	return sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{
-			individual.GroupID.String(),
-			string(individual.Name),
-			individual.Response,
-			individual.HasResponded,
-			individual.ID.String(),
-		},
+	return execute(ctx, r.pool, query, []any{
+		individual.GroupID.String(),
+		string(individual.Name),
+		individual.Response,
+		individual.HasResponded,
+		individual.ID.String(),
 	})
 }
 
 func (r *individualRepository) GetByGroup(ctx context.Context, groupID ced.ID) ([]ced.Individual, error) {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
 	query := `
 	SELECT
 		id,
@@ -109,27 +84,15 @@ func (r *individualRepository) GetByGroup(ctx context.Context, groupID ced.ID) (
 	FROM individuals WHERE group_id = ?
 	ORDER BY id desc;`
 
-	individuals := []ced.Individual{}
-	err := sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{groupID.String()},
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			mapped, err := mapper.Individual(stmt)
-			if err != nil {
-				return err
-			}
-			individuals = append(individuals, mapped)
-
-			return nil
+	return selectList(ctx, r.pool, query,
+		[]any{groupID.String()},
+		func(stmt *sqlite.Stmt) (ced.Individual, error) {
+			return mapper.Individual(stmt)
 		},
-	})
-
-	return individuals, err
+	)
 }
 
 func (r *individualRepository) SearchByName(ctx context.Context, search string) (map[ced.ID][]ced.Individual, error) {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
 	query := `
 	SELECT
 		individuals.id,
@@ -143,25 +106,22 @@ func (r *individualRepository) SearchByName(ctx context.Context, search string) 
 	ORDER BY individuals.id desc;`
 
 	grouped := map[ced.ID][]ced.Individual{}
-	err := sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{
-			strings.TrimSpace(strings.ToLower(search)),
+	individuals, err := selectList(ctx, r.pool, query,
+		[]any{strings.TrimSpace(strings.ToLower(search))},
+		func(stmt *sqlite.Stmt) (ced.Individual, error) {
+			return mapper.Individual(stmt)
 		},
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			mapped, err := mapper.Individual(stmt)
-			if err != nil {
-				return err
-			}
+	)
+	if err != nil {
+		return grouped, err
+	}
 
-			key := mapped.GroupID
-			if _, ok := grouped[key]; !ok {
-				grouped[key] = []ced.Individual{}
-			}
-			grouped[key] = append(grouped[key], mapped)
-
-			return nil
-		},
-	})
-
-	return grouped, err
+	for _, individual := range individuals {
+		key := individual.GroupID
+		if _, ok := grouped[key]; !ok {
+			grouped[key] = []ced.Individual{}
+		}
+		grouped[key] = append(grouped[key], individual)
+	}
+	return grouped, nil
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/bradenrayhorn/ced/ced"
+	"github.com/bradenrayhorn/ced/sqlite/mapper"
 	"zombiezen.com/go/sqlite"
-	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 var _ ced.GroupRespository = (*groupRepository)(nil)
@@ -19,30 +19,18 @@ func NewGroupRepository(pool *Pool) *groupRepository {
 }
 
 func (r *groupRepository) Create(ctx context.Context, group ced.Group) error {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
 	query := `INSERT INTO groups (id) VALUES (?);`
 
-	return sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{group.ID.String()},
-	})
+	return execute(ctx, r.pool, query, []any{group.ID.String()})
 }
 
 func (r *groupRepository) Get(ctx context.Context, id ced.ID) (ced.Group, error) {
-	conn, done := r.pool.Conn(ctx)
-	defer done()
-
-	var group ced.Group
 	query := `SELECT id FROM groups WHERE id = ?;`
 
-	err := sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
-		Args: []interface{}{id.String()},
-		ResultFunc: func(stmt *sqlite.Stmt) error {
-			group.ID = id
-			return nil
+	return mustFindResult(selectOne(ctx, r.pool, query,
+		[]any{id.String()},
+		func(stmt *sqlite.Stmt) (ced.Group, error) {
+			return mapper.Group(stmt)
 		},
-	})
-
-	return mustFindResult(group, err)
+	))
 }

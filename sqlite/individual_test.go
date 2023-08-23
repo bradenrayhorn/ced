@@ -2,6 +2,7 @@ package sqlite_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/bradenrayhorn/ced/ced"
@@ -47,6 +48,20 @@ func TestIndividual(t *testing.T) {
 		res, err := individualRepository.Get(context.Background(), individual.ID)
 		is.NoErr(err)
 		is.Equal(res, individual)
+	})
+
+	t.Run("cannot create if group does not exist", func(t *testing.T) {
+		defer setup()()
+
+		individual := ced.Individual{
+			ID:           ced.NewID(),
+			GroupID:      ced.NewID(),
+			Name:         ced.Name("Harry"),
+			Response:     true,
+			HasResponded: true,
+		}
+		err := individualRepository.Create(context.Background(), individual)
+		is.True(strings.Contains(err.Error(), "FOREIGN KEY constraint failed"))
 	})
 
 	t.Run("cannot create duplicates", func(t *testing.T) {
