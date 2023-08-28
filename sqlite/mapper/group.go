@@ -12,6 +12,10 @@ func Group(stmt *sqlite.Stmt) (ced.Group, error) {
 	}
 
 	return ced.Group{
-		ID: id,
+		ID:           id,
+		Name:         ced.Name(stmt.GetText("name")),
+		Attendees:    uint8(stmt.GetInt64("attendees")),
+		MaxAttendees: uint8(stmt.GetInt64("max_attendees")),
+		HasResponded: stmt.GetBool("has_responded"),
 	}, nil
 }

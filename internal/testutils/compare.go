@@ -14,6 +14,6 @@ func SortSlice[T any](s []T, comp func(a, b T) bool) []T {
 	return s
 }
 
-func CompareIndividuals(a ced.Individual, b ced.Individual) bool {
+func CompareGroups(a ced.Group, b ced.Group) bool {
 	return a.ID.String() < b.ID.String()
 }

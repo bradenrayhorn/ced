@@ -36,10 +36,10 @@ func (a *Application) Start() error {
 	}
 	a.pool = pool
 
-	individualRepository := sqlite.NewIndividualRepository(pool)
+	groupRepository := sqlite.NewGroupRepository(pool)
 
 	httpServer := http.NewServer(
-		contract.NewIndividualContract(individualRepository),
+		contract.NewGroupContract(groupRepository),
 	)
 
 	if err := httpServer.Open(":" + a.config.HttpPort); err != nil {

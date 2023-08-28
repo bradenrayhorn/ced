@@ -11,8 +11,6 @@ import (
 )
 
 func TestGroup(t *testing.T) {
-	is := is.New(t)
-
 	var groupRepository ced.GroupRespository
 
 	setup := func() func() {
@@ -22,9 +20,16 @@ func TestGroup(t *testing.T) {
 	}
 
 	t.Run("can create and get", func(t *testing.T) {
+		is := is.New(t)
 		defer setup()()
 
-		group := ced.Group{ID: ced.NewID()}
+		group := ced.Group{
+			ID:           ced.NewID(),
+			Name:         "George Hoover and family",
+			MaxAttendees: 5,
+			Attendees:    4,
+			HasResponded: true,
+		}
 		err := groupRepository.Create(context.Background(), group)
 		is.NoErr(err)
 
@@ -34,6 +39,7 @@ func TestGroup(t *testing.T) {
 	})
 
 	t.Run("cannot create duplicates", func(t *testing.T) {
+		is := is.New(t)
 		defer setup()()
 
 		group := ced.Group{ID: ced.NewID()}
@@ -49,5 +55,58 @@ func TestGroup(t *testing.T) {
 
 		_, err := groupRepository.Get(context.Background(), ced.NewID())
 		testutils.IsCode(t, err, ced.ENOTFOUND)
+	})
+
+	t.Run("search for group", func(t *testing.T) {
+		is := is.New(t)
+		defer setup()()
+
+		group1 := ced.Group{
+			ID:   ced.NewID(),
+			Name: " George Hoover and family",
+		}
+		group2 := ced.Group{
+			ID:   ced.NewID(),
+			Name: "Elizabeth George",
+		}
+		group3 := ced.Group{
+			ID:   ced.NewID(),
+			Name: "Geoff Kee",
+		}
+		is.NoErr(groupRepository.Create(context.Background(), group1))
+		is.NoErr(groupRepository.Create(context.Background(), group2))
+		is.NoErr(groupRepository.Create(context.Background(), group3))
+
+		res, err := groupRepository.SearchByName(context.Background(), " gEorGe")
+		is.NoErr(err)
+		is.Equal(
+			testutils.SortSlice(res, testutils.CompareGroups),
+			testutils.SortSlice([]ced.Group{group1, group2}, testutils.CompareGroups),
+		)
+	})
+
+	t.Run("can update group", func(t *testing.T) {
+		is := is.New(t)
+		defer setup()()
+
+		group := ced.Group{
+			ID:           ced.NewID(),
+			Name:         "George Hoover and family",
+			MaxAttendees: 5,
+			Attendees:    4,
+			HasResponded: true,
+		}
+		is.NoErr(groupRepository.Create(context.Background(), group))
+
+		group.Name = "Elizabeth Hoover and family"
+		group.MaxAttendees = 4
+		group.Attendees = 2
+		group.HasResponded = false
+
+		is.NoErr(groupRepository.Update(context.Background(), group))
+
+		res, err := groupRepository.Get(context.Background(), group.ID)
+		is.NoErr(err)
+		is.Equal(res, group)
 	})
 }

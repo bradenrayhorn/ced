@@ -553,6 +553,15 @@ type MockGroupContract struct {
 	// CreateFunc is an instance of a mock function object controlling the
 	// behavior of the method Create.
 	CreateFunc *GroupContractCreateFunc
+	// GetFunc is an instance of a mock function object controlling the
+	// behavior of the method Get.
+	GetFunc *GroupContractGetFunc
+	// RespondFunc is an instance of a mock function object controlling the
+	// behavior of the method Respond.
+	RespondFunc *GroupContractRespondFunc
+	// SearchFunc is an instance of a mock function object controlling the
+	// behavior of the method Search.
+	SearchFunc *GroupContractSearchFunc
 }
 
 // NewMockGroupContract creates a new mock of the GroupContract interface.
@@ -560,7 +569,22 @@ type MockGroupContract struct {
 func NewMockGroupContract() *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
-			defaultHook: func(context.Context, []ced.Name) (r0 ced.Group, r1 error) {
+			defaultHook: func(context.Context, ced.Name, uint8) (r0 ced.Group, r1 error) {
+				return
+			},
+		},
+		GetFunc: &GroupContractGetFunc{
+			defaultHook: func(context.Context, ced.ID) (r0 ced.Group, r1 error) {
+				return
+			},
+		},
+		RespondFunc: &GroupContractRespondFunc{
+			defaultHook: func(context.Context, ced.ID, uint8) (r0 error) {
+				return
+			},
+		},
+		SearchFunc: &GroupContractSearchFunc{
+			defaultHook: func(context.Context, string) (r0 []ced.Group, r1 error) {
 				return
 			},
 		},
@@ -572,8 +596,23 @@ func NewMockGroupContract() *MockGroupContract {
 func NewStrictMockGroupContract() *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
-			defaultHook: func(context.Context, []ced.Name) (ced.Group, error) {
+			defaultHook: func(context.Context, ced.Name, uint8) (ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Create")
+			},
+		},
+		GetFunc: &GroupContractGetFunc{
+			defaultHook: func(context.Context, ced.ID) (ced.Group, error) {
+				panic("unexpected invocation of MockGroupContract.Get")
+			},
+		},
+		RespondFunc: &GroupContractRespondFunc{
+			defaultHook: func(context.Context, ced.ID, uint8) error {
+				panic("unexpected invocation of MockGroupContract.Respond")
+			},
+		},
+		SearchFunc: &GroupContractSearchFunc{
+			defaultHook: func(context.Context, string) ([]ced.Group, error) {
+				panic("unexpected invocation of MockGroupContract.Search")
 			},
 		},
 	}
@@ -587,29 +626,38 @@ func NewMockGroupContractFrom(i ced.GroupContract) *MockGroupContract {
 		CreateFunc: &GroupContractCreateFunc{
 			defaultHook: i.Create,
 		},
+		GetFunc: &GroupContractGetFunc{
+			defaultHook: i.Get,
+		},
+		RespondFunc: &GroupContractRespondFunc{
+			defaultHook: i.Respond,
+		},
+		SearchFunc: &GroupContractSearchFunc{
+			defaultHook: i.Search,
+		},
 	}
 }
 
 // GroupContractCreateFunc describes the behavior when the Create method of
 // the parent MockGroupContract instance is invoked.
 type GroupContractCreateFunc struct {
-	defaultHook func(context.Context, []ced.Name) (ced.Group, error)
-	hooks       []func(context.Context, []ced.Name) (ced.Group, error)
+	defaultHook func(context.Context, ced.Name, uint8) (ced.Group, error)
+	hooks       []func(context.Context, ced.Name, uint8) (ced.Group, error)
 	history     []GroupContractCreateFuncCall
 	mutex       sync.Mutex
 }
 
 // Create delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockGroupContract) Create(v0 context.Context, v1 []ced.Name) (ced.Group, error) {
-	r0, r1 := m.CreateFunc.nextHook()(v0, v1)
-	m.CreateFunc.appendCall(GroupContractCreateFuncCall{v0, v1, r0, r1})
+func (m *MockGroupContract) Create(v0 context.Context, v1 ced.Name, v2 uint8) (ced.Group, error) {
+	r0, r1 := m.CreateFunc.nextHook()(v0, v1, v2)
+	m.CreateFunc.appendCall(GroupContractCreateFuncCall{v0, v1, v2, r0, r1})
 	return r0, r1
 }
 
 // SetDefaultHook sets function that is called when the Create method of the
 // parent MockGroupContract instance is invoked and the hook queue is empty.
-func (f *GroupContractCreateFunc) SetDefaultHook(hook func(context.Context, []ced.Name) (ced.Group, error)) {
+func (f *GroupContractCreateFunc) SetDefaultHook(hook func(context.Context, ced.Name, uint8) (ced.Group, error)) {
 	f.defaultHook = hook
 }
 
@@ -617,7 +665,7 @@ func (f *GroupContractCreateFunc) SetDefaultHook(hook func(context.Context, []ce
 // Create method of the parent MockGroupContract instance invokes the hook
 // at the front of the queue and discards it. After the queue is empty, the
 // default hook function is invoked for any future action.
-func (f *GroupContractCreateFunc) PushHook(hook func(context.Context, []ced.Name) (ced.Group, error)) {
+func (f *GroupContractCreateFunc) PushHook(hook func(context.Context, ced.Name, uint8) (ced.Group, error)) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -626,19 +674,19 @@ func (f *GroupContractCreateFunc) PushHook(hook func(context.Context, []ced.Name
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
 func (f *GroupContractCreateFunc) SetDefaultReturn(r0 ced.Group, r1 error) {
-	f.SetDefaultHook(func(context.Context, []ced.Name) (ced.Group, error) {
+	f.SetDefaultHook(func(context.Context, ced.Name, uint8) (ced.Group, error) {
 		return r0, r1
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
 func (f *GroupContractCreateFunc) PushReturn(r0 ced.Group, r1 error) {
-	f.PushHook(func(context.Context, []ced.Name) (ced.Group, error) {
+	f.PushHook(func(context.Context, ced.Name, uint8) (ced.Group, error) {
 		return r0, r1
 	})
 }
 
-func (f *GroupContractCreateFunc) nextHook() func(context.Context, []ced.Name) (ced.Group, error) {
+func (f *GroupContractCreateFunc) nextHook() func(context.Context, ced.Name, uint8) (ced.Group, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -676,7 +724,10 @@ type GroupContractCreateFuncCall struct {
 	Arg0 context.Context
 	// Arg1 is the value of the 2nd argument passed to this method
 	// invocation.
-	Arg1 []ced.Name
+	Arg1 ced.Name
+	// Arg2 is the value of the 3rd argument passed to this method
+	// invocation.
+	Arg2 uint8
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 ced.Group
@@ -688,12 +739,334 @@ type GroupContractCreateFuncCall struct {
 // Args returns an interface slice containing the arguments of this
 // invocation.
 func (c GroupContractCreateFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
+	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
 }
 
 // Results returns an interface slice containing the results of this
 // invocation.
 func (c GroupContractCreateFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupContractGetFunc describes the behavior when the Get method of the
+// parent MockGroupContract instance is invoked.
+type GroupContractGetFunc struct {
+	defaultHook func(context.Context, ced.ID) (ced.Group, error)
+	hooks       []func(context.Context, ced.ID) (ced.Group, error)
+	history     []GroupContractGetFuncCall
+	mutex       sync.Mutex
+}
+
+// Get delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) Get(v0 context.Context, v1 ced.ID) (ced.Group, error) {
+	r0, r1 := m.GetFunc.nextHook()(v0, v1)
+	m.GetFunc.appendCall(GroupContractGetFuncCall{v0, v1, r0, r1})
+	return r0, r1
+}
+
+// SetDefaultHook sets function that is called when the Get method of the
+// parent MockGroupContract instance is invoked and the hook queue is empty.
+func (f *GroupContractGetFunc) SetDefaultHook(hook func(context.Context, ced.ID) (ced.Group, error)) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Get method of the parent MockGroupContract instance invokes the hook at
+// the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractGetFunc) PushHook(hook func(context.Context, ced.ID) (ced.Group, error)) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractGetFunc) SetDefaultReturn(r0 ced.Group, r1 error) {
+	f.SetDefaultHook(func(context.Context, ced.ID) (ced.Group, error) {
+		return r0, r1
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractGetFunc) PushReturn(r0 ced.Group, r1 error) {
+	f.PushHook(func(context.Context, ced.ID) (ced.Group, error) {
+		return r0, r1
+	})
+}
+
+func (f *GroupContractGetFunc) nextHook() func(context.Context, ced.ID) (ced.Group, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractGetFunc) appendCall(r0 GroupContractGetFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractGetFuncCall objects describing
+// the invocations of this function.
+func (f *GroupContractGetFunc) History() []GroupContractGetFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractGetFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractGetFuncCall is an object that describes an invocation of
+// method Get on an instance of MockGroupContract.
+type GroupContractGetFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 ced.ID
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 ced.Group
+	// Result1 is the value of the 2nd result returned from this method
+	// invocation.
+	Result1 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractGetFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractGetFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupContractRespondFunc describes the behavior when the Respond method
+// of the parent MockGroupContract instance is invoked.
+type GroupContractRespondFunc struct {
+	defaultHook func(context.Context, ced.ID, uint8) error
+	hooks       []func(context.Context, ced.ID, uint8) error
+	history     []GroupContractRespondFuncCall
+	mutex       sync.Mutex
+}
+
+// Respond delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) Respond(v0 context.Context, v1 ced.ID, v2 uint8) error {
+	r0 := m.RespondFunc.nextHook()(v0, v1, v2)
+	m.RespondFunc.appendCall(GroupContractRespondFuncCall{v0, v1, v2, r0})
+	return r0
+}
+
+// SetDefaultHook sets function that is called when the Respond method of
+// the parent MockGroupContract instance is invoked and the hook queue is
+// empty.
+func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced.ID, uint8) error) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Respond method of the parent MockGroupContract instance invokes the hook
+// at the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ID, uint8) error) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractRespondFunc) SetDefaultReturn(r0 error) {
+	f.SetDefaultHook(func(context.Context, ced.ID, uint8) error {
+		return r0
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractRespondFunc) PushReturn(r0 error) {
+	f.PushHook(func(context.Context, ced.ID, uint8) error {
+		return r0
+	})
+}
+
+func (f *GroupContractRespondFunc) nextHook() func(context.Context, ced.ID, uint8) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractRespondFunc) appendCall(r0 GroupContractRespondFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractRespondFuncCall objects
+// describing the invocations of this function.
+func (f *GroupContractRespondFunc) History() []GroupContractRespondFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractRespondFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractRespondFuncCall is an object that describes an invocation of
+// method Respond on an instance of MockGroupContract.
+type GroupContractRespondFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 ced.ID
+	// Arg2 is the value of the 3rd argument passed to this method
+	// invocation.
+	Arg2 uint8
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractRespondFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractRespondFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0}
+}
+
+// GroupContractSearchFunc describes the behavior when the Search method of
+// the parent MockGroupContract instance is invoked.
+type GroupContractSearchFunc struct {
+	defaultHook func(context.Context, string) ([]ced.Group, error)
+	hooks       []func(context.Context, string) ([]ced.Group, error)
+	history     []GroupContractSearchFuncCall
+	mutex       sync.Mutex
+}
+
+// Search delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) Search(v0 context.Context, v1 string) ([]ced.Group, error) {
+	r0, r1 := m.SearchFunc.nextHook()(v0, v1)
+	m.SearchFunc.appendCall(GroupContractSearchFuncCall{v0, v1, r0, r1})
+	return r0, r1
+}
+
+// SetDefaultHook sets function that is called when the Search method of the
+// parent MockGroupContract instance is invoked and the hook queue is empty.
+func (f *GroupContractSearchFunc) SetDefaultHook(hook func(context.Context, string) ([]ced.Group, error)) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Search method of the parent MockGroupContract instance invokes the hook
+// at the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractSearchFunc) PushHook(hook func(context.Context, string) ([]ced.Group, error)) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractSearchFunc) SetDefaultReturn(r0 []ced.Group, r1 error) {
+	f.SetDefaultHook(func(context.Context, string) ([]ced.Group, error) {
+		return r0, r1
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractSearchFunc) PushReturn(r0 []ced.Group, r1 error) {
+	f.PushHook(func(context.Context, string) ([]ced.Group, error) {
+		return r0, r1
+	})
+}
+
+func (f *GroupContractSearchFunc) nextHook() func(context.Context, string) ([]ced.Group, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractSearchFunc) appendCall(r0 GroupContractSearchFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractSearchFuncCall objects
+// describing the invocations of this function.
+func (f *GroupContractSearchFunc) History() []GroupContractSearchFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractSearchFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractSearchFuncCall is an object that describes an invocation of
+// method Search on an instance of MockGroupContract.
+type GroupContractSearchFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 string
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 []ced.Group
+	// Result1 is the value of the 2nd result returned from this method
+	// invocation.
+	Result1 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractSearchFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractSearchFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
 }
 
@@ -707,6 +1080,12 @@ type MockGroupRespository struct {
 	// GetFunc is an instance of a mock function object controlling the
 	// behavior of the method Get.
 	GetFunc *GroupRespositoryGetFunc
+	// SearchByNameFunc is an instance of a mock function object controlling
+	// the behavior of the method SearchByName.
+	SearchByNameFunc *GroupRespositorySearchByNameFunc
+	// UpdateFunc is an instance of a mock function object controlling the
+	// behavior of the method Update.
+	UpdateFunc *GroupRespositoryUpdateFunc
 }
 
 // NewMockGroupRespository creates a new mock of the GroupRespository
@@ -721,6 +1100,16 @@ func NewMockGroupRespository() *MockGroupRespository {
 		},
 		GetFunc: &GroupRespositoryGetFunc{
 			defaultHook: func(context.Context, ced.ID) (r0 ced.Group, r1 error) {
+				return
+			},
+		},
+		SearchByNameFunc: &GroupRespositorySearchByNameFunc{
+			defaultHook: func(context.Context, string) (r0 []ced.Group, r1 error) {
+				return
+			},
+		},
+		UpdateFunc: &GroupRespositoryUpdateFunc{
+			defaultHook: func(context.Context, ced.Group) (r0 error) {
 				return
 			},
 		},
@@ -741,6 +1130,16 @@ func NewStrictMockGroupRespository() *MockGroupRespository {
 				panic("unexpected invocation of MockGroupRespository.Get")
 			},
 		},
+		SearchByNameFunc: &GroupRespositorySearchByNameFunc{
+			defaultHook: func(context.Context, string) ([]ced.Group, error) {
+				panic("unexpected invocation of MockGroupRespository.SearchByName")
+			},
+		},
+		UpdateFunc: &GroupRespositoryUpdateFunc{
+			defaultHook: func(context.Context, ced.Group) error {
+				panic("unexpected invocation of MockGroupRespository.Update")
+			},
+		},
 	}
 }
 
@@ -754,6 +1153,12 @@ func NewMockGroupRespositoryFrom(i ced.GroupRespository) *MockGroupRespository {
 		},
 		GetFunc: &GroupRespositoryGetFunc{
 			defaultHook: i.Get,
+		},
+		SearchByNameFunc: &GroupRespositorySearchByNameFunc{
+			defaultHook: i.SearchByName,
+		},
+		UpdateFunc: &GroupRespositoryUpdateFunc{
+			defaultHook: i.Update,
 		},
 	}
 }
@@ -971,223 +1376,36 @@ func (c GroupRespositoryGetFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
 }
 
-// MockIndividualContract is a mock implementation of the IndividualContract
-// interface (from the package github.com/bradenrayhorn/ced/ced) used for
-// unit testing.
-type MockIndividualContract struct {
-	// GetInGroupFunc is an instance of a mock function object controlling
-	// the behavior of the method GetInGroup.
-	GetInGroupFunc *IndividualContractGetInGroupFunc
-	// SearchByNameFunc is an instance of a mock function object controlling
-	// the behavior of the method SearchByName.
-	SearchByNameFunc *IndividualContractSearchByNameFunc
-	// SetResponseFunc is an instance of a mock function object controlling
-	// the behavior of the method SetResponse.
-	SetResponseFunc *IndividualContractSetResponseFunc
-}
-
-// NewMockIndividualContract creates a new mock of the IndividualContract
-// interface. All methods return zero values for all results, unless
-// overwritten.
-func NewMockIndividualContract() *MockIndividualContract {
-	return &MockIndividualContract{
-		GetInGroupFunc: &IndividualContractGetInGroupFunc{
-			defaultHook: func(context.Context, ced.ID) (r0 []ced.Individual, r1 error) {
-				return
-			},
-		},
-		SearchByNameFunc: &IndividualContractSearchByNameFunc{
-			defaultHook: func(context.Context, string) (r0 map[ced.ID][]ced.Individual, r1 error) {
-				return
-			},
-		},
-		SetResponseFunc: &IndividualContractSetResponseFunc{
-			defaultHook: func(context.Context, ced.ID, bool) (r0 error) {
-				return
-			},
-		},
-	}
-}
-
-// NewStrictMockIndividualContract creates a new mock of the
-// IndividualContract interface. All methods panic on invocation, unless
-// overwritten.
-func NewStrictMockIndividualContract() *MockIndividualContract {
-	return &MockIndividualContract{
-		GetInGroupFunc: &IndividualContractGetInGroupFunc{
-			defaultHook: func(context.Context, ced.ID) ([]ced.Individual, error) {
-				panic("unexpected invocation of MockIndividualContract.GetInGroup")
-			},
-		},
-		SearchByNameFunc: &IndividualContractSearchByNameFunc{
-			defaultHook: func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
-				panic("unexpected invocation of MockIndividualContract.SearchByName")
-			},
-		},
-		SetResponseFunc: &IndividualContractSetResponseFunc{
-			defaultHook: func(context.Context, ced.ID, bool) error {
-				panic("unexpected invocation of MockIndividualContract.SetResponse")
-			},
-		},
-	}
-}
-
-// NewMockIndividualContractFrom creates a new mock of the
-// MockIndividualContract interface. All methods delegate to the given
-// implementation, unless overwritten.
-func NewMockIndividualContractFrom(i ced.IndividualContract) *MockIndividualContract {
-	return &MockIndividualContract{
-		GetInGroupFunc: &IndividualContractGetInGroupFunc{
-			defaultHook: i.GetInGroup,
-		},
-		SearchByNameFunc: &IndividualContractSearchByNameFunc{
-			defaultHook: i.SearchByName,
-		},
-		SetResponseFunc: &IndividualContractSetResponseFunc{
-			defaultHook: i.SetResponse,
-		},
-	}
-}
-
-// IndividualContractGetInGroupFunc describes the behavior when the
-// GetInGroup method of the parent MockIndividualContract instance is
+// GroupRespositorySearchByNameFunc describes the behavior when the
+// SearchByName method of the parent MockGroupRespository instance is
 // invoked.
-type IndividualContractGetInGroupFunc struct {
-	defaultHook func(context.Context, ced.ID) ([]ced.Individual, error)
-	hooks       []func(context.Context, ced.ID) ([]ced.Individual, error)
-	history     []IndividualContractGetInGroupFuncCall
-	mutex       sync.Mutex
-}
-
-// GetInGroup delegates to the next hook function in the queue and stores
-// the parameter and result values of this invocation.
-func (m *MockIndividualContract) GetInGroup(v0 context.Context, v1 ced.ID) ([]ced.Individual, error) {
-	r0, r1 := m.GetInGroupFunc.nextHook()(v0, v1)
-	m.GetInGroupFunc.appendCall(IndividualContractGetInGroupFuncCall{v0, v1, r0, r1})
-	return r0, r1
-}
-
-// SetDefaultHook sets function that is called when the GetInGroup method of
-// the parent MockIndividualContract instance is invoked and the hook queue
-// is empty.
-func (f *IndividualContractGetInGroupFunc) SetDefaultHook(hook func(context.Context, ced.ID) ([]ced.Individual, error)) {
-	f.defaultHook = hook
-}
-
-// PushHook adds a function to the end of hook queue. Each invocation of the
-// GetInGroup method of the parent MockIndividualContract instance invokes
-// the hook at the front of the queue and discards it. After the queue is
-// empty, the default hook function is invoked for any future action.
-func (f *IndividualContractGetInGroupFunc) PushHook(hook func(context.Context, ced.ID) ([]ced.Individual, error)) {
-	f.mutex.Lock()
-	f.hooks = append(f.hooks, hook)
-	f.mutex.Unlock()
-}
-
-// SetDefaultReturn calls SetDefaultHook with a function that returns the
-// given values.
-func (f *IndividualContractGetInGroupFunc) SetDefaultReturn(r0 []ced.Individual, r1 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID) ([]ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-// PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualContractGetInGroupFunc) PushReturn(r0 []ced.Individual, r1 error) {
-	f.PushHook(func(context.Context, ced.ID) ([]ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-func (f *IndividualContractGetInGroupFunc) nextHook() func(context.Context, ced.ID) ([]ced.Individual, error) {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	if len(f.hooks) == 0 {
-		return f.defaultHook
-	}
-
-	hook := f.hooks[0]
-	f.hooks = f.hooks[1:]
-	return hook
-}
-
-func (f *IndividualContractGetInGroupFunc) appendCall(r0 IndividualContractGetInGroupFuncCall) {
-	f.mutex.Lock()
-	f.history = append(f.history, r0)
-	f.mutex.Unlock()
-}
-
-// History returns a sequence of IndividualContractGetInGroupFuncCall
-// objects describing the invocations of this function.
-func (f *IndividualContractGetInGroupFunc) History() []IndividualContractGetInGroupFuncCall {
-	f.mutex.Lock()
-	history := make([]IndividualContractGetInGroupFuncCall, len(f.history))
-	copy(history, f.history)
-	f.mutex.Unlock()
-
-	return history
-}
-
-// IndividualContractGetInGroupFuncCall is an object that describes an
-// invocation of method GetInGroup on an instance of MockIndividualContract.
-type IndividualContractGetInGroupFuncCall struct {
-	// Arg0 is the value of the 1st argument passed to this method
-	// invocation.
-	Arg0 context.Context
-	// Arg1 is the value of the 2nd argument passed to this method
-	// invocation.
-	Arg1 ced.ID
-	// Result0 is the value of the 1st result returned from this method
-	// invocation.
-	Result0 []ced.Individual
-	// Result1 is the value of the 2nd result returned from this method
-	// invocation.
-	Result1 error
-}
-
-// Args returns an interface slice containing the arguments of this
-// invocation.
-func (c IndividualContractGetInGroupFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
-}
-
-// Results returns an interface slice containing the results of this
-// invocation.
-func (c IndividualContractGetInGroupFuncCall) Results() []interface{} {
-	return []interface{}{c.Result0, c.Result1}
-}
-
-// IndividualContractSearchByNameFunc describes the behavior when the
-// SearchByName method of the parent MockIndividualContract instance is
-// invoked.
-type IndividualContractSearchByNameFunc struct {
-	defaultHook func(context.Context, string) (map[ced.ID][]ced.Individual, error)
-	hooks       []func(context.Context, string) (map[ced.ID][]ced.Individual, error)
-	history     []IndividualContractSearchByNameFuncCall
+type GroupRespositorySearchByNameFunc struct {
+	defaultHook func(context.Context, string) ([]ced.Group, error)
+	hooks       []func(context.Context, string) ([]ced.Group, error)
+	history     []GroupRespositorySearchByNameFuncCall
 	mutex       sync.Mutex
 }
 
 // SearchByName delegates to the next hook function in the queue and stores
 // the parameter and result values of this invocation.
-func (m *MockIndividualContract) SearchByName(v0 context.Context, v1 string) (map[ced.ID][]ced.Individual, error) {
+func (m *MockGroupRespository) SearchByName(v0 context.Context, v1 string) ([]ced.Group, error) {
 	r0, r1 := m.SearchByNameFunc.nextHook()(v0, v1)
-	m.SearchByNameFunc.appendCall(IndividualContractSearchByNameFuncCall{v0, v1, r0, r1})
+	m.SearchByNameFunc.appendCall(GroupRespositorySearchByNameFuncCall{v0, v1, r0, r1})
 	return r0, r1
 }
 
 // SetDefaultHook sets function that is called when the SearchByName method
-// of the parent MockIndividualContract instance is invoked and the hook
-// queue is empty.
-func (f *IndividualContractSearchByNameFunc) SetDefaultHook(hook func(context.Context, string) (map[ced.ID][]ced.Individual, error)) {
+// of the parent MockGroupRespository instance is invoked and the hook queue
+// is empty.
+func (f *GroupRespositorySearchByNameFunc) SetDefaultHook(hook func(context.Context, string) ([]ced.Group, error)) {
 	f.defaultHook = hook
 }
 
 // PushHook adds a function to the end of hook queue. Each invocation of the
-// SearchByName method of the parent MockIndividualContract instance invokes
+// SearchByName method of the parent MockGroupRespository instance invokes
 // the hook at the front of the queue and discards it. After the queue is
 // empty, the default hook function is invoked for any future action.
-func (f *IndividualContractSearchByNameFunc) PushHook(hook func(context.Context, string) (map[ced.ID][]ced.Individual, error)) {
+func (f *GroupRespositorySearchByNameFunc) PushHook(hook func(context.Context, string) ([]ced.Group, error)) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -1195,20 +1413,20 @@ func (f *IndividualContractSearchByNameFunc) PushHook(hook func(context.Context,
 
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
-func (f *IndividualContractSearchByNameFunc) SetDefaultReturn(r0 map[ced.ID][]ced.Individual, r1 error) {
-	f.SetDefaultHook(func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
+func (f *GroupRespositorySearchByNameFunc) SetDefaultReturn(r0 []ced.Group, r1 error) {
+	f.SetDefaultHook(func(context.Context, string) ([]ced.Group, error) {
 		return r0, r1
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualContractSearchByNameFunc) PushReturn(r0 map[ced.ID][]ced.Individual, r1 error) {
-	f.PushHook(func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
+func (f *GroupRespositorySearchByNameFunc) PushReturn(r0 []ced.Group, r1 error) {
+	f.PushHook(func(context.Context, string) ([]ced.Group, error) {
 		return r0, r1
 	})
 }
 
-func (f *IndividualContractSearchByNameFunc) nextHook() func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
+func (f *GroupRespositorySearchByNameFunc) nextHook() func(context.Context, string) ([]ced.Group, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -1221,27 +1439,26 @@ func (f *IndividualContractSearchByNameFunc) nextHook() func(context.Context, st
 	return hook
 }
 
-func (f *IndividualContractSearchByNameFunc) appendCall(r0 IndividualContractSearchByNameFuncCall) {
+func (f *GroupRespositorySearchByNameFunc) appendCall(r0 GroupRespositorySearchByNameFuncCall) {
 	f.mutex.Lock()
 	f.history = append(f.history, r0)
 	f.mutex.Unlock()
 }
 
-// History returns a sequence of IndividualContractSearchByNameFuncCall
+// History returns a sequence of GroupRespositorySearchByNameFuncCall
 // objects describing the invocations of this function.
-func (f *IndividualContractSearchByNameFunc) History() []IndividualContractSearchByNameFuncCall {
+func (f *GroupRespositorySearchByNameFunc) History() []GroupRespositorySearchByNameFuncCall {
 	f.mutex.Lock()
-	history := make([]IndividualContractSearchByNameFuncCall, len(f.history))
+	history := make([]GroupRespositorySearchByNameFuncCall, len(f.history))
 	copy(history, f.history)
 	f.mutex.Unlock()
 
 	return history
 }
 
-// IndividualContractSearchByNameFuncCall is an object that describes an
-// invocation of method SearchByName on an instance of
-// MockIndividualContract.
-type IndividualContractSearchByNameFuncCall struct {
+// GroupRespositorySearchByNameFuncCall is an object that describes an
+// invocation of method SearchByName on an instance of MockGroupRespository.
+type GroupRespositorySearchByNameFuncCall struct {
 	// Arg0 is the value of the 1st argument passed to this method
 	// invocation.
 	Arg0 context.Context
@@ -1250,7 +1467,7 @@ type IndividualContractSearchByNameFuncCall struct {
 	Arg1 string
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
-	Result0 map[ced.ID][]ced.Individual
+	Result0 []ced.Group
 	// Result1 is the value of the 2nd result returned from this method
 	// invocation.
 	Result1 error
@@ -1258,700 +1475,45 @@ type IndividualContractSearchByNameFuncCall struct {
 
 // Args returns an interface slice containing the arguments of this
 // invocation.
-func (c IndividualContractSearchByNameFuncCall) Args() []interface{} {
+func (c GroupRespositorySearchByNameFuncCall) Args() []interface{} {
 	return []interface{}{c.Arg0, c.Arg1}
 }
 
 // Results returns an interface slice containing the results of this
 // invocation.
-func (c IndividualContractSearchByNameFuncCall) Results() []interface{} {
+func (c GroupRespositorySearchByNameFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
 }
 
-// IndividualContractSetResponseFunc describes the behavior when the
-// SetResponse method of the parent MockIndividualContract instance is
-// invoked.
-type IndividualContractSetResponseFunc struct {
-	defaultHook func(context.Context, ced.ID, bool) error
-	hooks       []func(context.Context, ced.ID, bool) error
-	history     []IndividualContractSetResponseFuncCall
-	mutex       sync.Mutex
-}
-
-// SetResponse delegates to the next hook function in the queue and stores
-// the parameter and result values of this invocation.
-func (m *MockIndividualContract) SetResponse(v0 context.Context, v1 ced.ID, v2 bool) error {
-	r0 := m.SetResponseFunc.nextHook()(v0, v1, v2)
-	m.SetResponseFunc.appendCall(IndividualContractSetResponseFuncCall{v0, v1, v2, r0})
-	return r0
-}
-
-// SetDefaultHook sets function that is called when the SetResponse method
-// of the parent MockIndividualContract instance is invoked and the hook
-// queue is empty.
-func (f *IndividualContractSetResponseFunc) SetDefaultHook(hook func(context.Context, ced.ID, bool) error) {
-	f.defaultHook = hook
-}
-
-// PushHook adds a function to the end of hook queue. Each invocation of the
-// SetResponse method of the parent MockIndividualContract instance invokes
-// the hook at the front of the queue and discards it. After the queue is
-// empty, the default hook function is invoked for any future action.
-func (f *IndividualContractSetResponseFunc) PushHook(hook func(context.Context, ced.ID, bool) error) {
-	f.mutex.Lock()
-	f.hooks = append(f.hooks, hook)
-	f.mutex.Unlock()
-}
-
-// SetDefaultReturn calls SetDefaultHook with a function that returns the
-// given values.
-func (f *IndividualContractSetResponseFunc) SetDefaultReturn(r0 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID, bool) error {
-		return r0
-	})
-}
-
-// PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualContractSetResponseFunc) PushReturn(r0 error) {
-	f.PushHook(func(context.Context, ced.ID, bool) error {
-		return r0
-	})
-}
-
-func (f *IndividualContractSetResponseFunc) nextHook() func(context.Context, ced.ID, bool) error {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	if len(f.hooks) == 0 {
-		return f.defaultHook
-	}
-
-	hook := f.hooks[0]
-	f.hooks = f.hooks[1:]
-	return hook
-}
-
-func (f *IndividualContractSetResponseFunc) appendCall(r0 IndividualContractSetResponseFuncCall) {
-	f.mutex.Lock()
-	f.history = append(f.history, r0)
-	f.mutex.Unlock()
-}
-
-// History returns a sequence of IndividualContractSetResponseFuncCall
-// objects describing the invocations of this function.
-func (f *IndividualContractSetResponseFunc) History() []IndividualContractSetResponseFuncCall {
-	f.mutex.Lock()
-	history := make([]IndividualContractSetResponseFuncCall, len(f.history))
-	copy(history, f.history)
-	f.mutex.Unlock()
-
-	return history
-}
-
-// IndividualContractSetResponseFuncCall is an object that describes an
-// invocation of method SetResponse on an instance of
-// MockIndividualContract.
-type IndividualContractSetResponseFuncCall struct {
-	// Arg0 is the value of the 1st argument passed to this method
-	// invocation.
-	Arg0 context.Context
-	// Arg1 is the value of the 2nd argument passed to this method
-	// invocation.
-	Arg1 ced.ID
-	// Arg2 is the value of the 3rd argument passed to this method
-	// invocation.
-	Arg2 bool
-	// Result0 is the value of the 1st result returned from this method
-	// invocation.
-	Result0 error
-}
-
-// Args returns an interface slice containing the arguments of this
-// invocation.
-func (c IndividualContractSetResponseFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
-}
-
-// Results returns an interface slice containing the results of this
-// invocation.
-func (c IndividualContractSetResponseFuncCall) Results() []interface{} {
-	return []interface{}{c.Result0}
-}
-
-// MockIndividualRespository is a mock implementation of the
-// IndividualRespository interface (from the package
-// github.com/bradenrayhorn/ced/ced) used for unit testing.
-type MockIndividualRespository struct {
-	// CreateFunc is an instance of a mock function object controlling the
-	// behavior of the method Create.
-	CreateFunc *IndividualRespositoryCreateFunc
-	// GetFunc is an instance of a mock function object controlling the
-	// behavior of the method Get.
-	GetFunc *IndividualRespositoryGetFunc
-	// GetByGroupFunc is an instance of a mock function object controlling
-	// the behavior of the method GetByGroup.
-	GetByGroupFunc *IndividualRespositoryGetByGroupFunc
-	// SearchByNameFunc is an instance of a mock function object controlling
-	// the behavior of the method SearchByName.
-	SearchByNameFunc *IndividualRespositorySearchByNameFunc
-	// UpdateFunc is an instance of a mock function object controlling the
-	// behavior of the method Update.
-	UpdateFunc *IndividualRespositoryUpdateFunc
-}
-
-// NewMockIndividualRespository creates a new mock of the
-// IndividualRespository interface. All methods return zero values for all
-// results, unless overwritten.
-func NewMockIndividualRespository() *MockIndividualRespository {
-	return &MockIndividualRespository{
-		CreateFunc: &IndividualRespositoryCreateFunc{
-			defaultHook: func(context.Context, ced.Individual) (r0 error) {
-				return
-			},
-		},
-		GetFunc: &IndividualRespositoryGetFunc{
-			defaultHook: func(context.Context, ced.ID) (r0 ced.Individual, r1 error) {
-				return
-			},
-		},
-		GetByGroupFunc: &IndividualRespositoryGetByGroupFunc{
-			defaultHook: func(context.Context, ced.ID) (r0 []ced.Individual, r1 error) {
-				return
-			},
-		},
-		SearchByNameFunc: &IndividualRespositorySearchByNameFunc{
-			defaultHook: func(context.Context, string) (r0 map[ced.ID][]ced.Individual, r1 error) {
-				return
-			},
-		},
-		UpdateFunc: &IndividualRespositoryUpdateFunc{
-			defaultHook: func(context.Context, ced.Individual) (r0 error) {
-				return
-			},
-		},
-	}
-}
-
-// NewStrictMockIndividualRespository creates a new mock of the
-// IndividualRespository interface. All methods panic on invocation, unless
-// overwritten.
-func NewStrictMockIndividualRespository() *MockIndividualRespository {
-	return &MockIndividualRespository{
-		CreateFunc: &IndividualRespositoryCreateFunc{
-			defaultHook: func(context.Context, ced.Individual) error {
-				panic("unexpected invocation of MockIndividualRespository.Create")
-			},
-		},
-		GetFunc: &IndividualRespositoryGetFunc{
-			defaultHook: func(context.Context, ced.ID) (ced.Individual, error) {
-				panic("unexpected invocation of MockIndividualRespository.Get")
-			},
-		},
-		GetByGroupFunc: &IndividualRespositoryGetByGroupFunc{
-			defaultHook: func(context.Context, ced.ID) ([]ced.Individual, error) {
-				panic("unexpected invocation of MockIndividualRespository.GetByGroup")
-			},
-		},
-		SearchByNameFunc: &IndividualRespositorySearchByNameFunc{
-			defaultHook: func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
-				panic("unexpected invocation of MockIndividualRespository.SearchByName")
-			},
-		},
-		UpdateFunc: &IndividualRespositoryUpdateFunc{
-			defaultHook: func(context.Context, ced.Individual) error {
-				panic("unexpected invocation of MockIndividualRespository.Update")
-			},
-		},
-	}
-}
-
-// NewMockIndividualRespositoryFrom creates a new mock of the
-// MockIndividualRespository interface. All methods delegate to the given
-// implementation, unless overwritten.
-func NewMockIndividualRespositoryFrom(i ced.IndividualRespository) *MockIndividualRespository {
-	return &MockIndividualRespository{
-		CreateFunc: &IndividualRespositoryCreateFunc{
-			defaultHook: i.Create,
-		},
-		GetFunc: &IndividualRespositoryGetFunc{
-			defaultHook: i.Get,
-		},
-		GetByGroupFunc: &IndividualRespositoryGetByGroupFunc{
-			defaultHook: i.GetByGroup,
-		},
-		SearchByNameFunc: &IndividualRespositorySearchByNameFunc{
-			defaultHook: i.SearchByName,
-		},
-		UpdateFunc: &IndividualRespositoryUpdateFunc{
-			defaultHook: i.Update,
-		},
-	}
-}
-
-// IndividualRespositoryCreateFunc describes the behavior when the Create
-// method of the parent MockIndividualRespository instance is invoked.
-type IndividualRespositoryCreateFunc struct {
-	defaultHook func(context.Context, ced.Individual) error
-	hooks       []func(context.Context, ced.Individual) error
-	history     []IndividualRespositoryCreateFuncCall
-	mutex       sync.Mutex
-}
-
-// Create delegates to the next hook function in the queue and stores the
-// parameter and result values of this invocation.
-func (m *MockIndividualRespository) Create(v0 context.Context, v1 ced.Individual) error {
-	r0 := m.CreateFunc.nextHook()(v0, v1)
-	m.CreateFunc.appendCall(IndividualRespositoryCreateFuncCall{v0, v1, r0})
-	return r0
-}
-
-// SetDefaultHook sets function that is called when the Create method of the
-// parent MockIndividualRespository instance is invoked and the hook queue
-// is empty.
-func (f *IndividualRespositoryCreateFunc) SetDefaultHook(hook func(context.Context, ced.Individual) error) {
-	f.defaultHook = hook
-}
-
-// PushHook adds a function to the end of hook queue. Each invocation of the
-// Create method of the parent MockIndividualRespository instance invokes
-// the hook at the front of the queue and discards it. After the queue is
-// empty, the default hook function is invoked for any future action.
-func (f *IndividualRespositoryCreateFunc) PushHook(hook func(context.Context, ced.Individual) error) {
-	f.mutex.Lock()
-	f.hooks = append(f.hooks, hook)
-	f.mutex.Unlock()
-}
-
-// SetDefaultReturn calls SetDefaultHook with a function that returns the
-// given values.
-func (f *IndividualRespositoryCreateFunc) SetDefaultReturn(r0 error) {
-	f.SetDefaultHook(func(context.Context, ced.Individual) error {
-		return r0
-	})
-}
-
-// PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualRespositoryCreateFunc) PushReturn(r0 error) {
-	f.PushHook(func(context.Context, ced.Individual) error {
-		return r0
-	})
-}
-
-func (f *IndividualRespositoryCreateFunc) nextHook() func(context.Context, ced.Individual) error {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	if len(f.hooks) == 0 {
-		return f.defaultHook
-	}
-
-	hook := f.hooks[0]
-	f.hooks = f.hooks[1:]
-	return hook
-}
-
-func (f *IndividualRespositoryCreateFunc) appendCall(r0 IndividualRespositoryCreateFuncCall) {
-	f.mutex.Lock()
-	f.history = append(f.history, r0)
-	f.mutex.Unlock()
-}
-
-// History returns a sequence of IndividualRespositoryCreateFuncCall objects
-// describing the invocations of this function.
-func (f *IndividualRespositoryCreateFunc) History() []IndividualRespositoryCreateFuncCall {
-	f.mutex.Lock()
-	history := make([]IndividualRespositoryCreateFuncCall, len(f.history))
-	copy(history, f.history)
-	f.mutex.Unlock()
-
-	return history
-}
-
-// IndividualRespositoryCreateFuncCall is an object that describes an
-// invocation of method Create on an instance of MockIndividualRespository.
-type IndividualRespositoryCreateFuncCall struct {
-	// Arg0 is the value of the 1st argument passed to this method
-	// invocation.
-	Arg0 context.Context
-	// Arg1 is the value of the 2nd argument passed to this method
-	// invocation.
-	Arg1 ced.Individual
-	// Result0 is the value of the 1st result returned from this method
-	// invocation.
-	Result0 error
-}
-
-// Args returns an interface slice containing the arguments of this
-// invocation.
-func (c IndividualRespositoryCreateFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
-}
-
-// Results returns an interface slice containing the results of this
-// invocation.
-func (c IndividualRespositoryCreateFuncCall) Results() []interface{} {
-	return []interface{}{c.Result0}
-}
-
-// IndividualRespositoryGetFunc describes the behavior when the Get method
-// of the parent MockIndividualRespository instance is invoked.
-type IndividualRespositoryGetFunc struct {
-	defaultHook func(context.Context, ced.ID) (ced.Individual, error)
-	hooks       []func(context.Context, ced.ID) (ced.Individual, error)
-	history     []IndividualRespositoryGetFuncCall
-	mutex       sync.Mutex
-}
-
-// Get delegates to the next hook function in the queue and stores the
-// parameter and result values of this invocation.
-func (m *MockIndividualRespository) Get(v0 context.Context, v1 ced.ID) (ced.Individual, error) {
-	r0, r1 := m.GetFunc.nextHook()(v0, v1)
-	m.GetFunc.appendCall(IndividualRespositoryGetFuncCall{v0, v1, r0, r1})
-	return r0, r1
-}
-
-// SetDefaultHook sets function that is called when the Get method of the
-// parent MockIndividualRespository instance is invoked and the hook queue
-// is empty.
-func (f *IndividualRespositoryGetFunc) SetDefaultHook(hook func(context.Context, ced.ID) (ced.Individual, error)) {
-	f.defaultHook = hook
-}
-
-// PushHook adds a function to the end of hook queue. Each invocation of the
-// Get method of the parent MockIndividualRespository instance invokes the
-// hook at the front of the queue and discards it. After the queue is empty,
-// the default hook function is invoked for any future action.
-func (f *IndividualRespositoryGetFunc) PushHook(hook func(context.Context, ced.ID) (ced.Individual, error)) {
-	f.mutex.Lock()
-	f.hooks = append(f.hooks, hook)
-	f.mutex.Unlock()
-}
-
-// SetDefaultReturn calls SetDefaultHook with a function that returns the
-// given values.
-func (f *IndividualRespositoryGetFunc) SetDefaultReturn(r0 ced.Individual, r1 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID) (ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-// PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualRespositoryGetFunc) PushReturn(r0 ced.Individual, r1 error) {
-	f.PushHook(func(context.Context, ced.ID) (ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-func (f *IndividualRespositoryGetFunc) nextHook() func(context.Context, ced.ID) (ced.Individual, error) {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	if len(f.hooks) == 0 {
-		return f.defaultHook
-	}
-
-	hook := f.hooks[0]
-	f.hooks = f.hooks[1:]
-	return hook
-}
-
-func (f *IndividualRespositoryGetFunc) appendCall(r0 IndividualRespositoryGetFuncCall) {
-	f.mutex.Lock()
-	f.history = append(f.history, r0)
-	f.mutex.Unlock()
-}
-
-// History returns a sequence of IndividualRespositoryGetFuncCall objects
-// describing the invocations of this function.
-func (f *IndividualRespositoryGetFunc) History() []IndividualRespositoryGetFuncCall {
-	f.mutex.Lock()
-	history := make([]IndividualRespositoryGetFuncCall, len(f.history))
-	copy(history, f.history)
-	f.mutex.Unlock()
-
-	return history
-}
-
-// IndividualRespositoryGetFuncCall is an object that describes an
-// invocation of method Get on an instance of MockIndividualRespository.
-type IndividualRespositoryGetFuncCall struct {
-	// Arg0 is the value of the 1st argument passed to this method
-	// invocation.
-	Arg0 context.Context
-	// Arg1 is the value of the 2nd argument passed to this method
-	// invocation.
-	Arg1 ced.ID
-	// Result0 is the value of the 1st result returned from this method
-	// invocation.
-	Result0 ced.Individual
-	// Result1 is the value of the 2nd result returned from this method
-	// invocation.
-	Result1 error
-}
-
-// Args returns an interface slice containing the arguments of this
-// invocation.
-func (c IndividualRespositoryGetFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
-}
-
-// Results returns an interface slice containing the results of this
-// invocation.
-func (c IndividualRespositoryGetFuncCall) Results() []interface{} {
-	return []interface{}{c.Result0, c.Result1}
-}
-
-// IndividualRespositoryGetByGroupFunc describes the behavior when the
-// GetByGroup method of the parent MockIndividualRespository instance is
-// invoked.
-type IndividualRespositoryGetByGroupFunc struct {
-	defaultHook func(context.Context, ced.ID) ([]ced.Individual, error)
-	hooks       []func(context.Context, ced.ID) ([]ced.Individual, error)
-	history     []IndividualRespositoryGetByGroupFuncCall
-	mutex       sync.Mutex
-}
-
-// GetByGroup delegates to the next hook function in the queue and stores
-// the parameter and result values of this invocation.
-func (m *MockIndividualRespository) GetByGroup(v0 context.Context, v1 ced.ID) ([]ced.Individual, error) {
-	r0, r1 := m.GetByGroupFunc.nextHook()(v0, v1)
-	m.GetByGroupFunc.appendCall(IndividualRespositoryGetByGroupFuncCall{v0, v1, r0, r1})
-	return r0, r1
-}
-
-// SetDefaultHook sets function that is called when the GetByGroup method of
-// the parent MockIndividualRespository instance is invoked and the hook
-// queue is empty.
-func (f *IndividualRespositoryGetByGroupFunc) SetDefaultHook(hook func(context.Context, ced.ID) ([]ced.Individual, error)) {
-	f.defaultHook = hook
-}
-
-// PushHook adds a function to the end of hook queue. Each invocation of the
-// GetByGroup method of the parent MockIndividualRespository instance
-// invokes the hook at the front of the queue and discards it. After the
-// queue is empty, the default hook function is invoked for any future
-// action.
-func (f *IndividualRespositoryGetByGroupFunc) PushHook(hook func(context.Context, ced.ID) ([]ced.Individual, error)) {
-	f.mutex.Lock()
-	f.hooks = append(f.hooks, hook)
-	f.mutex.Unlock()
-}
-
-// SetDefaultReturn calls SetDefaultHook with a function that returns the
-// given values.
-func (f *IndividualRespositoryGetByGroupFunc) SetDefaultReturn(r0 []ced.Individual, r1 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID) ([]ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-// PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualRespositoryGetByGroupFunc) PushReturn(r0 []ced.Individual, r1 error) {
-	f.PushHook(func(context.Context, ced.ID) ([]ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-func (f *IndividualRespositoryGetByGroupFunc) nextHook() func(context.Context, ced.ID) ([]ced.Individual, error) {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	if len(f.hooks) == 0 {
-		return f.defaultHook
-	}
-
-	hook := f.hooks[0]
-	f.hooks = f.hooks[1:]
-	return hook
-}
-
-func (f *IndividualRespositoryGetByGroupFunc) appendCall(r0 IndividualRespositoryGetByGroupFuncCall) {
-	f.mutex.Lock()
-	f.history = append(f.history, r0)
-	f.mutex.Unlock()
-}
-
-// History returns a sequence of IndividualRespositoryGetByGroupFuncCall
-// objects describing the invocations of this function.
-func (f *IndividualRespositoryGetByGroupFunc) History() []IndividualRespositoryGetByGroupFuncCall {
-	f.mutex.Lock()
-	history := make([]IndividualRespositoryGetByGroupFuncCall, len(f.history))
-	copy(history, f.history)
-	f.mutex.Unlock()
-
-	return history
-}
-
-// IndividualRespositoryGetByGroupFuncCall is an object that describes an
-// invocation of method GetByGroup on an instance of
-// MockIndividualRespository.
-type IndividualRespositoryGetByGroupFuncCall struct {
-	// Arg0 is the value of the 1st argument passed to this method
-	// invocation.
-	Arg0 context.Context
-	// Arg1 is the value of the 2nd argument passed to this method
-	// invocation.
-	Arg1 ced.ID
-	// Result0 is the value of the 1st result returned from this method
-	// invocation.
-	Result0 []ced.Individual
-	// Result1 is the value of the 2nd result returned from this method
-	// invocation.
-	Result1 error
-}
-
-// Args returns an interface slice containing the arguments of this
-// invocation.
-func (c IndividualRespositoryGetByGroupFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
-}
-
-// Results returns an interface slice containing the results of this
-// invocation.
-func (c IndividualRespositoryGetByGroupFuncCall) Results() []interface{} {
-	return []interface{}{c.Result0, c.Result1}
-}
-
-// IndividualRespositorySearchByNameFunc describes the behavior when the
-// SearchByName method of the parent MockIndividualRespository instance is
-// invoked.
-type IndividualRespositorySearchByNameFunc struct {
-	defaultHook func(context.Context, string) (map[ced.ID][]ced.Individual, error)
-	hooks       []func(context.Context, string) (map[ced.ID][]ced.Individual, error)
-	history     []IndividualRespositorySearchByNameFuncCall
-	mutex       sync.Mutex
-}
-
-// SearchByName delegates to the next hook function in the queue and stores
-// the parameter and result values of this invocation.
-func (m *MockIndividualRespository) SearchByName(v0 context.Context, v1 string) (map[ced.ID][]ced.Individual, error) {
-	r0, r1 := m.SearchByNameFunc.nextHook()(v0, v1)
-	m.SearchByNameFunc.appendCall(IndividualRespositorySearchByNameFuncCall{v0, v1, r0, r1})
-	return r0, r1
-}
-
-// SetDefaultHook sets function that is called when the SearchByName method
-// of the parent MockIndividualRespository instance is invoked and the hook
-// queue is empty.
-func (f *IndividualRespositorySearchByNameFunc) SetDefaultHook(hook func(context.Context, string) (map[ced.ID][]ced.Individual, error)) {
-	f.defaultHook = hook
-}
-
-// PushHook adds a function to the end of hook queue. Each invocation of the
-// SearchByName method of the parent MockIndividualRespository instance
-// invokes the hook at the front of the queue and discards it. After the
-// queue is empty, the default hook function is invoked for any future
-// action.
-func (f *IndividualRespositorySearchByNameFunc) PushHook(hook func(context.Context, string) (map[ced.ID][]ced.Individual, error)) {
-	f.mutex.Lock()
-	f.hooks = append(f.hooks, hook)
-	f.mutex.Unlock()
-}
-
-// SetDefaultReturn calls SetDefaultHook with a function that returns the
-// given values.
-func (f *IndividualRespositorySearchByNameFunc) SetDefaultReturn(r0 map[ced.ID][]ced.Individual, r1 error) {
-	f.SetDefaultHook(func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-// PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualRespositorySearchByNameFunc) PushReturn(r0 map[ced.ID][]ced.Individual, r1 error) {
-	f.PushHook(func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
-		return r0, r1
-	})
-}
-
-func (f *IndividualRespositorySearchByNameFunc) nextHook() func(context.Context, string) (map[ced.ID][]ced.Individual, error) {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	if len(f.hooks) == 0 {
-		return f.defaultHook
-	}
-
-	hook := f.hooks[0]
-	f.hooks = f.hooks[1:]
-	return hook
-}
-
-func (f *IndividualRespositorySearchByNameFunc) appendCall(r0 IndividualRespositorySearchByNameFuncCall) {
-	f.mutex.Lock()
-	f.history = append(f.history, r0)
-	f.mutex.Unlock()
-}
-
-// History returns a sequence of IndividualRespositorySearchByNameFuncCall
-// objects describing the invocations of this function.
-func (f *IndividualRespositorySearchByNameFunc) History() []IndividualRespositorySearchByNameFuncCall {
-	f.mutex.Lock()
-	history := make([]IndividualRespositorySearchByNameFuncCall, len(f.history))
-	copy(history, f.history)
-	f.mutex.Unlock()
-
-	return history
-}
-
-// IndividualRespositorySearchByNameFuncCall is an object that describes an
-// invocation of method SearchByName on an instance of
-// MockIndividualRespository.
-type IndividualRespositorySearchByNameFuncCall struct {
-	// Arg0 is the value of the 1st argument passed to this method
-	// invocation.
-	Arg0 context.Context
-	// Arg1 is the value of the 2nd argument passed to this method
-	// invocation.
-	Arg1 string
-	// Result0 is the value of the 1st result returned from this method
-	// invocation.
-	Result0 map[ced.ID][]ced.Individual
-	// Result1 is the value of the 2nd result returned from this method
-	// invocation.
-	Result1 error
-}
-
-// Args returns an interface slice containing the arguments of this
-// invocation.
-func (c IndividualRespositorySearchByNameFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
-}
-
-// Results returns an interface slice containing the results of this
-// invocation.
-func (c IndividualRespositorySearchByNameFuncCall) Results() []interface{} {
-	return []interface{}{c.Result0, c.Result1}
-}
-
-// IndividualRespositoryUpdateFunc describes the behavior when the Update
-// method of the parent MockIndividualRespository instance is invoked.
-type IndividualRespositoryUpdateFunc struct {
-	defaultHook func(context.Context, ced.Individual) error
-	hooks       []func(context.Context, ced.Individual) error
-	history     []IndividualRespositoryUpdateFuncCall
+// GroupRespositoryUpdateFunc describes the behavior when the Update method
+// of the parent MockGroupRespository instance is invoked.
+type GroupRespositoryUpdateFunc struct {
+	defaultHook func(context.Context, ced.Group) error
+	hooks       []func(context.Context, ced.Group) error
+	history     []GroupRespositoryUpdateFuncCall
 	mutex       sync.Mutex
 }
 
 // Update delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockIndividualRespository) Update(v0 context.Context, v1 ced.Individual) error {
+func (m *MockGroupRespository) Update(v0 context.Context, v1 ced.Group) error {
 	r0 := m.UpdateFunc.nextHook()(v0, v1)
-	m.UpdateFunc.appendCall(IndividualRespositoryUpdateFuncCall{v0, v1, r0})
+	m.UpdateFunc.appendCall(GroupRespositoryUpdateFuncCall{v0, v1, r0})
 	return r0
 }
 
 // SetDefaultHook sets function that is called when the Update method of the
-// parent MockIndividualRespository instance is invoked and the hook queue
-// is empty.
-func (f *IndividualRespositoryUpdateFunc) SetDefaultHook(hook func(context.Context, ced.Individual) error) {
+// parent MockGroupRespository instance is invoked and the hook queue is
+// empty.
+func (f *GroupRespositoryUpdateFunc) SetDefaultHook(hook func(context.Context, ced.Group) error) {
 	f.defaultHook = hook
 }
 
 // PushHook adds a function to the end of hook queue. Each invocation of the
-// Update method of the parent MockIndividualRespository instance invokes
-// the hook at the front of the queue and discards it. After the queue is
-// empty, the default hook function is invoked for any future action.
-func (f *IndividualRespositoryUpdateFunc) PushHook(hook func(context.Context, ced.Individual) error) {
+// Update method of the parent MockGroupRespository instance invokes the
+// hook at the front of the queue and discards it. After the queue is empty,
+// the default hook function is invoked for any future action.
+func (f *GroupRespositoryUpdateFunc) PushHook(hook func(context.Context, ced.Group) error) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -1959,20 +1521,20 @@ func (f *IndividualRespositoryUpdateFunc) PushHook(hook func(context.Context, ce
 
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
-func (f *IndividualRespositoryUpdateFunc) SetDefaultReturn(r0 error) {
-	f.SetDefaultHook(func(context.Context, ced.Individual) error {
+func (f *GroupRespositoryUpdateFunc) SetDefaultReturn(r0 error) {
+	f.SetDefaultHook(func(context.Context, ced.Group) error {
 		return r0
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
-func (f *IndividualRespositoryUpdateFunc) PushReturn(r0 error) {
-	f.PushHook(func(context.Context, ced.Individual) error {
+func (f *GroupRespositoryUpdateFunc) PushReturn(r0 error) {
+	f.PushHook(func(context.Context, ced.Group) error {
 		return r0
 	})
 }
 
-func (f *IndividualRespositoryUpdateFunc) nextHook() func(context.Context, ced.Individual) error {
+func (f *GroupRespositoryUpdateFunc) nextHook() func(context.Context, ced.Group) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -1985,32 +1547,32 @@ func (f *IndividualRespositoryUpdateFunc) nextHook() func(context.Context, ced.I
 	return hook
 }
 
-func (f *IndividualRespositoryUpdateFunc) appendCall(r0 IndividualRespositoryUpdateFuncCall) {
+func (f *GroupRespositoryUpdateFunc) appendCall(r0 GroupRespositoryUpdateFuncCall) {
 	f.mutex.Lock()
 	f.history = append(f.history, r0)
 	f.mutex.Unlock()
 }
 
-// History returns a sequence of IndividualRespositoryUpdateFuncCall objects
+// History returns a sequence of GroupRespositoryUpdateFuncCall objects
 // describing the invocations of this function.
-func (f *IndividualRespositoryUpdateFunc) History() []IndividualRespositoryUpdateFuncCall {
+func (f *GroupRespositoryUpdateFunc) History() []GroupRespositoryUpdateFuncCall {
 	f.mutex.Lock()
-	history := make([]IndividualRespositoryUpdateFuncCall, len(f.history))
+	history := make([]GroupRespositoryUpdateFuncCall, len(f.history))
 	copy(history, f.history)
 	f.mutex.Unlock()
 
 	return history
 }
 
-// IndividualRespositoryUpdateFuncCall is an object that describes an
-// invocation of method Update on an instance of MockIndividualRespository.
-type IndividualRespositoryUpdateFuncCall struct {
+// GroupRespositoryUpdateFuncCall is an object that describes an invocation
+// of method Update on an instance of MockGroupRespository.
+type GroupRespositoryUpdateFuncCall struct {
 	// Arg0 is the value of the 1st argument passed to this method
 	// invocation.
 	Arg0 context.Context
 	// Arg1 is the value of the 2nd argument passed to this method
 	// invocation.
-	Arg1 ced.Individual
+	Arg1 ced.Group
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 error
@@ -2018,13 +1580,13 @@ type IndividualRespositoryUpdateFuncCall struct {
 
 // Args returns an interface slice containing the arguments of this
 // invocation.
-func (c IndividualRespositoryUpdateFuncCall) Args() []interface{} {
+func (c GroupRespositoryUpdateFuncCall) Args() []interface{} {
 	return []interface{}{c.Arg0, c.Arg1}
 }
 
 // Results returns an interface slice containing the results of this
 // invocation.
-func (c IndividualRespositoryUpdateFuncCall) Results() []interface{} {
+func (c GroupRespositoryUpdateFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0}
 }
 

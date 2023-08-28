@@ -11,16 +11,16 @@ import (
 type httpTest struct {
 	httpServer *http.Server
 
-	individualContract *mocks.MockIndividualContract
+	groupContract *mocks.MockGroupContract
 }
 
 func newHttpTest() *httpTest {
 	test := &httpTest{
-		individualContract: mocks.NewMockIndividualContract(),
+		groupContract: mocks.NewMockGroupContract(),
 	}
 
 	test.httpServer = http.NewServer(
-		test.individualContract,
+		test.groupContract,
 	)
 
 	if err := test.httpServer.Open(":0"); err != nil {
