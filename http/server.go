@@ -17,7 +17,7 @@ type Server struct {
 	sv        *http.Server
 	boundAddr string
 
-	individualContract ced.IndividualContract
+	groupContract ced.GroupContract
 }
 
 func (s *Server) Open(address string) error {
@@ -49,13 +49,13 @@ func (s *Server) GetBoundAddr() string {
 }
 
 func NewServer(
-	individualContract ced.IndividualContract,
+	groupContract ced.GroupContract,
 ) *Server {
 	s := &Server{
 		router: chi.NewRouter(),
 		sv:     &http.Server{},
 
-		individualContract: individualContract,
+		groupContract: groupContract,
 	}
 
 	s.sv.Handler = s.router
@@ -64,13 +64,11 @@ func NewServer(
 			_, _ = w.Write([]byte("ok"))
 		})
 
-		r.Route("/individuals", func(r chi.Router) {
-			r.Get("/search", toHttpHandlerFunc(s.handleIndividualSearch()))
-			r.Put("/{individualID}", toHttpHandlerFunc(s.handleIndividualUpdate()))
-		})
-
 		r.Route("/groups", func(r chi.Router) {
-			r.Get("/{groupID}/individuals", toHttpHandlerFunc(s.handleGetIndividualsInGroup()))
+			r.Get("/search", toHttpHandlerFunc(s.handleGroupSearch()))
+
+			r.Get("/{groupID}", toHttpHandlerFunc(s.handleGroupGet()))
+			r.Put("/{groupID}", toHttpHandlerFunc(s.handleGroupUpdate()))
 		})
 	})
 

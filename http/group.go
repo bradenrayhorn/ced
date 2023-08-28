@@ -9,8 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (s *Server) handleIndividualSearch() HandlerFunc {
-	type response map[string][]responses.Individual
+func (s *Server) handleGroupSearch() HandlerFunc {
+	type response []responses.Group
 
 	return func(r *http.Request) (HttpResponse, error) {
 		search := strings.TrimSpace(r.URL.Query().Get("search"))
@@ -19,54 +19,47 @@ func (s *Server) handleIndividualSearch() HandlerFunc {
 			return HttpResponse{}, ced.NewError(ced.EUNPROCESSABLE, "search is required")
 		}
 
-		groups, err := s.individualContract.SearchByName(r.Context(), search)
+		groups, err := s.groupContract.Search(r.Context(), search)
 		if err != nil {
 			return HttpResponse{}, err
-		}
-
-		res := make(response)
-		for k, v := range groups {
-			res[k.String()] = responses.MapSlice(v, responses.FromIndividual)
 		}
 
 		return HttpResponse{status: http.StatusOK, body: struct {
 			Data response `json:"data"`
 		}{
-			Data: res,
+			Data: responses.MapSlice(groups, responses.FromGroup),
 		}}, nil
 	}
 }
 
-func (s *Server) handleGetIndividualsInGroup() HandlerFunc {
-	type response []responses.Individual
-
+func (s *Server) handleGroupGet() HandlerFunc {
 	return func(r *http.Request) (HttpResponse, error) {
-		groupID, err := ced.IDFromString(chi.URLParam(r, "groupID"))
+		id, err := ced.IDFromString(chi.URLParam(r, "groupID"))
 
 		if err != nil {
-			return HttpResponse{}, ced.NewError(ced.EUNPROCESSABLE, "invalid group id")
+			return HttpResponse{}, ced.NewError(ced.EUNPROCESSABLE, "invalid id")
 		}
 
-		individuals, err := s.individualContract.GetInGroup(r.Context(), groupID)
+		group, err := s.groupContract.Get(r.Context(), id)
 		if err != nil {
 			return HttpResponse{}, err
 		}
 
 		return HttpResponse{status: http.StatusOK, body: struct {
-			Data response `json:"data"`
+			Data responses.Group `json:"data"`
 		}{
-			Data: responses.MapSlice(individuals, responses.FromIndividual),
+			Data: responses.FromGroup(group),
 		}}, nil
 	}
 }
 
-func (s *Server) handleIndividualUpdate() HandlerFunc {
+func (s *Server) handleGroupUpdate() HandlerFunc {
 	type request struct {
-		Response bool `json:"response"`
+		Attendees uint8 `json:"attendees"`
 	}
 
 	return func(r *http.Request) (HttpResponse, error) {
-		id, err := ced.IDFromString(chi.URLParam(r, "individualID"))
+		id, err := ced.IDFromString(chi.URLParam(r, "groupID"))
 
 		if err != nil {
 			return HttpResponse{}, ced.NewError(ced.EUNPROCESSABLE, "invalid id")
@@ -77,7 +70,7 @@ func (s *Server) handleIndividualUpdate() HandlerFunc {
 			return HttpResponse{}, err
 		}
 
-		if err := s.individualContract.SetResponse(r.Context(), id, req.Response); err != nil {
+		if err := s.groupContract.Respond(r.Context(), id, req.Attendees); err != nil {
 			return HttpResponse{}, err
 		}
 
