@@ -3,6 +3,7 @@ module github.com/bradenrayhorn/ced
 go 1.21
 
 require (
+	github.com/alecthomas/kong v0.8.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/matryer/is v1.4.1
 	github.com/segmentio/ksuid v1.0.4
