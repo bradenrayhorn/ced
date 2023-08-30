@@ -50,3 +50,25 @@ jobs:
           cache: false
       - name: Run tests
         run: "go test ./..."
+
+  test-playwright:
+    name: Playwright Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+          cache: false
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./web
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./web
+      - name: Run Playwright tests
+        run: npm run test:integration
+        working-directory: ./web
+
