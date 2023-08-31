@@ -3,6 +3,7 @@ package http_test
 import (
 	"testing"
 
+	"github.com/bradenrayhorn/ced/ced"
 	"github.com/bradenrayhorn/ced/http"
 	"github.com/bradenrayhorn/ced/internal/mocks"
 	"github.com/bradenrayhorn/ced/internal/testutils"
@@ -20,6 +21,7 @@ func newHttpTest() *httpTest {
 	}
 
 	test.httpServer = http.NewServer(
+		ced.Config{},
 		test.groupContract,
 	)
 

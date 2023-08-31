@@ -1,3 +1,4 @@
+import { api } from "$lib/api";
 import { redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 
@@ -9,7 +10,7 @@ export const actions: Actions = {
       throw Error("Invalid attendees.");
     }
 
-    const res = await fetch(`/api/v1/groups/${params.id}`, {
+    const res = await fetch(api(`/v1/groups/${params.id}`), {
       method: "PUT",
       body: JSON.stringify({ attendees: +attendees }),
     });

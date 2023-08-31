@@ -6,10 +6,12 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bradenrayhorn/ced/ced"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 type Server struct {
@@ -49,6 +51,7 @@ func (s *Server) GetBoundAddr() string {
 }
 
 func NewServer(
+	config ced.Config,
 	groupContract ced.GroupContract,
 ) *Server {
 	s := &Server{
@@ -59,6 +62,10 @@ func NewServer(
 	}
 
 	s.sv.Handler = s.router
+	s.router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: strings.Split(config.AllowedOrigin, ","),
+	}))
+
 	s.router.Route("/api/v1", func(r chi.Router) {
 		r.Get("/live", func(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte("ok"))
