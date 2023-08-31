@@ -3,9 +3,10 @@ package ced
 import "errors"
 
 type Config struct {
-	PrettyLog bool
-	DbPath    string
-	HttpPort  string
+	PrettyLog     bool
+	DbPath        string
+	HttpPort      string
+	AllowedOrigin string
 }
 
 func (c Config) Validate() error {

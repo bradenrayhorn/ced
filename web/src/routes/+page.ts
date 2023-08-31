@@ -1,3 +1,4 @@
+import { api } from "$lib/api";
 import type { PageLoad } from "./$types";
 
 type Output = {
@@ -16,7 +17,7 @@ export const load: PageLoad<Output> = async ({ fetch, url }) => {
   const search = url.searchParams.get("search");
 
   if (!!search) {
-    const res = await fetch(`/api/v1/groups/search?search=${search}`);
+    const res = await fetch(api(`/v1/groups/search?search=${search}`));
     const data = await res.json();
     const result = data.data?.[0];
     if (result) {

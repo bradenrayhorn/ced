@@ -1,3 +1,4 @@
+import { api } from "$lib/api";
 import type { PageLoad } from "./$types";
 
 type OutputProps = {
@@ -13,6 +14,6 @@ type Group = {
 };
 
 export const load: PageLoad<OutputProps> = async ({ fetch, params }) => {
-  const res = await fetch(`/api/v1/groups/${params.id}`);
+  const res = await fetch(api(`/v1/groups/${params.id}`));
   return (await res.json()) as OutputProps;
 };

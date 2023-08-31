@@ -9,6 +9,7 @@ const config: PlaywrightTestConfig = {
       env: {
         PUBLIC_EVENT_TITLE: "An Event",
         PUBLIC_EVENT_URL: "http://localhost:5555",
+        PUBLIC_BASE_API_URL: "",
       },
     },
     {

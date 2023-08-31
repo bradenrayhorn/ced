@@ -39,6 +39,7 @@ func (a *Application) Start() error {
 	groupRepository := sqlite.NewGroupRepository(pool)
 
 	httpServer := http.NewServer(
+		a.config,
 		contract.NewGroupContract(groupRepository),
 	)
 
