@@ -31,4 +31,5 @@ jobs:
         with:
           push: true
           tags: ghcr.io/bradenrayhorn/ced:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
 
