@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  docker:
+    name: Retag and push images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push
+        run: |
+          IMAGE=ghcr.io/bradenrayhorn/ced
+          EXISTING_TAG=$IMAGE:next-${{ github.sha }}
+          TAG=${{ github.event.release.tag_name }}
+          RELEASE_VERSION="${TAG//v/}"
+
+          docker pull $EXISTING_TAG
+
+          docker tag $EXISTING_TAG $IMAGE:$RELEASE_VERSION
+          docker tag $EXISTING_TAG $IMAGE:latest
+
+          docker push $IMAGE:$RELEASE_VERSION
+          docker push $IMAGE:latest
+
