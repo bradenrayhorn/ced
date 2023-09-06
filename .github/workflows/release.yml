@@ -19,6 +19,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: 'arm64,amd64'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       - name: Tag and push
         run: |
           IMAGE=ghcr.io/bradenrayhorn/ced
@@ -26,11 +34,8 @@ jobs:
           TAG=${{ github.event.release.tag_name }}
           RELEASE_VERSION="${TAG//v/}"
 
-          docker pull $EXISTING_TAG
-
-          docker tag $EXISTING_TAG $IMAGE:$RELEASE_VERSION
-          docker tag $EXISTING_TAG $IMAGE:latest
-
-          docker push $IMAGE:$RELEASE_VERSION
-          docker push $IMAGE:latest
+          docker buildx imagetools create \
+            --tag $IMAGE:$RELEASE_VERSION \
+            --tag $IMAGE:latest \
+            $EXISTING_TAG
 
