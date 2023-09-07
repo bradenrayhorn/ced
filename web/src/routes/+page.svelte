@@ -14,9 +14,11 @@
   <title>RSVP for {env.PUBLIC_EVENT_TITLE}</title>
 </svelte:head>
 
-<h1 class="h1">RSVP</h1>
+<h2 class="h2">RSVP for</h2>
 
-<h3 class="h3 mt-4 mb-10">{env.PUBLIC_EVENT_TITLE}</h3>
+<h1 class="h1 mt-9 mb-9">
+  {env.PUBLIC_EVENT_TITLE}
+</h1>
 
 {#if search && !!group}
   <p>Is this you?</p>

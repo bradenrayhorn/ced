@@ -11,7 +11,7 @@
 <div class="w-full text-center">
   <h2 class="h2">RSVP Complete</h2>
 
-  <IconComplete class="mx-auto my-4 text-tertiary-500 text-7xl" />
+  <IconComplete class="mx-auto my-4 text-primary-700 text-7xl" />
 
   <p>Your RSVP has been received!</p>
 
