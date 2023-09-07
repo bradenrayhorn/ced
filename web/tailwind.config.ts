@@ -12,7 +12,7 @@ const config = {
     // 3. Append the path to the Skeleton package
     join(
       require.resolve("@skeletonlabs/skeleton"),
-      "../**/*.{html,js,svelte,ts}"
+      "../**/*.{html,js,svelte,ts}",
     ),
   ],
   theme: {

@@ -39,7 +39,7 @@ test("can complete an rsvp", async ({ prefix: { prefix }, page }) => {
 
   // should have appropriate links
   await expect(
-    page.getByRole("link", { name: "View event details" })
+    page.getByRole("link", { name: "View event details" }),
   ).toHaveAttribute("href", "http://localhost:5555");
 
   await page.getByRole("link", { name: "Edit RSVP" }).click();
@@ -57,7 +57,7 @@ test("can have search return no results", async ({
   await expect(
     page
       .getByRole("complementary")
-      .getByText("Please refine your search and try again.")
+      .getByText("Please refine your search and try again."),
   ).toBeVisible();
 });
 

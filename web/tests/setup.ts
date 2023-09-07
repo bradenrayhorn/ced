@@ -20,11 +20,11 @@ export const test = base.extend<Fixtures>({
 export const createGroup = async (
   prefix: string,
   name: string,
-  maxAttendees: number
+  maxAttendees: number,
 ): Promise<void> => {
   return new Promise((resolve) => {
     execSync(
-      `go run ../cmd/ced group create --name="${prefix}${name}" --max-attendees=${maxAttendees}`
+      `go run ../cmd/ced group create --name="${prefix}${name}" --max-attendees=${maxAttendees}`,
     );
     resolve();
   });
