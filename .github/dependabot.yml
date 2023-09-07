@@ -9,3 +9,16 @@ updates:
     versioning-strategy: increase
     schedule:
       interval: "weekly"
+    groups:
+      all:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+      eslint:
+        patterns:
+          - "eslint*"
