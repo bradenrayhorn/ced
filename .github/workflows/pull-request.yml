@@ -78,3 +78,17 @@ jobs:
         run: npm run test:integration
         working-directory: ./ui
 
+  lint-helm:
+    name: Lint Helm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.3'
+
+      - name: Lint helm
+        run: helm lint .
+        working-directory: ./helm/ced

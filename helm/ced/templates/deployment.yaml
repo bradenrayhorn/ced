@@ -1,0 +1,101 @@
+{{- $cedImage := "ghcr.io/bradenrayhorn/ced" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ced.fullname" . }}-server
+  labels:
+    {{- include "ced.labelsServer" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "ced.selectorLabelsServer" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ced.selectorLabelsServer" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "ced.serviceAccountName" . }}
+      volumes:
+        - name: app-data
+          persistentVolumeClaim:
+            claimName: {{ include "ced.fullname" . }}-data
+      containers:
+        - name: ced-server
+          image: "{{ $cedImage }}-server:{{ .Values.image.cedVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DB_PATH
+              value: "/app-data/ced.db"
+          volumeMounts:
+            - name: app-data
+              mountPath: /app-data/
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/v1/live
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /api/v1/live
+              port: 8080
+          resources:
+            {{- toYaml .Values.resources.server | nindent 12 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ced.fullname" . }}-ui
+  labels:
+    {{- include "ced.labelsUI" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "ced.selectorLabelsUI" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ced.selectorLabelsUI" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "ced.serviceAccountName" . }}
+      containers:
+        - name: ced-ui
+          image: "{{ $cedImage }}-ui:{{ .Values.image.cedVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PUBLIC_EVENT_TITLE
+              value: {{ .Values.event.title }}
+            - name: PUBLIC_EVENT_URL
+              value: {{ .Values.event.url }}
+            - name: PUBLIC_BASE_API_URL
+              value: ""
+            {{- if .Values.event.theme }}
+            - name: PUBLIC_THEME
+              value: {{ .Values.event.theme }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          resources:
+            {{- toYaml .Values.resources.ui | nindent 12 }}
