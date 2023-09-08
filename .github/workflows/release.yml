@@ -27,9 +27,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Tag and push
+      - name: Tag and push ui
         run: |
-          IMAGE=ghcr.io/bradenrayhorn/ced
+          IMAGE=ghcr.io/bradenrayhorn/ced-ui
+          EXISTING_TAG=$IMAGE:next-${{ github.sha }}
+          TAG=${{ github.event.release.tag_name }}
+          RELEASE_VERSION="${TAG//v/}"
+
+          docker buildx imagetools create \
+            --tag $IMAGE:$RELEASE_VERSION \
+            --tag $IMAGE:latest \
+            $EXISTING_TAG
+
+      - name: Tag and push server
+        run: |
+          IMAGE=ghcr.io/bradenrayhorn/ced-server
           EXISTING_TAG=$IMAGE:next-${{ github.sha }}
           TAG=${{ github.event.release.tag_name }}
           RELEASE_VERSION="${TAG//v/}"

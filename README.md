@@ -1,3 +1,3 @@
 ## ced
 
-A small Go RSVP service.
+A small RSVP service.
