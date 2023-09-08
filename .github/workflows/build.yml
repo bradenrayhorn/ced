@@ -34,6 +34,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
+          provenance: false
           context: "{{defaultContext}}:server"
           tags: ghcr.io/bradenrayhorn/ced-server:next,ghcr.io/bradenrayhorn/ced-server:next-${{ github.sha }}
           platforms: linux/amd64,linux/arm64
@@ -66,6 +67,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
+          provenance: false
           context: "{{defaultContext}}:ui"
           tags: ghcr.io/bradenrayhorn/ced-ui:next,ghcr.io/bradenrayhorn/ced-ui:next-${{ github.sha }}
           platforms: linux/amd64,linux/arm64
