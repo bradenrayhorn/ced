@@ -8,13 +8,16 @@ jobs:
   lint:
     name: Lint Go
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version-file: "go.mod"
+          go-version-file: "./server/go.mod"
           cache: false
       - name: Install
         run: |
@@ -40,13 +43,16 @@ jobs:
   test:
     name: Test Go
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version-file: "go.mod"
+          go-version-file: "./server/go.mod"
           cache: false
       - name: Run tests
         run: "go test ./..."
@@ -60,15 +66,15 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version-file: "go.mod"
+          go-version-file: "./server/go.mod"
           cache: false
       - name: Install dependencies
         run: npm install
-        working-directory: ./web
+        working-directory: ./ui
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-        working-directory: ./web
+        working-directory: ./ui
       - name: Run Playwright tests
         run: npm run test:integration
-        working-directory: ./web
+        working-directory: ./ui
 

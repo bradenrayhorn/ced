@@ -1,11 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "gomod"
-    directory: "/"
+    directory: "server/"
     schedule:
       interval: "weekly"
   - package-ecosystem: "npm"
-    directory: "web/"
+    directory: "ui/"
     versioning-strategy: increase
     schedule:
       interval: "weekly"
