@@ -43,3 +43,6 @@ The chart is versioned independently of ced itself.
 
 The chart is currently somewhat inflexible; there are not many configurations supported.
 
+The chart optionally supports setting configuring [litestream](https://litestream.io/).
+This enables backup and automated recovery of ced sqlite data.
+

@@ -24,6 +24,32 @@ spec:
         - name: app-data
           persistentVolumeClaim:
             claimName: {{ include "ced.fullname" . }}-data
+        - name: {{ include "ced.fullname" . }}-litestream-config
+          configMap:
+            name: {{ include "ced.fullname" . }}-litestream-config
+      {{- if .Values.litestream.enabled }}
+      initContainers:
+        - name: init-litestream
+          image: litestream/litestream:{{ .Values.litestream.version }}
+          args: ['restore', '-if-db-not-exists', '-if-replica-exists', '-v', '/app-data/ced.db']
+          volumeMounts:
+            - name: app-data
+              mountPath: /app-data/
+            - name: {{ include "ced.fullname" . }}-litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+          env:
+            - name: LITESTREAM_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.secret }}
+                  key: LITESTREAM_ACCESS_KEY_ID
+            - name: LITESTREAM_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.secret }}
+                  key: LITESTREAM_SECRET_ACCESS_KEY
+      {{- end }}
       containers:
         - name: ced-server
           image: "{{ $cedImage }}-server:{{ .Values.image.cedVersion }}"
@@ -48,6 +74,28 @@ spec:
               port: 8080
           resources:
             {{- toYaml .Values.resources.server | nindent 12 }}
+      {{- if .Values.litestream.enabled }}
+        - name: litestream
+          image: litestream/litestream:{{ .Values.litestream.version }}
+          args: ['replicate']
+          volumeMounts:
+            - name: app-data
+              mountPath: /app-data/
+            - name: {{ include "ced.fullname" . }}-litestream-config
+              mountPath: /etc/litestream.yml
+              subPath: litestream.yml
+          env:
+            - name: LITESTREAM_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.secret }}
+                  key: LITESTREAM_ACCESS_KEY_ID
+            - name: LITESTREAM_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.secret }}
+                  key: LITESTREAM_SECRET_ACCESS_KEY
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
