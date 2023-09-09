@@ -135,7 +135,7 @@ spec:
               value: ""
             {{- if .Values.ced.trusted.cloudflare.enabled }}
             - name: ENABLE_CLOUDFLARE_FORWARDING
-              value: true
+              value: "true"
             {{- end}}
             {{- if .Values.event.theme }}
             - name: PUBLIC_THEME
