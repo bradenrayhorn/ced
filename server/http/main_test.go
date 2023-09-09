@@ -24,7 +24,7 @@ func newHttpTest() *httpTest {
 
 	test.httpServer = http.NewServer(
 		ced.Config{
-			ClientIPHeader: "Client-IP",
+			CloudflareTrustedIP: "8.7.7.7",
 		},
 		test.groupContract,
 	)

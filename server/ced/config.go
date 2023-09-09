@@ -9,8 +9,9 @@ type Config struct {
 	// CORS allowed origins
 	AllowedOrigin string
 
-	// Which header contains client IP address
-	ClientIPHeader string
+	// If the CF-Connecting-IP is equal to this value. The Client IP will be
+	// assumed to be the X-Real-IP header set by the Svelte frontend.
+	CloudflareTrustedIP string
 }
 
 func (c Config) Validate() error {

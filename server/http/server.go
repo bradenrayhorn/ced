@@ -65,9 +65,12 @@ func NewServer(
 	}
 
 	s.sv.Handler = s.router
-	s.router.Use(cors.Handler(cors.Options{
-		AllowedOrigins: strings.Split(config.AllowedOrigin, ","),
-	}))
+	s.router.Use(
+		cors.Handler(cors.Options{
+			AllowedOrigins: strings.Split(config.AllowedOrigin, ","),
+		}),
+		RealIP(config),
+	)
 
 	s.router.Route("/api/v1", func(r chi.Router) {
 		r.Get("/live", func(w http.ResponseWriter, r *http.Request) {

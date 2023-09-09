@@ -12,8 +12,12 @@ event:
   url: https://example.com
   # theme: cardstock
 
-ced: {}
-  # clientIpHeader: CF-Connecting-IP
+ced:
+  trusted:
+    cloudflare:
+      enabled: false
+      # Which CF-Connecting-IP to trust the X-Real-IP header from.
+      trustedConnectingIP: 192.168.0.1
 
 nameOverride: ""
 fullnameOverride: ""
