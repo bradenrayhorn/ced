@@ -27,12 +27,12 @@ jobs:
         working-directory: ./helm/ced
         run: |
           RUN_NUMBER=${{github.run_number}}
-          IS_ALPHA=${{ github.event_name == 'workflow_dispatch' }}
+          EVENT_NAME=${{ github.event_name }}
           VERSION=$(helm show chart . | yq '.version')
-          if [$IS_ALPHA]
+          if [[ $EVENT_NAME == "workflow_dispatch" ]]
           then
-          VERSION="0.0.0-alpha.$RUN_NUMBER"
-          yq -i e ".version |= $VERSION" Chart.yaml
+            VERSION="0.0.0-alpha.$RUN_NUMBER"
+            yq -i e ".version |= \"$VERSION\"" Chart.yaml
           fi
           PACKAGE=ced-helm-$VERSION.tgz
 

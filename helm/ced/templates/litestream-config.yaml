@@ -1,0 +1,11 @@
+{{- if .Values.litestream.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ced.fullname" . }}-litestream-config
+  labels:
+    {{- include "ced.labels" . | nindent 4 }}
+data:
+  litestream.yml: |
+    {{- toYaml .Values.litestream.config | nindent 4 }}
+{{- end }}

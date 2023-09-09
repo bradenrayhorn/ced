@@ -42,6 +42,22 @@ pvc:
   storageClassName: local-path
   storageRequest: 200Mi
 
+# optionally enable litestream for sqlite backup
+litestream:
+  enabled: false
+  version: 0.3.11
+  # this secret must be created outside of the helm chart
+  secret: litestream-creds
+  config:
+    dbs:
+      - path: /app-data/ced.db
+        replicas:
+          - type: s3
+            bucket: mybucket
+            endpoint: s3.example.com
+            retention: 192h
+            snapshot-interval: 12h
+
 resources:
   ui: {}
   server: {}
