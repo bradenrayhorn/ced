@@ -34,9 +34,11 @@ func TestReadsFromEnv(t *testing.T) {
 
 	is.NoErr(os.Setenv("DB_PATH", "path.db"))
 	is.NoErr(os.Setenv("PRETTY_LOG", "true"))
+	is.NoErr(os.Setenv("CLIENT_IP_HEADER", "Client-IP"))
 
 	config := LoadConfig()
 
 	is.Equal(config.DbPath, "path.db")
 	is.Equal(config.PrettyLog, true)
+	is.Equal(config.ClientIPHeader, "Client-IP")
 }

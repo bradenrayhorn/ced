@@ -3,6 +3,7 @@ package contract
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/bradenrayhorn/ced/server/ced"
 )
@@ -47,7 +48,7 @@ func (c *groupContract) Get(ctx context.Context, id ced.ID) (ced.Group, error) {
 	return c.groupRepository.Get(ctx, id)
 }
 
-func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8) error {
+func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8, connectingIP string) error {
 	group, err := c.groupRepository.Get(ctx, id)
 	if err != nil {
 		return err
@@ -59,6 +60,13 @@ func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8)
 
 	group.Attendees = attendees
 	group.HasResponded = true
+
+	slog.Info("group updated",
+		"attendees", attendees,
+		"id", id,
+		"name", group.Name,
+		"ip", connectingIP,
+	)
 
 	return c.groupRepository.Update(ctx, group)
 }

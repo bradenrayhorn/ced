@@ -122,6 +122,26 @@ func TestUpdateGroup(t *testing.T) {
 		params := test.groupContract.RespondFunc.History()[0]
 		is.Equal(params.Arg1, groupID)
 		is.Equal(params.Arg2, uint8(5))
+		is.Equal(params.Arg3, "")
+	})
+
+	t.Run("passes along connecting IP", func(t *testing.T) {
+		test := newHttpTest()
+		defer test.Stop(t)
+		is := is.New(t)
+
+		test.groupContract.RespondFunc.PushReturn(nil)
+
+		res := test.DoRequestWith(t, "PUT", fmt.Sprintf("/api/v1/groups/%s", groupID), `{"attendees":5}`, http.StatusOK, func(r *http.Request) *http.Request {
+			r.Header.Add("Client-IP", "127.0.0.1")
+			return r
+		})
+		is.Equal(res, "")
+
+		params := test.groupContract.RespondFunc.History()[0]
+		is.Equal(params.Arg1, groupID)
+		is.Equal(params.Arg2, uint8(5))
+		is.Equal(params.Arg3, "127.0.0.1")
 	})
 
 	t.Run("can update with blank request body", func(t *testing.T) {

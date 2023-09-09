@@ -12,6 +12,9 @@ event:
   url: https://example.com
   # theme: cardstock
 
+ced: {}
+  # clientIpHeader: CF-Connecting-IP
+
 nameOverride: ""
 fullnameOverride: ""
 

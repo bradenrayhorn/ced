@@ -21,7 +21,7 @@ type GroupContract interface {
 	Get(ctx context.Context, id ID) (Group, error)
 
 	// Updates response for a group.
-	Respond(ctx context.Context, id ID, attendees uint8) error
+	Respond(ctx context.Context, id ID, attendees uint8, connectingIP string) error
 }
 
 type GroupRespository interface {

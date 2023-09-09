@@ -19,6 +19,8 @@ type Server struct {
 	sv        *http.Server
 	boundAddr string
 
+	config ced.Config
+
 	groupContract ced.GroupContract
 }
 
@@ -57,6 +59,7 @@ func NewServer(
 	s := &Server{
 		router: chi.NewRouter(),
 		sv:     &http.Server{},
+		config: config,
 
 		groupContract: groupContract,
 	}
