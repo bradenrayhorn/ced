@@ -3,6 +3,8 @@ package http_test
 import (
 	"testing"
 
+	goHttp "net/http"
+
 	"github.com/bradenrayhorn/ced/server/ced"
 	"github.com/bradenrayhorn/ced/server/http"
 	"github.com/bradenrayhorn/ced/server/internal/mocks"
@@ -21,7 +23,9 @@ func newHttpTest() *httpTest {
 	}
 
 	test.httpServer = http.NewServer(
-		ced.Config{},
+		ced.Config{
+			ClientIPHeader: "Client-IP",
+		},
 		test.groupContract,
 	)
 
@@ -39,5 +43,9 @@ func (t *httpTest) Stop(tb testing.TB) {
 }
 
 func (t *httpTest) DoRequest(tb testing.TB, method string, path string, body any, expectedStatus int) string {
-	return testutils.DoRequest(tb, method, "http://"+t.httpServer.GetBoundAddr()+path, body, expectedStatus)
+	return testutils.DoRequest(tb, method, "http://"+t.httpServer.GetBoundAddr()+path, body, expectedStatus, func(r *goHttp.Request) *goHttp.Request { return r })
+}
+
+func (t *httpTest) DoRequestWith(tb testing.TB, method string, path string, body any, expectedStatus int, prepare func(r *goHttp.Request) *goHttp.Request) string {
+	return testutils.DoRequest(tb, method, "http://"+t.httpServer.GetBoundAddr()+path, body, expectedStatus, prepare)
 }

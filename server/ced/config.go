@@ -3,10 +3,14 @@ package ced
 import "errors"
 
 type Config struct {
-	PrettyLog     bool
-	DbPath        string
-	HttpPort      string
+	PrettyLog bool
+	DbPath    string
+	HttpPort  string
+	// CORS allowed origins
 	AllowedOrigin string
+
+	// Which header contains client IP address
+	ClientIPHeader string
 }
 
 func (c Config) Validate() error {

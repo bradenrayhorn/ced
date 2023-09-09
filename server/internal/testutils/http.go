@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func DoRequest(t testing.TB, method string, url string, body any, expectedStatus int) string {
+func DoRequest(t testing.TB, method string, url string, body any, expectedStatus int, prepare func(r *http.Request) *http.Request) string {
 	var reqBody io.Reader
 	switch body := body.(type) {
 	case string:
@@ -21,6 +21,7 @@ func DoRequest(t testing.TB, method string, url string, body any, expectedStatus
 	if err != nil {
 		t.Fatal(err)
 	}
+	req = prepare(req)
 
 	client := &http.Client{}
 

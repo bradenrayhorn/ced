@@ -57,6 +57,10 @@ spec:
           env:
             - name: DB_PATH
               value: "/app-data/ced.db"
+            {{- if .Values.ced.clientIpHeader }}
+            - name: CLIENT_IP_HEADER
+              value: {{ .Values.ced.clientIpHeader }}
+            {{- end}}
           volumeMounts:
             - name: app-data
               mountPath: /app-data/
@@ -129,6 +133,10 @@ spec:
               value: {{ .Values.event.url }}
             - name: PUBLIC_BASE_API_URL
               value: ""
+            {{- if .Values.ced.clientIpHeader }}
+            - name: CLIENT_IP_HEADER
+              value: {{ .Values.ced.clientIpHeader }}
+            {{- end}}
             {{- if .Values.event.theme }}
             - name: PUBLIC_THEME
               value: {{ .Values.event.theme }}

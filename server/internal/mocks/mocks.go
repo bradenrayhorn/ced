@@ -10,7 +10,8 @@ import (
 )
 
 // MockCountable is a mock implementation of the Countable interface (from
-// the package github.com/bradenrayhorn/ced/server/ced) used for unit testing.
+// the package github.com/bradenrayhorn/ced/server/ced) used for unit
+// testing.
 type MockCountable struct {
 	// LengthFunc is an instance of a mock function object controlling the
 	// behavior of the method Length.
@@ -150,7 +151,8 @@ func (c CountableLengthFuncCall) Results() []interface{} {
 }
 
 // MockEmptiable is a mock implementation of the Emptiable interface (from
-// the package github.com/bradenrayhorn/ced/server/ced) used for unit testing.
+// the package github.com/bradenrayhorn/ced/server/ced) used for unit
+// testing.
 type MockEmptiable struct {
 	// EmptyFunc is an instance of a mock function object controlling the
 	// behavior of the method Empty.
@@ -579,7 +581,7 @@ func NewMockGroupContract() *MockGroupContract {
 			},
 		},
 		RespondFunc: &GroupContractRespondFunc{
-			defaultHook: func(context.Context, ced.ID, uint8) (r0 error) {
+			defaultHook: func(context.Context, ced.ID, uint8, string) (r0 error) {
 				return
 			},
 		},
@@ -606,7 +608,7 @@ func NewStrictMockGroupContract() *MockGroupContract {
 			},
 		},
 		RespondFunc: &GroupContractRespondFunc{
-			defaultHook: func(context.Context, ced.ID, uint8) error {
+			defaultHook: func(context.Context, ced.ID, uint8, string) error {
 				panic("unexpected invocation of MockGroupContract.Respond")
 			},
 		},
@@ -858,24 +860,24 @@ func (c GroupContractGetFuncCall) Results() []interface{} {
 // GroupContractRespondFunc describes the behavior when the Respond method
 // of the parent MockGroupContract instance is invoked.
 type GroupContractRespondFunc struct {
-	defaultHook func(context.Context, ced.ID, uint8) error
-	hooks       []func(context.Context, ced.ID, uint8) error
+	defaultHook func(context.Context, ced.ID, uint8, string) error
+	hooks       []func(context.Context, ced.ID, uint8, string) error
 	history     []GroupContractRespondFuncCall
 	mutex       sync.Mutex
 }
 
 // Respond delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockGroupContract) Respond(v0 context.Context, v1 ced.ID, v2 uint8) error {
-	r0 := m.RespondFunc.nextHook()(v0, v1, v2)
-	m.RespondFunc.appendCall(GroupContractRespondFuncCall{v0, v1, v2, r0})
+func (m *MockGroupContract) Respond(v0 context.Context, v1 ced.ID, v2 uint8, v3 string) error {
+	r0 := m.RespondFunc.nextHook()(v0, v1, v2, v3)
+	m.RespondFunc.appendCall(GroupContractRespondFuncCall{v0, v1, v2, v3, r0})
 	return r0
 }
 
 // SetDefaultHook sets function that is called when the Respond method of
 // the parent MockGroupContract instance is invoked and the hook queue is
 // empty.
-func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced.ID, uint8) error) {
+func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced.ID, uint8, string) error) {
 	f.defaultHook = hook
 }
 
@@ -883,7 +885,7 @@ func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced
 // Respond method of the parent MockGroupContract instance invokes the hook
 // at the front of the queue and discards it. After the queue is empty, the
 // default hook function is invoked for any future action.
-func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ID, uint8) error) {
+func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ID, uint8, string) error) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -892,19 +894,19 @@ func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ID, u
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
 func (f *GroupContractRespondFunc) SetDefaultReturn(r0 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID, uint8) error {
+	f.SetDefaultHook(func(context.Context, ced.ID, uint8, string) error {
 		return r0
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
 func (f *GroupContractRespondFunc) PushReturn(r0 error) {
-	f.PushHook(func(context.Context, ced.ID, uint8) error {
+	f.PushHook(func(context.Context, ced.ID, uint8, string) error {
 		return r0
 	})
 }
 
-func (f *GroupContractRespondFunc) nextHook() func(context.Context, ced.ID, uint8) error {
+func (f *GroupContractRespondFunc) nextHook() func(context.Context, ced.ID, uint8, string) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -946,6 +948,9 @@ type GroupContractRespondFuncCall struct {
 	// Arg2 is the value of the 3rd argument passed to this method
 	// invocation.
 	Arg2 uint8
+	// Arg3 is the value of the 4th argument passed to this method
+	// invocation.
+	Arg3 string
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 error
@@ -954,7 +959,7 @@ type GroupContractRespondFuncCall struct {
 // Args returns an interface slice containing the arguments of this
 // invocation.
 func (c GroupContractRespondFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
+	return []interface{}{c.Arg0, c.Arg1, c.Arg2, c.Arg3}
 }
 
 // Results returns an interface slice containing the results of this
@@ -1071,8 +1076,8 @@ func (c GroupContractSearchFuncCall) Results() []interface{} {
 }
 
 // MockGroupRespository is a mock implementation of the GroupRespository
-// interface (from the package github.com/bradenrayhorn/ced/server/ced) used for
-// unit testing.
+// interface (from the package github.com/bradenrayhorn/ced/server/ced) used
+// for unit testing.
 type MockGroupRespository struct {
 	// CreateFunc is an instance of a mock function object controlling the
 	// behavior of the method Create.

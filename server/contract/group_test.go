@@ -77,12 +77,13 @@ func TestGroup(t *testing.T) {
 	})
 
 	t.Run("update group", func(t *testing.T) {
+		ip := "127.0.0.1"
 
 		t.Run("can update response", func(t *testing.T) {
 			defer setup(t)()
 			is := is.New(t)
 
-			err := groupContract.Respond(context.Background(), group1.ID, 5)
+			err := groupContract.Respond(context.Background(), group1.ID, 5, ip)
 			is.NoErr(err)
 
 			res, err := groupRepository.Get(context.Background(), group1.ID)
@@ -95,7 +96,7 @@ func TestGroup(t *testing.T) {
 			defer setup(t)()
 			is := is.New(t)
 
-			err := groupContract.Respond(context.Background(), group2.ID, 0)
+			err := groupContract.Respond(context.Background(), group2.ID, 0, ip)
 			is.NoErr(err)
 
 			res, err := groupRepository.Get(context.Background(), group2.ID)
@@ -107,14 +108,14 @@ func TestGroup(t *testing.T) {
 		t.Run("cannot update invalid group", func(t *testing.T) {
 			defer setup(t)()
 
-			err := groupContract.Respond(context.Background(), ced.NewID(), 1)
+			err := groupContract.Respond(context.Background(), ced.NewID(), 1, ip)
 			testutils.IsCodeAndError(t, err, ced.ENOTFOUND, "ced.Group not found.")
 		})
 
 		t.Run("cannot update to more attendees than allowed", func(t *testing.T) {
 			defer setup(t)()
 
-			err := groupContract.Respond(context.Background(), group1.ID, 6)
+			err := groupContract.Respond(context.Background(), group1.ID, 6, ip)
 			testutils.IsCodeAndError(t, err, ced.EINVALID, "group can have at most 5 attendees")
 		})
 	})
