@@ -46,3 +46,10 @@ The chart is currently somewhat inflexible; there are not many configurations su
 The chart optionally supports setting configuring [litestream](https://litestream.io/).
 This enables backup and automated recovery of ced sqlite data.
 
+## Local Development
+
+The Makefile contains two targets that can be used to start the server and ui locally.
+
+- `make run/server`
+- `make run/ui`
+
