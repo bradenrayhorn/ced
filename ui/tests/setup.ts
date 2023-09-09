@@ -12,6 +12,7 @@ type Fixtures = {
 const randomString = () => Math.random().toString(36);
 
 export const test = base.extend<Fixtures>({
+  // eslint-disable-next-line no-empty-pattern
   prefix: async ({}, use) => {
     await use({ prefix: randomString() });
   },

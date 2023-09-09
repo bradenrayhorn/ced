@@ -82,6 +82,31 @@ jobs:
         run: npm run test:integration
         working-directory: ./ui
 
+  lint-svelte:
+    name: Lint Svelte
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/.nvmrc"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./ui
+
+      - name: Prettier and ESLint
+        run: npm run lint
+        working-directory: ./ui
+        if: always()
+
+      - name: svelte-check
+        run: npm run check -- --fail-on-warnings
+        working-directory: ./ui
+        if: always()
+
   lint-helm:
     name: Lint Helm
     runs-on: ubuntu-latest

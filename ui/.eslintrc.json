@@ -1,0 +1,34 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:svelte/recommended",
+    "plugin:svelte/prettier",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "ignorePatterns": ["build/*"],
+  "overrides": [
+    {
+      "files": ["*.svelte"],
+      "parser": "svelte-eslint-parser",
+      "parserOptions": {
+        "sourceType": "module",
+        "parser": "@typescript-eslint/parser"
+      }
+    },
+    {
+      "files": ["src/**/*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "tsconfig.json"
+      }
+    },
+    {
+      "files": ["entry.js"],
+      "env": {
+        "node": true
+      }
+    }
+  ],
+  "rules": {}
+}

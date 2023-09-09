@@ -5,7 +5,9 @@
 </script>
 
 <svelte:head>
-  {@html `<script>${autoModeWatcher.toString()} autoModeWatcher();</script>`}
+  <!-- The \u{73} syntax is needed to avoid a parse error: https://github.com/sveltejs/svelte-eslint-parser/issues/346. -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html `<\u{73}cript>${autoModeWatcher.toString()} autoModeWatcher(); </script>`}
 </svelte:head>
 
 <div
