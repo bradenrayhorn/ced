@@ -9,11 +9,11 @@ import (
 
 func LoadConfig() ced.Config {
 	return ced.Config{
-		PrettyLog:      isTrue(os.Getenv("PRETTY_LOG")),
-		DbPath:         GetDbPath(),
-		HttpPort:       os.Getenv("HTTP_PORT"),
-		AllowedOrigin:  os.Getenv("ORIGIN"),
-		ClientIPHeader: os.Getenv("CLIENT_IP_HEADER"),
+		PrettyLog:           isTrue(os.Getenv("PRETTY_LOG")),
+		DbPath:              GetDbPath(),
+		HttpPort:            os.Getenv("HTTP_PORT"),
+		AllowedOrigin:       os.Getenv("ORIGIN"),
+		CloudflareTrustedIP: os.Getenv("CLOUDFLARE_TRUSTED_IP"),
 	}
 }
 

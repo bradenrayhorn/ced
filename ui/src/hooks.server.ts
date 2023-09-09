@@ -15,14 +15,14 @@ export const handle: Handle = async ({ event, resolve }) => {
   });
 };
 
-const forwarded = [privateEnv.CLIENT_IP_HEADER ?? ""];
+const enableCloudflareForwarding = privateEnv.ENABLE_CLOUDFLARE_FORWARDING;
 
 export const handleFetch: HandleFetch = ({ event, request, fetch }) => {
-  for (const header of forwarded.filter((h) => h.trim().length > 0)) {
-    const value = event.request.headers.get(header);
-    if (value !== null && !request.headers.has(header)) {
-      request.headers.set(header, value);
-    }
+  if (enableCloudflareForwarding) {
+    request.headers.set(
+      "X-Real-IP",
+      event.request.headers.get("CF-Connecting-IP") ?? "",
+    );
   }
 
   return fetch(request);

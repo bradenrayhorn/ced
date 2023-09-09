@@ -70,9 +70,7 @@ func (s *Server) handleGroupUpdate() HandlerFunc {
 			return HttpResponse{}, err
 		}
 
-		connectingIP := r.Header.Get(s.config.ClientIPHeader)
-
-		if err := s.groupContract.Respond(r.Context(), id, req.Attendees, connectingIP); err != nil {
+		if err := s.groupContract.Respond(r.Context(), id, req.Attendees, r.RemoteAddr); err != nil {
 			return HttpResponse{}, err
 		}
 
