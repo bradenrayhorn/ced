@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'helm/**'
+  workflow_dispatch:
 
 jobs:
   release:
@@ -25,7 +26,14 @@ jobs:
       - name: Package and release
         working-directory: ./helm/ced
         run: |
+          RUN_NUMBER=${{github.run_number}}
+          IS_ALPHA=${{ github.event_name == 'workflow_dispatch' }}
           VERSION=$(helm show chart . | yq '.version')
+          if [$IS_ALPHA]
+          then
+          VERSION="0.0.0-alpha.$RUN_NUMBER"
+          yq -i e ".version |= $VERSION" Chart.yaml
+          fi
           PACKAGE=ced-helm-$VERSION.tgz
 
           helm package .
