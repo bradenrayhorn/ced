@@ -13,7 +13,7 @@ import (
 func TestRealIP(t *testing.T) {
 	var tests = []struct {
 		name               string
-		xRealIP            string
+		xConnectingIP      string
 		cfConnectingIP     string
 		configTrustedIP    string
 		expectedRemoteAddr string
@@ -31,7 +31,7 @@ func TestRealIP(t *testing.T) {
 			is := is.New(t)
 
 			req, _ := http.NewRequest("GET", "/", nil)
-			req.Header.Add("X-Real-IP", test.xRealIP)
+			req.Header.Add("x-ced-connecting-ip", test.xConnectingIP)
 			req.Header.Add("CF-Connecting-IP", test.cfConnectingIP)
 			req.RemoteAddr = "[::1]:65713"
 			w := httptest.NewRecorder()
