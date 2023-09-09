@@ -20,7 +20,7 @@ const enableCloudflareForwarding = privateEnv.ENABLE_CLOUDFLARE_FORWARDING;
 export const handleFetch: HandleFetch = ({ event, request, fetch }) => {
   if (enableCloudflareForwarding) {
     request.headers.set(
-      "X-Real-IP",
+      "x-ced-connecting-ip",
       event.request.headers.get("CF-Connecting-IP") ?? "",
     );
   }
