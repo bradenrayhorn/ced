@@ -1,23 +1,15 @@
-import { api } from "$lib/api";
 import { redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
+import { doRequest } from "$lib/action-api";
 
 export const actions: Actions = {
   modify: async ({ fetch, request, params }) => {
-    const data = await request.formData();
-    const attendees = data.get("attendees")?.toString();
-    if (!attendees || Number.isNaN(+attendees)) {
-      throw Error("Invalid attendees.");
-    }
-
-    const res = await fetch(api(`/v1/groups/${params.id}`), {
+    await doRequest({
       method: "PUT",
-      body: JSON.stringify({ attendees: +attendees }),
+      path: `/v1/groups/${params.id}`,
+      request,
+      fetch,
     });
-
-    if (!res.ok) {
-      throw Error(await res.text());
-    }
 
     throw redirect(303, `/modify/${params.id}/complete`);
   },

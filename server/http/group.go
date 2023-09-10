@@ -55,7 +55,7 @@ func (s *Server) handleGroupGet() HandlerFunc {
 
 func (s *Server) handleGroupUpdate() HandlerFunc {
 	type request struct {
-		Attendees uint8 `json:"attendees"`
+		Attendees uint8 `json:"attendees,string"`
 	}
 
 	return func(r *http.Request) (HttpResponse, error) {

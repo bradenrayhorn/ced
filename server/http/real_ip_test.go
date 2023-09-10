@@ -13,17 +13,16 @@ import (
 func TestRealIP(t *testing.T) {
 	var tests = []struct {
 		name               string
-		xConnectingIP      string
-		cfConnectingIP     string
-		configTrustedIP    string
+		addConfig          bool
+		xRealIP            string
 		expectedRemoteAddr string
 	}{
 		{"returns remote addr with no config",
-			"192.0.0.1", "192.0.0.2", "", "::1"},
-		{"returns remote addr with config and non-trusted cf ip",
-			"192.0.0.1", "192.0.0.2", "192.0.0.3", "::1"},
-		{"returns x-real-ip with config and trusted cf ip",
-			"192.0.0.1", "192.0.0.2", "192.0.0.2", "192.0.0.1"},
+			false, "192.0.0.1", "::1"},
+		{"returns remote addr with config and no value in header",
+			true, "", "::1"},
+		{"returns real ip with config and value in header",
+			true, "192.0.0.1", "192.0.0.1"},
 	}
 
 	for _, test := range tests {
@@ -31,13 +30,17 @@ func TestRealIP(t *testing.T) {
 			is := is.New(t)
 
 			req, _ := http.NewRequest("GET", "/", nil)
-			req.Header.Add("x-ced-connecting-ip", test.xConnectingIP)
-			req.Header.Add("CF-Connecting-IP", test.cfConnectingIP)
+			req.Header.Add("x-real-ip", test.xRealIP)
 			req.RemoteAddr = "[::1]:65713"
 			w := httptest.NewRecorder()
 
 			r := chi.NewRouter()
-			r.Use(RealIP(ced.Config{CloudflareTrustedIP: test.configTrustedIP}))
+
+			header := ""
+			if test.addConfig {
+				header = "x-real-ip"
+			}
+			r.Use(RealIP(ced.Config{TrustedClientIPHeader: header}))
 
 			realIP := ""
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {

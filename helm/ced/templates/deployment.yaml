@@ -57,9 +57,9 @@ spec:
           env:
             - name: DB_PATH
               value: "/app-data/ced.db"
-            {{- if .Values.ced.trusted.cloudflare.enabled }}
-            - name: CLOUDFLARE_TRUSTED_IP
-              value: {{ .Values.ced.trusted.cloudflare.trustedConnectingIP }}
+            {{- if .Values.ced.trustedIP.enabled }}
+            - name: TRUSTED_CLIENT_IP_HEADER
+              value: {{ .Values.ced.trustedIP.header }}
             {{- end}}
           volumeMounts:
             - name: app-data
@@ -133,9 +133,11 @@ spec:
               value: {{ .Values.event.url }}
             - name: PUBLIC_BASE_API_URL
               value: ""
-            {{- if .Values.ced.trusted.cloudflare.enabled }}
-            - name: ENABLE_CLOUDFLARE_FORWARDING
-              value: "true"
+            - name: UNPROXIED_BASE_API_URL
+              value: {{ include "ced.fullname" . }}-server
+            {{- if .Values.ced.trustedIP.enabled }}
+            - name: TRUSTED_CLIENT_IP_HEADER
+              value: {{ .Values.ced.trustedIP.header }}
             {{- end}}
             {{- if .Values.event.theme }}
             - name: PUBLIC_THEME

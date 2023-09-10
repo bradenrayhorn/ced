@@ -116,7 +116,7 @@ func TestUpdateGroup(t *testing.T) {
 
 		test.groupContract.RespondFunc.PushReturn(nil)
 
-		r := test.DoRequest(t, "PUT", fmt.Sprintf("/api/v1/groups/%s", groupID), `{"attendees":5}`, http.StatusOK)
+		r := test.DoRequest(t, "PUT", fmt.Sprintf("/api/v1/groups/%s", groupID), `{"attendees":"5"}`, http.StatusOK)
 		is.Equal(r, "")
 
 		params := test.groupContract.RespondFunc.History()[0]

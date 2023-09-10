@@ -9,6 +9,7 @@ run/server:
 run/ui: export PUBLIC_EVENT_TITLE=An Event
 run/ui: export PUBLIC_EVENT_URL=https://example.com
 run/ui: export PUBLIC_BASE_API_URL=
+run/ui: export UNPROXIED_BASE_API_URL=
 
 run/ui:
 	(cd ui && npm run dev)

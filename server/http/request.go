@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/bradenrayhorn/ced/server/ced"
 )
@@ -40,6 +41,10 @@ func decodeRequest(r *http.Request, v any) error {
 					unmarshalTypeError.Field,
 				),
 			)
+		}
+
+		if strings.Contains(err.Error(), "json: invalid use of ,string struct tag") {
+			return ced.NewError(ced.EUNPROCESSABLE, "Invalid data provided. Please double check data types.")
 		}
 
 		return err

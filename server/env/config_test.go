@@ -34,11 +34,11 @@ func TestReadsFromEnv(t *testing.T) {
 
 	is.NoErr(os.Setenv("DB_PATH", "path.db"))
 	is.NoErr(os.Setenv("PRETTY_LOG", "true"))
-	is.NoErr(os.Setenv("CLOUDFLARE_TRUSTED_IP", "Client-IP"))
+	is.NoErr(os.Setenv("TRUSTED_CLIENT_IP_HEADER", "Client-IP"))
 
 	config := LoadConfig()
 
 	is.Equal(config.DbPath, "path.db")
 	is.Equal(config.PrettyLog, true)
-	is.Equal(config.CloudflareTrustedIP, "Client-IP")
+	is.Equal(config.TrustedClientIPHeader, "Client-IP")
 }
