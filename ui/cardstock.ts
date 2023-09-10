@@ -49,16 +49,17 @@ export const cardstock: CustomThemeConfig = {
     "--color-tertiary-700": "73 113 122",
     "--color-tertiary-800": "58 91 98",
     "--color-tertiary-900": "48 74 80",
-    "--color-success-50": "227 239 236",
-    "--color-success-100": "218 234 229",
-    "--color-success-200": "209 228 223",
-    "--color-success-300": "181 212 203",
-    "--color-success-400": "126 180 164",
-    "--color-success-500": "71 148 125",
-    "--color-success-600": "64 133 113",
-    "--color-success-700": "53 111 94",
-    "--color-success-800": "43 89 75",
-    "--color-success-900": "35 73 61",
+    // success | #7FA86B
+    "--color-success-50": "236 242 233", // #ecf2e9
+    "--color-success-100": "229 238 225", // #e5eee1
+    "--color-success-200": "223 233 218", // #dfe9da
+    "--color-success-300": "204 220 196", // #ccdcc4
+    "--color-success-400": "165 194 151", // #a5c297
+    "--color-success-500": "127 168 107", // #7FA86B
+    "--color-success-600": "114 151 96", // #729760
+    "--color-success-700": "95 126 80", // #5f7e50
+    "--color-success-800": "76 101 64", // #4c6540
+    "--color-success-900": "62 82 52", // #3e5234
     "--color-warning-50": "249 242 226",
     "--color-warning-100": "248 238 216",
     "--color-warning-200": "246 234 207",
