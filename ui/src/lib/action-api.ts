@@ -1,8 +1,4 @@
-import { env } from "$env/dynamic/private";
-
-export function unproxiedApi(path: string): string {
-  return `${env.UNPROXIED_BASE_API_URL}/api${path}`;
-}
+import { api } from "./api";
 
 export const doRequest = async ({
   method,
@@ -21,7 +17,7 @@ export const doRequest = async ({
     obj[key] = value.toString();
   });
 
-  const res = await internalFetch(unproxiedApi(path), {
+  const res = await internalFetch(api(path), {
     method,
     body: JSON.stringify(obj),
   });
