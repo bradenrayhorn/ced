@@ -26,10 +26,11 @@ func getRealIP(config ced.Config, req *http.Request) string {
 		realIP = ip
 	}
 
-	// cloudflare
-	if config.CloudflareTrustedIP != "" {
-		if req.Header.Get("CF-Connecting-IP") == config.CloudflareTrustedIP {
-			realIP = req.Header.Get("x-ced-connecting-ip")
+	// trusted client ip header
+	if config.TrustedClientIPHeader != "" {
+		val := req.Header.Get(config.TrustedClientIPHeader)
+		if val != "" {
+			realIP = val
 		}
 	}
 

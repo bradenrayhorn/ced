@@ -13,11 +13,11 @@ event:
   # theme: cardstock
 
 ced:
-  trusted:
-    cloudflare:
-      enabled: false
-      # Which CF-Connecting-IP to trust the X-Real-IP header from.
-      trustedConnectingIP: 192.168.0.1
+  trustedIP:
+    enabled: false
+    # Which trusted header to use as the value of the client IP.
+    # Should ONLY be used if this header is set from a trusted proxy.
+    header: CF-Connecting-IP
 
 nameOverride: ""
 fullnameOverride: ""

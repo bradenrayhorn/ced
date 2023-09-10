@@ -50,4 +50,14 @@ func TestDecodeRequest(t *testing.T) {
 
 		testutils.IsCodeAndError(t, err, ced.EUNPROCESSABLE, "Invalid data `string` for `name` field.")
 	})
+
+	t.Run("returns error for bad type with ,string flag", func(t *testing.T) {
+		req := request(`{"val":false}`)
+		var r struct {
+			Val bool `json:"val,string"`
+		}
+		err := decodeRequest(req, &r)
+
+		testutils.IsCodeAndError(t, err, ced.EUNPROCESSABLE, "Invalid data provided. Please double check data types.")
+	})
 }
