@@ -82,6 +82,31 @@ jobs:
         run: npm run test:integration
         working-directory: ./ui
 
+  test-playwright-proxied:
+    name: Playwright Tests (Proxied Config)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "./server/go.mod"
+          cache: false
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: "./ui/.nvmrc"
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./ui
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./ui
+      - name: Run Playwright tests
+        run: npm run test:integration:proxied
+        working-directory: ./ui
+
   lint-svelte:
     name: Lint Svelte
     runs-on: ubuntu-latest

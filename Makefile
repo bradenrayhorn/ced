@@ -2,6 +2,7 @@
 
 run/server: export HTTP_PORT=8080
 run/server: export DB_PATH=ced.db
+run/server: export ORIGIN=http://localhost:5173
 
 run/server:
 	(cd server && go run ./cmd/cedd)

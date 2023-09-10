@@ -18,22 +18,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 };
 
 export const handleFetch: HandleFetch = ({ event, request, fetch }) => {
-  if (env.PUBLIC_BASE_API_URL === "") {
-    // if base api url is empty, put unproxied base api url at start
+  const url = new URL(request.url);
+
+  if (privateEnv.UNPROXIED_BASE_API_URL) {
     request = new Request(
-      `${privateEnv.UNPROXIED_BASE_API_URL ?? ""}${request.url}`,
-      request,
-    );
-  } else if (
-    !!env.PUBLIC_BASE_API_URL &&
-    request.url.startsWith(env.PUBLIC_BASE_API_URL)
-  ) {
-    // if base api url is set, replace with unproxied base api url
-    request = new Request(
-      request.url.replace(
-        env.PUBLIC_BASE_API_URL,
-        privateEnv.UNPROXIED_BASE_API_URL ?? "",
-      ),
+      `${privateEnv.UNPROXIED_BASE_API_URL ?? ""}${url.pathname}${url.search}`,
       request,
     );
   }
