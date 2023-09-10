@@ -16,6 +16,7 @@
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
     "format": "prettier --plugin-search-dir . --write .",
     "test:integration": "DB_PATH=../ced-e2e.db playwright test",
+    "test:integration:proxied": "DB_PATH=../ced-e2e.db UNPROXIED_BASE_API_URL=http://localhost:8080 playwright test",
     "test:unit": "vitest"
   },
   "devDependencies": {

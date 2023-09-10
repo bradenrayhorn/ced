@@ -1,4 +1,5 @@
 import type { PlaywrightTestConfig } from "@playwright/test";
+import { devices } from "@playwright/test";
 
 const config: PlaywrightTestConfig = {
   webServer: [
@@ -9,8 +10,8 @@ const config: PlaywrightTestConfig = {
       env: {
         PUBLIC_EVENT_TITLE: "An Event",
         PUBLIC_EVENT_URL: "http://localhost:5555",
-        PUBLIC_BASE_API_URL: "",
-        UNPROXIED_BASE_API_URL: "",
+        PUBLIC_BASE_API_URL: process.env.BASE_API_URL ?? "",
+        UNPROXIED_BASE_API_URL: process.env.UNPROXIED_BASE_API_URL ?? "",
       },
     },
     {
@@ -27,6 +28,21 @@ const config: PlaywrightTestConfig = {
   },
   testDir: "tests",
   testMatch: /(.+\.)?(test|spec)\.[jt]s/,
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+      },
+    },
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        javaScriptEnabled: false,
+      },
+    },
+  ],
 };
 
 export default config;

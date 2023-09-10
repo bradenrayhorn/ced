@@ -25,6 +25,8 @@ go.work
 
 # ced
 ced.db
+ced.db-shm
+ced.db-wal
 ced-e2e.db
 ced-e2e.db-shm
 ced-e2e.db-wal
