@@ -7,10 +7,12 @@ import (
 	"github.com/bradenrayhorn/ced/server/sqlite"
 )
 
+var InMemoryPoolPath = "file:testdb?mode=memory&cache=shared"
+
 func StartPool(tb testing.TB) (*sqlite.Pool, func()) {
 	pool, err := sqlite.CreatePool(
 		context.Background(),
-		"file:testdb?mode=memory&cache=shared",
+		InMemoryPoolPath,
 	)
 	if err != nil {
 		tb.Fatal(err)

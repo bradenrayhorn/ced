@@ -11,9 +11,9 @@ import (
 )
 
 type CmdContext struct {
-	in     io.Reader
-	out    io.Writer
-	dbPath string
+	in   io.Reader
+	out  io.Writer
+	pool *cmdPool
 }
 
 var cli struct {
@@ -31,6 +31,13 @@ func main() {
 		return
 	}
 
-	err := ctx.Run(&CmdContext{in: os.Stdin, out: os.Stdout, dbPath: dbPath})
+	pool, err := newCmdPool(fmt.Sprintf("file:%s", dbPath))
+	if err != nil {
+		ctx.FatalIfErrorf(err)
+		return
+	}
+	defer pool.close(os.Stdout)
+
+	err = ctx.Run(&CmdContext{in: os.Stdin, out: os.Stdout, pool: pool})
 	ctx.FatalIfErrorf(err)
 }

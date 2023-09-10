@@ -18,6 +18,7 @@ func TestGroup(t *testing.T) {
 		MaxAttendees: 5,
 		Attendees:    4,
 		HasResponded: true,
+		SearchHints:  "George Hoover",
 	}
 	group2 := ced.Group{
 		ID:           ced.NewID(),
@@ -25,6 +26,7 @@ func TestGroup(t *testing.T) {
 		MaxAttendees: 2,
 		Attendees:    0,
 		HasResponded: false,
+		SearchHints:  "Elizabeth Hoover",
 	}
 
 	var groupRepository ced.GroupRespository
@@ -47,7 +49,7 @@ func TestGroup(t *testing.T) {
 		defer setup(t)()
 		is := is.New(t)
 
-		res, err := groupContract.Search(context.Background(), "George")
+		res, err := groupContract.Search(context.Background(), "George Hover")
 		is.NoErr(err)
 
 		is.Equal(res, []ced.Group{group1})
@@ -59,19 +61,20 @@ func TestGroup(t *testing.T) {
 			defer setup(t)()
 			is := is.New(t)
 
-			res, err := groupContract.Create(context.Background(), ced.Name("Tom"), 1)
+			res, err := groupContract.Create(context.Background(), ced.Name("Tom"), 1, "Thomas")
 			is.NoErr(err)
 			is.True(!res.ID.Empty())
 			is.Equal(res.Name, ced.Name("Tom"))
 			is.Equal(res.Attendees, uint8(0))
 			is.Equal(res.MaxAttendees, uint8(1))
 			is.Equal(res.HasResponded, false)
+			is.Equal(res.SearchHints, "Thomas")
 		})
 
 		t.Run("name must be valid", func(t *testing.T) {
 			defer setup(t)()
 
-			_, err := groupContract.Create(context.Background(), ced.Name(""), 1)
+			_, err := groupContract.Create(context.Background(), ced.Name(""), 1, "")
 			testutils.IsCodeAndError(t, err, ced.EINVALID, "Name is required.")
 		})
 	})

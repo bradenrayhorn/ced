@@ -17,5 +17,6 @@ func Group(stmt *sqlite.Stmt) (ced.Group, error) {
 		Attendees:    uint8(stmt.GetInt64("attendees")),
 		MaxAttendees: uint8(stmt.GetInt64("max_attendees")),
 		HasResponded: stmt.GetBool("has_responded"),
+		SearchHints:  stmt.GetText("search_hints"),
 	}, nil
 }

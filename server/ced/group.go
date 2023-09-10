@@ -8,11 +8,12 @@ type Group struct {
 	Attendees    uint8
 	MaxAttendees uint8
 	HasResponded bool
+	SearchHints  string
 }
 
 type GroupContract interface {
 	// Creates a new group.
-	Create(ctx context.Context, name Name, maxAttendees uint8) (Group, error)
+	Create(ctx context.Context, name Name, maxAttendees uint8, searchHints string) (Group, error)
 
 	// Searches for a group using the search string.
 	Search(ctx context.Context, search string) ([]Group, error)
