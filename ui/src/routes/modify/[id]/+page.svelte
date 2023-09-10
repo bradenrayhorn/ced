@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { navigating } from "$app/stores";
   import { ProgressRadial } from "@skeletonlabs/skeleton";
   import type { PageData } from "./$types";
 
@@ -21,6 +22,8 @@
     "Nine guests",
     "Ten guests",
   ].slice(0, group.max_attendees + 1);
+
+  $: isLoading = isSaving || !!$navigating;
 </script>
 
 <svelte:head>
@@ -54,7 +57,7 @@
         name="attendees"
         value={index}
         checked={group.attendees === index}
-        disabled={isSaving}
+        disabled={isLoading}
       />
       <p>{option}</p>
     </label>
@@ -63,9 +66,9 @@
   <button
     class="btn variant-filled w-full mt-6 mb-2 h-10"
     type="submit"
-    disabled={isSaving}
+    disabled={isLoading}
   >
-    {#if isSaving}
+    {#if isLoading}
       <ProgressRadial width="w-6" />
     {:else}
       Confirm
