@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/bradenrayhorn/ced/server/ced"
 )
@@ -20,7 +21,7 @@ func NewGroupContract(
 	return &groupContract{groupRepository}
 }
 
-func (c *groupContract) Create(ctx context.Context, name ced.Name, maxAttendees uint8) (ced.Group, error) {
+func (c *groupContract) Create(ctx context.Context, name ced.Name, maxAttendees uint8, searchHints string) (ced.Group, error) {
 	if err := ced.ValidateFields(ced.Field("Name", name)); err != nil {
 		return ced.Group{}, err
 	}
@@ -31,6 +32,7 @@ func (c *groupContract) Create(ctx context.Context, name ced.Name, maxAttendees 
 		MaxAttendees: maxAttendees,
 		Attendees:    0,
 		HasResponded: false,
+		SearchHints:  strings.TrimSpace(searchHints),
 	}
 
 	if err := c.groupRepository.Create(ctx, group); err != nil {

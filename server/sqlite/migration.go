@@ -9,4 +9,5 @@ var migrations = []string{
 		has_responded INT(1) NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);`,
+	`ALTER TABLE groups ADD COLUMN search_hints VARCHAR(255) DEFAULT "";`,
 }

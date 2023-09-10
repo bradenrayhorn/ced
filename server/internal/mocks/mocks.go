@@ -571,7 +571,7 @@ type MockGroupContract struct {
 func NewMockGroupContract() *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
-			defaultHook: func(context.Context, ced.Name, uint8) (r0 ced.Group, r1 error) {
+			defaultHook: func(context.Context, ced.Name, uint8, string) (r0 ced.Group, r1 error) {
 				return
 			},
 		},
@@ -598,7 +598,7 @@ func NewMockGroupContract() *MockGroupContract {
 func NewStrictMockGroupContract() *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
-			defaultHook: func(context.Context, ced.Name, uint8) (ced.Group, error) {
+			defaultHook: func(context.Context, ced.Name, uint8, string) (ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Create")
 			},
 		},
@@ -643,23 +643,23 @@ func NewMockGroupContractFrom(i ced.GroupContract) *MockGroupContract {
 // GroupContractCreateFunc describes the behavior when the Create method of
 // the parent MockGroupContract instance is invoked.
 type GroupContractCreateFunc struct {
-	defaultHook func(context.Context, ced.Name, uint8) (ced.Group, error)
-	hooks       []func(context.Context, ced.Name, uint8) (ced.Group, error)
+	defaultHook func(context.Context, ced.Name, uint8, string) (ced.Group, error)
+	hooks       []func(context.Context, ced.Name, uint8, string) (ced.Group, error)
 	history     []GroupContractCreateFuncCall
 	mutex       sync.Mutex
 }
 
 // Create delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockGroupContract) Create(v0 context.Context, v1 ced.Name, v2 uint8) (ced.Group, error) {
-	r0, r1 := m.CreateFunc.nextHook()(v0, v1, v2)
-	m.CreateFunc.appendCall(GroupContractCreateFuncCall{v0, v1, v2, r0, r1})
+func (m *MockGroupContract) Create(v0 context.Context, v1 ced.Name, v2 uint8, v3 string) (ced.Group, error) {
+	r0, r1 := m.CreateFunc.nextHook()(v0, v1, v2, v3)
+	m.CreateFunc.appendCall(GroupContractCreateFuncCall{v0, v1, v2, v3, r0, r1})
 	return r0, r1
 }
 
 // SetDefaultHook sets function that is called when the Create method of the
 // parent MockGroupContract instance is invoked and the hook queue is empty.
-func (f *GroupContractCreateFunc) SetDefaultHook(hook func(context.Context, ced.Name, uint8) (ced.Group, error)) {
+func (f *GroupContractCreateFunc) SetDefaultHook(hook func(context.Context, ced.Name, uint8, string) (ced.Group, error)) {
 	f.defaultHook = hook
 }
 
@@ -667,7 +667,7 @@ func (f *GroupContractCreateFunc) SetDefaultHook(hook func(context.Context, ced.
 // Create method of the parent MockGroupContract instance invokes the hook
 // at the front of the queue and discards it. After the queue is empty, the
 // default hook function is invoked for any future action.
-func (f *GroupContractCreateFunc) PushHook(hook func(context.Context, ced.Name, uint8) (ced.Group, error)) {
+func (f *GroupContractCreateFunc) PushHook(hook func(context.Context, ced.Name, uint8, string) (ced.Group, error)) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -676,19 +676,19 @@ func (f *GroupContractCreateFunc) PushHook(hook func(context.Context, ced.Name, 
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
 func (f *GroupContractCreateFunc) SetDefaultReturn(r0 ced.Group, r1 error) {
-	f.SetDefaultHook(func(context.Context, ced.Name, uint8) (ced.Group, error) {
+	f.SetDefaultHook(func(context.Context, ced.Name, uint8, string) (ced.Group, error) {
 		return r0, r1
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
 func (f *GroupContractCreateFunc) PushReturn(r0 ced.Group, r1 error) {
-	f.PushHook(func(context.Context, ced.Name, uint8) (ced.Group, error) {
+	f.PushHook(func(context.Context, ced.Name, uint8, string) (ced.Group, error) {
 		return r0, r1
 	})
 }
 
-func (f *GroupContractCreateFunc) nextHook() func(context.Context, ced.Name, uint8) (ced.Group, error) {
+func (f *GroupContractCreateFunc) nextHook() func(context.Context, ced.Name, uint8, string) (ced.Group, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -730,6 +730,9 @@ type GroupContractCreateFuncCall struct {
 	// Arg2 is the value of the 3rd argument passed to this method
 	// invocation.
 	Arg2 uint8
+	// Arg3 is the value of the 4th argument passed to this method
+	// invocation.
+	Arg3 string
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 ced.Group
@@ -741,7 +744,7 @@ type GroupContractCreateFuncCall struct {
 // Args returns an interface slice containing the arguments of this
 // invocation.
 func (c GroupContractCreateFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
+	return []interface{}{c.Arg0, c.Arg1, c.Arg2, c.Arg3}
 }
 
 // Results returns an interface slice containing the results of this

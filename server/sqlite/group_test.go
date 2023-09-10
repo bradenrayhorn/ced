@@ -29,6 +29,7 @@ func TestGroup(t *testing.T) {
 			MaxAttendees: 5,
 			Attendees:    4,
 			HasResponded: true,
+			SearchHints:  "George Hoover, Eleanor Hoover",
 		}
 		err := groupRepository.Create(context.Background(), group)
 		is.NoErr(err)
@@ -57,32 +58,71 @@ func TestGroup(t *testing.T) {
 		testutils.IsCode(t, err, ced.ENOTFOUND)
 	})
 
-	t.Run("search for group", func(t *testing.T) {
+	t.Run("search", func(t *testing.T) {
 		is := is.New(t)
 		defer setup()()
 
 		group1 := ced.Group{
-			ID:   ced.NewID(),
-			Name: " George Hoover and family",
+			ID:          ced.NewID(),
+			Name:        " George Hoover and family",
+			SearchHints: "George Hoover, Kelly Hoover, Elizabeth Frank",
 		}
 		group2 := ced.Group{
-			ID:   ced.NewID(),
-			Name: "Elizabeth George",
+			ID:          ced.NewID(),
+			Name:        "Elizabeth George",
+			SearchHints: "Elizabeth George, George Manthin, Poppy Seed, Poppy Seed",
 		}
 		group3 := ced.Group{
-			ID:   ced.NewID(),
-			Name: "Geoff Kee",
+			ID:          ced.NewID(),
+			Name:        "Geoff Kee and me",
+			SearchHints: "Geoff Kee, Kelly Free",
+		}
+		group4 := ced.Group{
+			ID:          ced.NewID(),
+			Name:        "Geoff Tree & company",
+			SearchHints: "Geoff Tree, Kelly Free",
 		}
 		is.NoErr(groupRepository.Create(context.Background(), group1))
 		is.NoErr(groupRepository.Create(context.Background(), group2))
 		is.NoErr(groupRepository.Create(context.Background(), group3))
+		is.NoErr(groupRepository.Create(context.Background(), group4))
 
-		res, err := groupRepository.SearchByName(context.Background(), " gEorGe")
-		is.NoErr(err)
-		is.Equal(
-			testutils.SortSlice(res, testutils.CompareGroups),
-			testutils.SortSlice([]ced.Group{group1, group2}, testutils.CompareGroups),
-		)
+		var tests = []struct {
+			name           string
+			search         string
+			expectedGroups []ced.Group
+		}{
+			{"finds unique name",
+				"George Hoover", []ced.Group{group1}},
+			{"cannot find anything with duplicate last name",
+				"Hoover", []ced.Group{}},
+			{"can correct a typo",
+				"Geoge Hoover", []ced.Group{group1}},
+			{"can correct a 3-character typo",
+				"Geoge Hovet", []ced.Group{group1}},
+			{"cannot correct a 4-character typo",
+				"Geofe Hovet", []ced.Group{}},
+			{"does not include same group twice",
+				"Poppy Seed", []ced.Group{group2}},
+			{"may include two groups",
+				"Geoff Keee", []ced.Group{group3, group4}},
+			{"stops matching if finds exact match",
+				"Geoff Kee", []ced.Group{group3}},
+			{"searches on group name",
+				"Geoff Kee and me", []ced.Group{group3}},
+			{"can include multiple exact matches",
+				"Kelly Free", []ced.Group{group3, group4}},
+		}
+
+		for _, test := range tests {
+			t.Run(test.name, func(t *testing.T) {
+				is := is.New(t)
+
+				res, err := groupRepository.SearchByName(context.Background(), test.search)
+				is.NoErr(err)
+				is.Equal(res, test.expectedGroups)
+			})
+		}
 	})
 
 	t.Run("can update group", func(t *testing.T) {
@@ -95,6 +135,7 @@ func TestGroup(t *testing.T) {
 			MaxAttendees: 5,
 			Attendees:    4,
 			HasResponded: true,
+			SearchHints:  "George Hoover, Eleanor Hoover",
 		}
 		is.NoErr(groupRepository.Create(context.Background(), group))
 
@@ -102,6 +143,7 @@ func TestGroup(t *testing.T) {
 		group.MaxAttendees = 4
 		group.Attendees = 2
 		group.HasResponded = false
+		group.SearchHints = "Elizabeth Hoover, Eleanor Hoover"
 
 		is.NoErr(groupRepository.Update(context.Background(), group))
 
