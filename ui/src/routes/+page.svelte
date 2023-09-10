@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page, navigating } from "$app/stores";
   import { env } from "$env/dynamic/public";
+  import { ProgressRadial } from "@skeletonlabs/skeleton";
   import type { PageData } from "./$types";
 
   export let data: PageData;
@@ -26,10 +27,14 @@
   <p class="my-3"><b>{group.name}</b></p>
 
   <div class="flex gap-4">
-    <a class="btn-sm variant-filled-primary" href={`/modify/${group.id}`}>
-      Yes
-    </a>
-    <a class="btn-sm variant-ghost-primary" href="/">No</a>
+    {#if !isNavigating}
+      <a class="btn-sm variant-filled-primary" href={`/modify/${group.id}`}>
+        Yes
+      </a>
+      <a class="btn-sm variant-ghost-primary" href="/">No</a>
+    {:else}
+      <ProgressRadial width="w-6" />
+    {/if}
   </div>
 {:else}
   <form action="?" autocomplete="off">
