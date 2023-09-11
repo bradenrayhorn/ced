@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import { page, navigating } from "$app/stores";
   import { env } from "$env/dynamic/public";
   import { ProgressRadial } from "@skeletonlabs/skeleton";
@@ -6,9 +7,11 @@
 
   export let data: PageData;
 
+  let isProcessing = false;
+
   $: search = $page.url.searchParams.get("search") ?? "";
-  $: group = data.foundGroup;
-  $: isNavigating = !!$navigating;
+  $: groups = data.foundGroups;
+  $: isLoading = !!$navigating || isProcessing;
 </script>
 
 <svelte:head>
@@ -21,21 +24,70 @@
   {env.PUBLIC_EVENT_TITLE}
 </h1>
 
-{#if search && !!group}
-  <p>Is this you?</p>
+{#if search && groups.length > 0}
+  {#if groups.length === 1}
+    <p>Is this you?</p>
+  {:else}
+    <p>Is one of these options you?</p>
+  {/if}
 
-  <p class="my-3"><b>{group.name}</b></p>
+  {#if groups.length === 1}
+    <p class="my-3"><b>{groups[0].name}</b></p>
 
-  <div class="flex gap-4">
-    {#if !isNavigating}
-      <a class="btn-sm variant-filled-primary" href={`/modify/${group.id}`}>
-        Yes
-      </a>
-      <a class="btn-sm variant-ghost-primary" href="/">No</a>
-    {:else}
-      <ProgressRadial width="w-6" />
-    {/if}
-  </div>
+    <div class="flex gap-4">
+      {#if !isLoading}
+        <a
+          class="btn-sm variant-filled-primary"
+          href={`/modify/${groups[0].id}`}
+        >
+          Yes
+        </a>
+        <a class="btn-sm variant-ghost-primary" href="/">No</a>
+      {:else}
+        <ProgressRadial width="w-6" />
+      {/if}
+    </div>
+  {:else}
+    <form
+      class="my-6"
+      method="POST"
+      action="?/toModify"
+      use:enhance={() => {
+        isLoading = true;
+
+        return async ({ update }) => {
+          await update({ reset: false });
+          isLoading = false;
+        };
+      }}
+    >
+      {#each groups as group, index (group.id)}
+        <label class="flex items-center gap-2 mb-2">
+          <input
+            class="radio"
+            type="radio"
+            name="group"
+            value={group.id}
+            checked={index === 0}
+          />
+          <p>{group.name}</p>
+        </label>
+      {/each}
+
+      <label class="flex items-center gap-2 mb-2">
+        <input class="radio" type="radio" name="group" value={"0"} />
+        <p>None of the above</p>
+      </label>
+
+      <button
+        type="submit"
+        class="btn variant-filled shrink-0 mt-6"
+        disabled={isLoading}
+      >
+        Continue
+      </button>
+    </form>
+  {/if}
 {:else}
   <form action="?" autocomplete="off">
     <p class="mb-2">Please enter your full name to search for your RSVP.</p>
@@ -47,19 +99,19 @@
         title="Search"
         name="search"
         value={search}
-        disabled={isNavigating}
+        disabled={isLoading}
       />
       <button
         type="submit"
         class="btn variant-filled shrink-0"
-        disabled={isNavigating}
+        disabled={isLoading}
       >
         Search
       </button>
     </div>
   </form>
 
-  {#if search && !group}
+  {#if search && groups.length === 0}
     <aside class="alert variant-filled-error mt-2">
       <div class="alert-message">Please refine your search and try again.</div>
     </aside>
