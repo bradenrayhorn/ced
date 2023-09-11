@@ -2,7 +2,7 @@ import { api } from "$lib/api";
 import type { PageLoad } from "./$types";
 
 type Output = {
-  foundGroup: Group | null;
+  foundGroups: Group[];
 };
 
 type Group = {
@@ -19,11 +19,8 @@ export const load: PageLoad<Output> = async ({ fetch, url }) => {
   if (search) {
     const res = await fetch(api(`/v1/groups/search?search=${search}`));
     const data = await res.json();
-    const result = data.data?.[0];
-    if (result) {
-      return { foundGroup: result };
-    }
+    return { foundGroups: data.data ?? [] };
   }
 
-  return { foundGroup: null };
+  return { foundGroups: [] };
 };

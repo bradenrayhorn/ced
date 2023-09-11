@@ -109,3 +109,50 @@ test("can go back to search from modify page", async ({
   await expect(page).toHaveURL("/");
   await expect(getSearchBox(page)).toBeVisible();
 });
+
+test("can complete rsvp with two results", async ({
+  prefix: { prefix },
+  page,
+}) => {
+  await createGroup(prefix, "Fred Jam", 5, "Fred");
+  await createGroup(prefix, "Fred Ham", 5, "Fred");
+
+  // search page
+  await page.goto("/");
+  await expect(page).toHaveTitle("RSVP for An Event");
+  await doSearch({ page, prefix, search: "Fred" });
+
+  // select option page
+  await expect(page.getByText("Is one of these options you?")).toBeVisible();
+  await page.getByLabel("Fred Jam").click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // modify page
+  await page.getByLabel("Two guests").click();
+  await page.getByRole("button", { name: "Confirm" }).click();
+
+  // confirmed page
+  await expect(page.getByText("Your RSVP has been received!")).toBeVisible();
+});
+
+test("can go back to search from rsvp with two results", async ({
+  prefix: { prefix },
+  page,
+}) => {
+  await createGroup(prefix, "Fred Jam", 5, "Fred");
+  await createGroup(prefix, "Fred Ham", 5, "Fred");
+
+  // search page
+  await page.goto("/");
+  await expect(page).toHaveTitle("RSVP for An Event");
+  await doSearch({ page, prefix, search: "Fred" });
+
+  // select option page
+  await expect(page.getByText("Is one of these options you?")).toBeVisible();
+  await page.getByLabel("None of the above").click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // search page
+  await expect(getSearchBox(page)).toBeVisible();
+  await expect(getSearchBox(page)).toHaveValue("");
+});

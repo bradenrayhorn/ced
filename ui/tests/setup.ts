@@ -22,10 +22,11 @@ export const createGroup = async (
   prefix: string,
   name: string,
   maxAttendees: number,
+  searchHints: string = "",
 ): Promise<void> => {
   return new Promise((resolve) => {
     execSync(
-      `(cd ../server && go run ./cmd/ced group create --name="${prefix}${name}" --max-attendees=${maxAttendees})`,
+      `(cd ../server && go run ./cmd/ced group create --name="${prefix}${name}" --max-attendees=${maxAttendees} --search-hints="${searchHints}")`,
     );
     resolve();
   });
