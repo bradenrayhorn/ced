@@ -19,9 +19,15 @@ updates:
       typescript-eslint:
         patterns:
           - "@typescript-eslint/*"
+        update-types:
+          - "major"
       eslint:
         patterns:
           - "eslint*"
+        update-types:
+          - "major"
       prettier:
         patterns:
           - "prettier*"
+        update-types:
+          - "major"
