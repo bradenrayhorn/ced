@@ -89,12 +89,13 @@ func (r *groupRepository) Update(ctx context.Context, group ced.Group) error {
 func (r *groupRepository) Get(ctx context.Context, id ced.ID) (ced.Group, error) {
 	query := `SELECT * FROM groups WHERE id = ?;`
 
-	return mustFindResult(selectOne(ctx, r.pool, query,
+	group, err := selectOne(ctx, r.pool, query,
 		[]any{id.String()},
 		func(stmt *sqlite.Stmt) (ced.Group, error) {
 			return mapper.Group(stmt)
 		},
-	))
+	)
+	return mustFindResult(group, err, id.String())
 }
 
 func (r *groupRepository) SearchByName(ctx context.Context, name string) ([]ced.Group, error) {

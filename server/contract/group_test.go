@@ -2,6 +2,7 @@ package contract_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/bradenrayhorn/ced/server/ced"
@@ -111,8 +112,9 @@ func TestGroup(t *testing.T) {
 		t.Run("cannot update invalid group", func(t *testing.T) {
 			defer setup(t)()
 
-			err := groupContract.Respond(context.Background(), ced.NewID(), 1, ip)
-			testutils.IsCodeAndError(t, err, ced.ENOTFOUND, "ced.Group not found.")
+			id := ced.NewID()
+			err := groupContract.Respond(context.Background(), id, 1, ip)
+			testutils.IsCodeAndError(t, err, ced.ENOTFOUND, fmt.Sprintf("ced.Group [%s] not found", id))
 		})
 
 		t.Run("cannot update to more attendees than allowed", func(t *testing.T) {

@@ -2,6 +2,7 @@ package contract
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
@@ -27,23 +28,40 @@ func (c *groupContract) Create(ctx context.Context, name ced.Name, maxAttendees 
 	}
 
 	if err := c.groupRepository.Create(ctx, group); err != nil {
-		return ced.Group{}, err
+		return ced.Group{}, fmt.Errorf("create group %+v: %w", group, err)
 	}
 
 	return group, nil
 }
 
 func (c *groupContract) Search(ctx context.Context, search string) ([]ced.Group, error) {
-	return c.groupRepository.SearchByName(ctx, search)
+	res, err := c.groupRepository.SearchByName(ctx, search)
+	if err != nil {
+		return nil, fmt.Errorf("search groups %s: %w", search, err)
+	}
+	return res, nil
 }
 
 func (c *groupContract) Get(ctx context.Context, id ced.ID) (ced.Group, error) {
-	return c.groupRepository.Get(ctx, id)
+	res, err := c.groupRepository.Get(ctx, id)
+	if err != nil && !errors.Is(err, ced.ErrorNotFound) {
+		return res, fmt.Errorf("get group %s: %w", id, err)
+	}
+	return res, nil
 }
 
 func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8, connectingIP string) error {
+	req := struct {
+		id           ced.ID
+		attendees    uint8
+		connectingIP string
+	}{id, attendees, connectingIP}
+
 	group, err := c.groupRepository.Get(ctx, id)
 	if err != nil {
+		if !errors.Is(err, ced.ErrorNotFound) {
+			return fmt.Errorf("get group to respond %+v: %w", req, err)
+		}
 		return err
 	}
 
@@ -61,7 +79,11 @@ func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8,
 		"ip", connectingIP,
 	)
 
-	return c.groupRepository.Update(ctx, group)
+	err = c.groupRepository.Update(ctx, group)
+	if err != nil {
+		return fmt.Errorf("respond %+v to group %+v: %w", req, group, err)
+	}
+	return nil
 }
 
 func (c *groupContract) Import(ctx context.Context, records []ced.GroupImport) error {
