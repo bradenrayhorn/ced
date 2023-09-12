@@ -19,6 +19,12 @@ func execute(ctx context.Context, pool *Pool, query string, args []any) error {
 	})
 }
 
+func executeWithConn(conn *sqlite.Conn, query string, args []any) error {
+	return sqlitex.Execute(conn, query, &sqlitex.ExecOptions{
+		Args: args,
+	})
+}
+
 func selectOne[T comparable](ctx context.Context, pool *Pool, query string, args []any, mapper func(stmt *sqlite.Stmt) (T, error)) (T, error) {
 	var result T
 	conn, done, err := pool.Conn(ctx)

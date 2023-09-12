@@ -11,6 +11,7 @@ import (
 	"github.com/bradenrayhorn/ced/server/sqlite/mapper"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"zombiezen.com/go/sqlite"
+	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 var _ ced.GroupRespository = (*groupRepository)(nil)
@@ -24,19 +25,43 @@ func NewGroupRepository(pool *Pool) *groupRepository {
 }
 
 func (r *groupRepository) Create(ctx context.Context, group ced.Group) error {
+	return r.CreateMany(ctx, []ced.Group{group})
+}
+
+func (r *groupRepository) CreateMany(ctx context.Context, groups []ced.Group) error {
 	query := `INSERT INTO groups
 				(id,name,attendees,max_attendees,has_responded,search_hints)
 				VALUES (?,?,?,?,?,?)
 	;`
 
-	return execute(ctx, r.pool, query, []any{
-		group.ID.String(),
-		string(group.Name),
-		group.Attendees,
-		group.MaxAttendees,
-		group.HasResponded,
-		group.SearchHints,
-	})
+	conn, done, err := r.pool.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer done()
+
+	insertGroups := func(conn *sqlite.Conn) (err error) {
+		defer sqlitex.Save(conn)(&err)
+
+		for _, group := range groups {
+			err = executeWithConn(conn, query, []any{
+				group.ID.String(),
+				string(group.Name),
+				group.Attendees,
+				group.MaxAttendees,
+				group.HasResponded,
+				group.SearchHints,
+			})
+
+			if err != nil {
+				break
+			}
+		}
+
+		return
+	}
+
+	return insertGroups(conn)
 }
 
 func (r *groupRepository) Update(ctx context.Context, group ced.Group) error {

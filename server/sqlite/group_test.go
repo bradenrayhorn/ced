@@ -51,6 +51,28 @@ func TestGroup(t *testing.T) {
 		is.True(err != nil)
 	})
 
+	t.Run("create many operates within a transaction", func(t *testing.T) {
+		is := is.New(t)
+		defer setup()()
+
+		// group3 fails to create because it shares the same ID as group1.
+		// this should rollback the entire create operation.
+		group1 := ced.Group{ID: ced.NewID()}
+		group2 := ced.Group{ID: ced.NewID()}
+		group3 := ced.Group{ID: group1.ID}
+		err := groupRepository.CreateMany(context.Background(), []ced.Group{group1, group2, group3})
+		is.True(err != nil)
+
+		_, err = groupRepository.Get(context.Background(), group1.ID)
+		testutils.IsCode(t, err, ced.ENOTFOUND)
+
+		_, err = groupRepository.Get(context.Background(), group2.ID)
+		testutils.IsCode(t, err, ced.ENOTFOUND)
+
+		_, err = groupRepository.Get(context.Background(), group3.ID)
+		testutils.IsCode(t, err, ced.ENOTFOUND)
+	})
+
 	t.Run("gives error when group does not exist", func(t *testing.T) {
 		defer setup()()
 
