@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strings"
 
 	"github.com/bradenrayhorn/ced/server/ced"
 )
@@ -22,17 +21,9 @@ func NewGroupContract(
 }
 
 func (c *groupContract) Create(ctx context.Context, name ced.Name, maxAttendees uint8, searchHints string) (ced.Group, error) {
-	if err := ced.ValidateFields(ced.Field("Name", name)); err != nil {
+	group, err := ced.NewGroup(name, maxAttendees, searchHints)
+	if err != nil {
 		return ced.Group{}, err
-	}
-
-	group := ced.Group{
-		ID:           ced.NewID(),
-		Name:         name,
-		MaxAttendees: maxAttendees,
-		Attendees:    0,
-		HasResponded: false,
-		SearchHints:  strings.TrimSpace(searchHints),
 	}
 
 	if err := c.groupRepository.Create(ctx, group); err != nil {
@@ -71,4 +62,18 @@ func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8,
 	)
 
 	return c.groupRepository.Update(ctx, group)
+}
+
+func (c *groupContract) Import(ctx context.Context, records []ced.GroupImport) error {
+	groups := make([]ced.Group, len(records))
+	for i, record := range records {
+		group, err := ced.NewGroup(record.Name, record.MaxAttendees, record.SearchHints)
+		if err != nil {
+			return fmt.Errorf("failed to import at record %d: %w", i+1, err)
+		}
+
+		groups[i] = group
+	}
+
+	return c.groupRepository.CreateMany(ctx, groups)
 }

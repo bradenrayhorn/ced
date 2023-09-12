@@ -134,4 +134,43 @@ func TestGroup(t *testing.T) {
 			is.Equal(res, group1)
 		})
 	})
+
+	t.Run("import", func(t *testing.T) {
+
+		t.Run("can import", func(t *testing.T) {
+			defer setup(t)()
+			is := is.New(t)
+
+			groupImport := ced.GroupImport{
+				Name:         ced.Name("Bob"),
+				MaxAttendees: 2,
+				SearchHints:  "Bob Lob",
+			}
+
+			err := groupContract.Import(context.Background(), []ced.GroupImport{groupImport})
+			is.NoErr(err)
+
+			res, err := groupContract.Search(context.Background(), "Bob Lob")
+			is.NoErr(err)
+			is.Equal(len(res), 1)
+			is.Equal(res[0].Name, ced.Name("Bob"))
+			is.Equal(res[0].MaxAttendees, uint8(2))
+			is.Equal(res[0].SearchHints, "Bob Lob")
+		})
+
+		t.Run("when fails adds record number", func(t *testing.T) {
+			defer setup(t)()
+			is := is.New(t)
+
+			groupImport := ced.GroupImport{
+				Name:         ced.Name(""),
+				MaxAttendees: 2,
+				SearchHints:  "Bob Lob",
+			}
+
+			err := groupContract.Import(context.Background(), []ced.GroupImport{groupImport})
+			is.True(err != nil)
+			is.Equal(err.Error(), "failed to import at record 1: Invalid data provided")
+		})
+	})
 }

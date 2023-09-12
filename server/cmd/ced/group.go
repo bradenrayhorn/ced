@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bradenrayhorn/ced/server/ced"
+	"github.com/bradenrayhorn/ced/server/csv"
 )
 
 type GroupCreateCmd struct {
@@ -24,4 +26,20 @@ func (r *GroupCreateCmd) Run(ctx *CmdContext) error {
 	}
 
 	return nil
+}
+
+type GroupImportCmd struct {
+}
+
+func (r *GroupImportCmd) Run(ctx *CmdContext) error {
+	records, err := csv.ParseGroupImport(ctx.in)
+	if err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintf(ctx.out, "importing %d groups...", len(records)); err != nil {
+		return err
+	}
+
+	return ctx.pool.groupContract.Import(context.Background(), records)
 }
