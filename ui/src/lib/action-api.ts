@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { getError } from "./fetch-error";
 
 export const doRequest = async ({
   method,
@@ -23,7 +24,7 @@ export const doRequest = async ({
   });
 
   if (!res.ok) {
-    throw Error(await res.text());
+    throw await getError(res);
   }
 
   return res;

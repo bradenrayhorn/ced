@@ -44,8 +44,11 @@ func (c *groupContract) Search(ctx context.Context, search string) ([]ced.Group,
 
 func (c *groupContract) Get(ctx context.Context, id ced.ID) (ced.Group, error) {
 	res, err := c.groupRepository.Get(ctx, id)
-	if err != nil && !errors.Is(err, ced.ErrorNotFound) {
-		return res, fmt.Errorf("get group %s: %w", id, err)
+	if err != nil {
+		if !errors.Is(err, ced.ErrorNotFound) {
+			return res, fmt.Errorf("get group %s: %w", id, err)
+		}
+		return res, err
 	}
 	return res, nil
 }
