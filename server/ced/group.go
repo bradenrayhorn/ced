@@ -37,18 +37,22 @@ type GroupImport struct {
 	SearchHints  string
 }
 
+type ReqContext struct {
+	ConnectingIP string
+}
+
 type GroupContract interface {
 	// Creates a new group.
 	Create(ctx context.Context, name Name, maxAttendees uint8, searchHints string) (Group, error)
 
 	// Searches for a group using the search string.
-	Search(ctx context.Context, search string) ([]Group, error)
+	Search(ctx context.Context, req ReqContext, search string) ([]Group, error)
 
 	// Gets a group by id.
-	Get(ctx context.Context, id ID) (Group, error)
+	Get(ctx context.Context, req ReqContext, id ID) (Group, error)
 
 	// Updates response for a group.
-	Respond(ctx context.Context, id ID, attendees uint8, connectingIP string) error
+	Respond(ctx context.Context, req ReqContext, id ID, attendees uint8) error
 
 	// Imports a list of groups.
 	Import(ctx context.Context, groups []GroupImport) error

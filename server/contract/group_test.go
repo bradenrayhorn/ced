@@ -29,6 +29,7 @@ func TestGroup(t *testing.T) {
 		HasResponded: false,
 		SearchHints:  "Elizabeth Hoover",
 	}
+	reqCtx := ced.ReqContext{}
 
 	var groupRepository ced.GroupRespository
 	var groupContract ced.GroupContract
@@ -50,7 +51,7 @@ func TestGroup(t *testing.T) {
 		defer setup(t)()
 		is := is.New(t)
 
-		res, err := groupContract.Search(context.Background(), "George Hover")
+		res, err := groupContract.Search(context.Background(), reqCtx, "George Hover")
 		is.NoErr(err)
 
 		is.Equal(res, []ced.Group{group1})
@@ -81,13 +82,11 @@ func TestGroup(t *testing.T) {
 	})
 
 	t.Run("update group", func(t *testing.T) {
-		ip := "127.0.0.1"
-
 		t.Run("can update response", func(t *testing.T) {
 			defer setup(t)()
 			is := is.New(t)
 
-			err := groupContract.Respond(context.Background(), group1.ID, 5, ip)
+			err := groupContract.Respond(context.Background(), reqCtx, group1.ID, 5)
 			is.NoErr(err)
 
 			res, err := groupRepository.Get(context.Background(), group1.ID)
@@ -100,7 +99,7 @@ func TestGroup(t *testing.T) {
 			defer setup(t)()
 			is := is.New(t)
 
-			err := groupContract.Respond(context.Background(), group2.ID, 0, ip)
+			err := groupContract.Respond(context.Background(), reqCtx, group2.ID, 0)
 			is.NoErr(err)
 
 			res, err := groupRepository.Get(context.Background(), group2.ID)
@@ -113,14 +112,14 @@ func TestGroup(t *testing.T) {
 			defer setup(t)()
 
 			id := ced.NewID()
-			err := groupContract.Respond(context.Background(), id, 1, ip)
+			err := groupContract.Respond(context.Background(), reqCtx, id, 1)
 			testutils.IsCodeAndError(t, err, ced.ENOTFOUND, fmt.Sprintf("ced.Group [%s] not found", id))
 		})
 
 		t.Run("cannot update to more attendees than allowed", func(t *testing.T) {
 			defer setup(t)()
 
-			err := groupContract.Respond(context.Background(), group1.ID, 6, ip)
+			err := groupContract.Respond(context.Background(), reqCtx, group1.ID, 6)
 			testutils.IsCodeAndError(t, err, ced.EINVALID, "group can have at most 5 attendees")
 		})
 	})
@@ -131,7 +130,7 @@ func TestGroup(t *testing.T) {
 			defer setup(t)()
 			is := is.New(t)
 
-			res, err := groupContract.Get(context.Background(), group1.ID)
+			res, err := groupContract.Get(context.Background(), reqCtx, group1.ID)
 			is.NoErr(err)
 			is.Equal(res, group1)
 		})
@@ -139,7 +138,7 @@ func TestGroup(t *testing.T) {
 		t.Run("can get 404", func(t *testing.T) {
 			defer setup(t)()
 
-			_, err := groupContract.Get(context.Background(), ced.NewID())
+			_, err := groupContract.Get(context.Background(), reqCtx, ced.NewID())
 			testutils.IsCode(t, err, ced.ENOTFOUND)
 		})
 	})
@@ -159,7 +158,7 @@ func TestGroup(t *testing.T) {
 			err := groupContract.Import(context.Background(), []ced.GroupImport{groupImport})
 			is.NoErr(err)
 
-			res, err := groupContract.Search(context.Background(), "Bob Lob")
+			res, err := groupContract.Search(context.Background(), reqCtx, "Bob Lob")
 			is.NoErr(err)
 			is.Equal(len(res), 1)
 			is.Equal(res[0].Name, ced.Name("Bob"))

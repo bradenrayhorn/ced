@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bradenrayhorn/ced/server/ced"
 	"github.com/bradenrayhorn/ced/server/internal/testutils"
 	"github.com/matryer/is"
 )
@@ -21,7 +22,7 @@ func TestGroupCreate(t *testing.T) {
 	err = cmd.Run(&CmdContext{pool: pool})
 	is.NoErr(err)
 
-	res, err := pool.groupContract.Search(context.Background(), "Max Hoover")
+	res, err := pool.groupContract.Search(context.Background(), ced.ReqContext{}, "Max Hoover")
 	is.NoErr(err)
 	is.Equal(1, len(res))
 
@@ -49,7 +50,7 @@ func TestGroupImport(t *testing.T) {
 	output := out.String()
 	is.Equal(output, "importing 1 groups...")
 
-	res, err := pool.groupContract.Search(context.Background(), "Bob Lob")
+	res, err := pool.groupContract.Search(context.Background(), ced.ReqContext{}, "Bob Lob")
 	is.NoErr(err)
 	is.Equal(1, len(res))
 

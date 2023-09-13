@@ -39,7 +39,7 @@ func TestGroupSearch(t *testing.T) {
 		is.Equal(r, fmt.Sprintf(`{"data":[{"id":"%s","name":"George","attendees":1,"max_attendees":1,"has_responded":true}]}`, group.ID))
 
 		params := test.groupContract.SearchFunc.History()[0]
-		is.Equal(params.Arg1, "geo")
+		is.Equal(params.Arg2, "geo")
 	})
 
 	t.Run("can handle search error", func(t *testing.T) {
@@ -82,7 +82,7 @@ func TestGetGroup(t *testing.T) {
 		is.Equal(r, fmt.Sprintf(`{"data":{"id":"%s","name":"George","attendees":1,"max_attendees":1,"has_responded":true}}`, group.ID))
 
 		params := test.groupContract.GetFunc.History()[0]
-		is.Equal(params.Arg1, group.ID)
+		is.Equal(params.Arg2, group.ID)
 	})
 
 	t.Run("can handle error", func(t *testing.T) {
@@ -120,9 +120,9 @@ func TestUpdateGroup(t *testing.T) {
 		is.Equal(r, "")
 
 		params := test.groupContract.RespondFunc.History()[0]
-		is.Equal(params.Arg1, groupID)
-		is.Equal(params.Arg2, uint8(5))
-		is.Equal(params.Arg3, "::1")
+		is.Equal(params.Arg1, ced.ReqContext{ConnectingIP: "::1"})
+		is.Equal(params.Arg2, groupID)
+		is.Equal(params.Arg3, uint8(5))
 	})
 
 	t.Run("can update with blank request body", func(t *testing.T) {
@@ -136,8 +136,8 @@ func TestUpdateGroup(t *testing.T) {
 		is.Equal(r, "")
 
 		params := test.groupContract.RespondFunc.History()[0]
-		is.Equal(params.Arg1, groupID)
-		is.Equal(params.Arg2, uint8(0))
+		is.Equal(params.Arg2, groupID)
+		is.Equal(params.Arg3, uint8(0))
 	})
 
 	t.Run("handles parse error", func(t *testing.T) {
