@@ -135,6 +135,13 @@ func TestGroup(t *testing.T) {
 			is.NoErr(err)
 			is.Equal(res, group1)
 		})
+
+		t.Run("can get 404", func(t *testing.T) {
+			defer setup(t)()
+
+			_, err := groupContract.Get(context.Background(), ced.NewID())
+			testutils.IsCode(t, err, ced.ENOTFOUND)
+		})
 	})
 
 	t.Run("import", func(t *testing.T) {

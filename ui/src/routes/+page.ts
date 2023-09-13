@@ -1,4 +1,5 @@
 import { api } from "$lib/api";
+import { getError } from "$lib/fetch-error";
 import type { PageLoad } from "./$types";
 
 type Output = {
@@ -18,6 +19,10 @@ export const load: PageLoad<Output> = async ({ fetch, url }) => {
 
   if (search) {
     const res = await fetch(api(`/v1/groups/search?search=${search}`));
+    if (!res.ok) {
+      throw await getError(res);
+    }
+
     const data = await res.json();
     return { foundGroups: data.data ?? [] };
   }
