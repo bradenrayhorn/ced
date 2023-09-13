@@ -34,36 +34,49 @@ func (c *groupContract) Create(ctx context.Context, name ced.Name, maxAttendees 
 	return group, nil
 }
 
-func (c *groupContract) Search(ctx context.Context, search string) ([]ced.Group, error) {
+func (c *groupContract) Search(ctx context.Context, req ced.ReqContext, search string) ([]ced.Group, error) {
 	res, err := c.groupRepository.SearchByName(ctx, search)
 	if err != nil {
 		return nil, fmt.Errorf("search groups %s: %w", search, err)
 	}
+
+	slog.Info("searched groups",
+		"search", search,
+		"results", len(res),
+		"ip", req.ConnectingIP,
+	)
+
 	return res, nil
 }
 
-func (c *groupContract) Get(ctx context.Context, id ced.ID) (ced.Group, error) {
+func (c *groupContract) Get(ctx context.Context, req ced.ReqContext, id ced.ID) (ced.Group, error) {
 	res, err := c.groupRepository.Get(ctx, id)
 	if err != nil {
 		if !errors.Is(err, ced.ErrorNotFound) {
 			return res, fmt.Errorf("get group %s: %w", id, err)
 		}
+
+		slog.Info("get group not found",
+			"id", id,
+			"ip", req.ConnectingIP,
+		)
+
 		return res, err
 	}
 	return res, nil
 }
 
-func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8, connectingIP string) error {
-	req := struct {
-		id           ced.ID
-		attendees    uint8
-		connectingIP string
-	}{id, attendees, connectingIP}
+func (c *groupContract) Respond(ctx context.Context, req ced.ReqContext, id ced.ID, attendees uint8) error {
+	request := struct {
+		Id        ced.ID
+		Attendees uint8
+		Req       ced.ReqContext
+	}{id, attendees, req}
 
 	group, err := c.groupRepository.Get(ctx, id)
 	if err != nil {
 		if !errors.Is(err, ced.ErrorNotFound) {
-			return fmt.Errorf("get group to respond %+v: %w", req, err)
+			return fmt.Errorf("get group to respond %+v: %w", request, err)
 		}
 		return err
 	}
@@ -79,12 +92,12 @@ func (c *groupContract) Respond(ctx context.Context, id ced.ID, attendees uint8,
 		"attendees", attendees,
 		"id", id,
 		"name", group.Name,
-		"ip", connectingIP,
+		"ip", req.ConnectingIP,
 	)
 
 	err = c.groupRepository.Update(ctx, group)
 	if err != nil {
-		return fmt.Errorf("respond %+v to group %+v: %w", req, group, err)
+		return fmt.Errorf("respond %+v to group %+v: %w", request, group, err)
 	}
 	return nil
 }

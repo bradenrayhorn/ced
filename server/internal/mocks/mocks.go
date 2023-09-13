@@ -579,7 +579,7 @@ func NewMockGroupContract() *MockGroupContract {
 			},
 		},
 		GetFunc: &GroupContractGetFunc{
-			defaultHook: func(context.Context, ced.ID) (r0 ced.Group, r1 error) {
+			defaultHook: func(context.Context, ced.ReqContext, ced.ID) (r0 ced.Group, r1 error) {
 				return
 			},
 		},
@@ -589,12 +589,12 @@ func NewMockGroupContract() *MockGroupContract {
 			},
 		},
 		RespondFunc: &GroupContractRespondFunc{
-			defaultHook: func(context.Context, ced.ID, uint8, string) (r0 error) {
+			defaultHook: func(context.Context, ced.ReqContext, ced.ID, uint8) (r0 error) {
 				return
 			},
 		},
 		SearchFunc: &GroupContractSearchFunc{
-			defaultHook: func(context.Context, string) (r0 []ced.Group, r1 error) {
+			defaultHook: func(context.Context, ced.ReqContext, string) (r0 []ced.Group, r1 error) {
 				return
 			},
 		},
@@ -611,7 +611,7 @@ func NewStrictMockGroupContract() *MockGroupContract {
 			},
 		},
 		GetFunc: &GroupContractGetFunc{
-			defaultHook: func(context.Context, ced.ID) (ced.Group, error) {
+			defaultHook: func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Get")
 			},
 		},
@@ -621,12 +621,12 @@ func NewStrictMockGroupContract() *MockGroupContract {
 			},
 		},
 		RespondFunc: &GroupContractRespondFunc{
-			defaultHook: func(context.Context, ced.ID, uint8, string) error {
+			defaultHook: func(context.Context, ced.ReqContext, ced.ID, uint8) error {
 				panic("unexpected invocation of MockGroupContract.Respond")
 			},
 		},
 		SearchFunc: &GroupContractSearchFunc{
-			defaultHook: func(context.Context, string) ([]ced.Group, error) {
+			defaultHook: func(context.Context, ced.ReqContext, string) ([]ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Search")
 			},
 		},
@@ -772,23 +772,23 @@ func (c GroupContractCreateFuncCall) Results() []interface{} {
 // GroupContractGetFunc describes the behavior when the Get method of the
 // parent MockGroupContract instance is invoked.
 type GroupContractGetFunc struct {
-	defaultHook func(context.Context, ced.ID) (ced.Group, error)
-	hooks       []func(context.Context, ced.ID) (ced.Group, error)
+	defaultHook func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error)
+	hooks       []func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error)
 	history     []GroupContractGetFuncCall
 	mutex       sync.Mutex
 }
 
 // Get delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockGroupContract) Get(v0 context.Context, v1 ced.ID) (ced.Group, error) {
-	r0, r1 := m.GetFunc.nextHook()(v0, v1)
-	m.GetFunc.appendCall(GroupContractGetFuncCall{v0, v1, r0, r1})
+func (m *MockGroupContract) Get(v0 context.Context, v1 ced.ReqContext, v2 ced.ID) (ced.Group, error) {
+	r0, r1 := m.GetFunc.nextHook()(v0, v1, v2)
+	m.GetFunc.appendCall(GroupContractGetFuncCall{v0, v1, v2, r0, r1})
 	return r0, r1
 }
 
 // SetDefaultHook sets function that is called when the Get method of the
 // parent MockGroupContract instance is invoked and the hook queue is empty.
-func (f *GroupContractGetFunc) SetDefaultHook(hook func(context.Context, ced.ID) (ced.Group, error)) {
+func (f *GroupContractGetFunc) SetDefaultHook(hook func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error)) {
 	f.defaultHook = hook
 }
 
@@ -796,7 +796,7 @@ func (f *GroupContractGetFunc) SetDefaultHook(hook func(context.Context, ced.ID)
 // Get method of the parent MockGroupContract instance invokes the hook at
 // the front of the queue and discards it. After the queue is empty, the
 // default hook function is invoked for any future action.
-func (f *GroupContractGetFunc) PushHook(hook func(context.Context, ced.ID) (ced.Group, error)) {
+func (f *GroupContractGetFunc) PushHook(hook func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error)) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -805,19 +805,19 @@ func (f *GroupContractGetFunc) PushHook(hook func(context.Context, ced.ID) (ced.
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
 func (f *GroupContractGetFunc) SetDefaultReturn(r0 ced.Group, r1 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID) (ced.Group, error) {
+	f.SetDefaultHook(func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error) {
 		return r0, r1
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
 func (f *GroupContractGetFunc) PushReturn(r0 ced.Group, r1 error) {
-	f.PushHook(func(context.Context, ced.ID) (ced.Group, error) {
+	f.PushHook(func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error) {
 		return r0, r1
 	})
 }
 
-func (f *GroupContractGetFunc) nextHook() func(context.Context, ced.ID) (ced.Group, error) {
+func (f *GroupContractGetFunc) nextHook() func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -855,7 +855,10 @@ type GroupContractGetFuncCall struct {
 	Arg0 context.Context
 	// Arg1 is the value of the 2nd argument passed to this method
 	// invocation.
-	Arg1 ced.ID
+	Arg1 ced.ReqContext
+	// Arg2 is the value of the 3rd argument passed to this method
+	// invocation.
+	Arg2 ced.ID
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 ced.Group
@@ -867,7 +870,7 @@ type GroupContractGetFuncCall struct {
 // Args returns an interface slice containing the arguments of this
 // invocation.
 func (c GroupContractGetFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
+	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
 }
 
 // Results returns an interface slice containing the results of this
@@ -983,15 +986,15 @@ func (c GroupContractImportFuncCall) Results() []interface{} {
 // GroupContractRespondFunc describes the behavior when the Respond method
 // of the parent MockGroupContract instance is invoked.
 type GroupContractRespondFunc struct {
-	defaultHook func(context.Context, ced.ID, uint8, string) error
-	hooks       []func(context.Context, ced.ID, uint8, string) error
+	defaultHook func(context.Context, ced.ReqContext, ced.ID, uint8) error
+	hooks       []func(context.Context, ced.ReqContext, ced.ID, uint8) error
 	history     []GroupContractRespondFuncCall
 	mutex       sync.Mutex
 }
 
 // Respond delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockGroupContract) Respond(v0 context.Context, v1 ced.ID, v2 uint8, v3 string) error {
+func (m *MockGroupContract) Respond(v0 context.Context, v1 ced.ReqContext, v2 ced.ID, v3 uint8) error {
 	r0 := m.RespondFunc.nextHook()(v0, v1, v2, v3)
 	m.RespondFunc.appendCall(GroupContractRespondFuncCall{v0, v1, v2, v3, r0})
 	return r0
@@ -1000,7 +1003,7 @@ func (m *MockGroupContract) Respond(v0 context.Context, v1 ced.ID, v2 uint8, v3 
 // SetDefaultHook sets function that is called when the Respond method of
 // the parent MockGroupContract instance is invoked and the hook queue is
 // empty.
-func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced.ID, uint8, string) error) {
+func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced.ReqContext, ced.ID, uint8) error) {
 	f.defaultHook = hook
 }
 
@@ -1008,7 +1011,7 @@ func (f *GroupContractRespondFunc) SetDefaultHook(hook func(context.Context, ced
 // Respond method of the parent MockGroupContract instance invokes the hook
 // at the front of the queue and discards it. After the queue is empty, the
 // default hook function is invoked for any future action.
-func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ID, uint8, string) error) {
+func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ReqContext, ced.ID, uint8) error) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -1017,19 +1020,19 @@ func (f *GroupContractRespondFunc) PushHook(hook func(context.Context, ced.ID, u
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
 func (f *GroupContractRespondFunc) SetDefaultReturn(r0 error) {
-	f.SetDefaultHook(func(context.Context, ced.ID, uint8, string) error {
+	f.SetDefaultHook(func(context.Context, ced.ReqContext, ced.ID, uint8) error {
 		return r0
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
 func (f *GroupContractRespondFunc) PushReturn(r0 error) {
-	f.PushHook(func(context.Context, ced.ID, uint8, string) error {
+	f.PushHook(func(context.Context, ced.ReqContext, ced.ID, uint8) error {
 		return r0
 	})
 }
 
-func (f *GroupContractRespondFunc) nextHook() func(context.Context, ced.ID, uint8, string) error {
+func (f *GroupContractRespondFunc) nextHook() func(context.Context, ced.ReqContext, ced.ID, uint8) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -1067,13 +1070,13 @@ type GroupContractRespondFuncCall struct {
 	Arg0 context.Context
 	// Arg1 is the value of the 2nd argument passed to this method
 	// invocation.
-	Arg1 ced.ID
+	Arg1 ced.ReqContext
 	// Arg2 is the value of the 3rd argument passed to this method
 	// invocation.
-	Arg2 uint8
+	Arg2 ced.ID
 	// Arg3 is the value of the 4th argument passed to this method
 	// invocation.
-	Arg3 string
+	Arg3 uint8
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 error
@@ -1094,23 +1097,23 @@ func (c GroupContractRespondFuncCall) Results() []interface{} {
 // GroupContractSearchFunc describes the behavior when the Search method of
 // the parent MockGroupContract instance is invoked.
 type GroupContractSearchFunc struct {
-	defaultHook func(context.Context, string) ([]ced.Group, error)
-	hooks       []func(context.Context, string) ([]ced.Group, error)
+	defaultHook func(context.Context, ced.ReqContext, string) ([]ced.Group, error)
+	hooks       []func(context.Context, ced.ReqContext, string) ([]ced.Group, error)
 	history     []GroupContractSearchFuncCall
 	mutex       sync.Mutex
 }
 
 // Search delegates to the next hook function in the queue and stores the
 // parameter and result values of this invocation.
-func (m *MockGroupContract) Search(v0 context.Context, v1 string) ([]ced.Group, error) {
-	r0, r1 := m.SearchFunc.nextHook()(v0, v1)
-	m.SearchFunc.appendCall(GroupContractSearchFuncCall{v0, v1, r0, r1})
+func (m *MockGroupContract) Search(v0 context.Context, v1 ced.ReqContext, v2 string) ([]ced.Group, error) {
+	r0, r1 := m.SearchFunc.nextHook()(v0, v1, v2)
+	m.SearchFunc.appendCall(GroupContractSearchFuncCall{v0, v1, v2, r0, r1})
 	return r0, r1
 }
 
 // SetDefaultHook sets function that is called when the Search method of the
 // parent MockGroupContract instance is invoked and the hook queue is empty.
-func (f *GroupContractSearchFunc) SetDefaultHook(hook func(context.Context, string) ([]ced.Group, error)) {
+func (f *GroupContractSearchFunc) SetDefaultHook(hook func(context.Context, ced.ReqContext, string) ([]ced.Group, error)) {
 	f.defaultHook = hook
 }
 
@@ -1118,7 +1121,7 @@ func (f *GroupContractSearchFunc) SetDefaultHook(hook func(context.Context, stri
 // Search method of the parent MockGroupContract instance invokes the hook
 // at the front of the queue and discards it. After the queue is empty, the
 // default hook function is invoked for any future action.
-func (f *GroupContractSearchFunc) PushHook(hook func(context.Context, string) ([]ced.Group, error)) {
+func (f *GroupContractSearchFunc) PushHook(hook func(context.Context, ced.ReqContext, string) ([]ced.Group, error)) {
 	f.mutex.Lock()
 	f.hooks = append(f.hooks, hook)
 	f.mutex.Unlock()
@@ -1127,19 +1130,19 @@ func (f *GroupContractSearchFunc) PushHook(hook func(context.Context, string) ([
 // SetDefaultReturn calls SetDefaultHook with a function that returns the
 // given values.
 func (f *GroupContractSearchFunc) SetDefaultReturn(r0 []ced.Group, r1 error) {
-	f.SetDefaultHook(func(context.Context, string) ([]ced.Group, error) {
+	f.SetDefaultHook(func(context.Context, ced.ReqContext, string) ([]ced.Group, error) {
 		return r0, r1
 	})
 }
 
 // PushReturn calls PushHook with a function that returns the given values.
 func (f *GroupContractSearchFunc) PushReturn(r0 []ced.Group, r1 error) {
-	f.PushHook(func(context.Context, string) ([]ced.Group, error) {
+	f.PushHook(func(context.Context, ced.ReqContext, string) ([]ced.Group, error) {
 		return r0, r1
 	})
 }
 
-func (f *GroupContractSearchFunc) nextHook() func(context.Context, string) ([]ced.Group, error) {
+func (f *GroupContractSearchFunc) nextHook() func(context.Context, ced.ReqContext, string) ([]ced.Group, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -1177,7 +1180,10 @@ type GroupContractSearchFuncCall struct {
 	Arg0 context.Context
 	// Arg1 is the value of the 2nd argument passed to this method
 	// invocation.
-	Arg1 string
+	Arg1 ced.ReqContext
+	// Arg2 is the value of the 3rd argument passed to this method
+	// invocation.
+	Arg2 string
 	// Result0 is the value of the 1st result returned from this method
 	// invocation.
 	Result0 []ced.Group
@@ -1189,7 +1195,7 @@ type GroupContractSearchFuncCall struct {
 // Args returns an interface slice containing the arguments of this
 // invocation.
 func (c GroupContractSearchFuncCall) Args() []interface{} {
-	return []interface{}{c.Arg0, c.Arg1}
+	return []interface{}{c.Arg0, c.Arg1, c.Arg2}
 }
 
 // Results returns an interface slice containing the results of this

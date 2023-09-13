@@ -19,7 +19,7 @@ func (s *Server) handleGroupSearch() HandlerFunc {
 			return HttpResponse{}, ced.NewError(ced.EUNPROCESSABLE, "search is required")
 		}
 
-		groups, err := s.groupContract.Search(r.Context(), search)
+		groups, err := s.groupContract.Search(r.Context(), makeReqCtx(r), search)
 		if err != nil {
 			return HttpResponse{}, err
 		}
@@ -40,7 +40,7 @@ func (s *Server) handleGroupGet() HandlerFunc {
 			return HttpResponse{}, ced.NewError(ced.EUNPROCESSABLE, "invalid id")
 		}
 
-		group, err := s.groupContract.Get(r.Context(), id)
+		group, err := s.groupContract.Get(r.Context(), makeReqCtx(r), id)
 		if err != nil {
 			return HttpResponse{}, err
 		}
@@ -70,7 +70,7 @@ func (s *Server) handleGroupUpdate() HandlerFunc {
 			return HttpResponse{}, err
 		}
 
-		if err := s.groupContract.Respond(r.Context(), id, req.Attendees, r.RemoteAddr); err != nil {
+		if err := s.groupContract.Respond(r.Context(), makeReqCtx(r), id, req.Attendees); err != nil {
 			return HttpResponse{}, err
 		}
 
