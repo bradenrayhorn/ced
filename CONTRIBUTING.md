@@ -21,3 +21,10 @@ Discussion with a maintainer beforehand ensures that:
 
 Thank you.
 
+## Pull request and commit format
+
+- Pull requests should generally contain a single commit.
+  - If changes arise, rebase so that there is still only a single commit.
+- Commit messages and pull request titles should be in the imperative.
+  - For example, "Adjust cardstock theme". Not "Adjusting cardstock theme" or "Adjusted cardstock theme".
+  - Good reference: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
