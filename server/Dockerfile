@@ -9,6 +9,8 @@ RUN CGO_ENABLED=0 go build -o ced-cli ./cmd/ced
 
 FROM alpine
 
+RUN apk update && apk add sqlite
+
 RUN mkdir /app
 COPY --from=buildgo /app/cedd /app/
 COPY --from=buildgo /app/ced-cli /app/
