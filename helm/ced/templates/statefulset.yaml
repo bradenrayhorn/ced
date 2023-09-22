@@ -1,6 +1,6 @@
 {{- $cedImage := "ghcr.io/bradenrayhorn/ced" -}}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "ced.fullname" . }}-server
   labels:
@@ -10,6 +10,7 @@ spec:
   selector:
     matchLabels:
       {{- include "ced.selectorLabelsServer" . | nindent 6 }}
+  serviceName: {{ include "ced.fullname" . }}-server
   template:
     metadata:
       {{- with .Values.podAnnotations }}
