@@ -31,3 +31,9 @@ updates:
           - "prettier*"
         update-types:
           - "major"
+    ignore:
+      # Ignore updates for @types/node until node is updated
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+
