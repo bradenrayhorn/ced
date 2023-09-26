@@ -3,21 +3,38 @@
   <head>
     <meta charset="utf-8" />
 
+    <!-- Fonts -->
     <link
       rel="preload"
-      href="%sveltekit.assets%/fonts/Playfair/PlayfairDisplay-VariableFont_wght.ttf"
+      href="%sveltekit.assets%/fonts/Charm/Charm-Regular.ttf"
       as="font"
       type="font/ttf"
       crossorigin
     />
     <link
       rel="preload"
-      href="%sveltekit.assets%/fonts/OpenSans/OpenSans-VariableFont_wdth,wght.ttf"
+      href="%sveltekit.assets%/fonts/Charm/Charm-Bold.ttf"
       as="font"
       type="font/ttf"
       crossorigin
     />
 
+    <link
+      rel="preload"
+      href="%sveltekit.assets%/fonts/IBM_Plex_Serif/IBMPlexSerif-Regular.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="%sveltekit.assets%/fonts/IBM_Plex_Serif/IBMPlexSerif-Bold.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+
+    <!-- Favicon -->
     <link
       rel="apple-touch-icon"
       sizes="180x180"
@@ -59,15 +76,21 @@
     />
     <meta name="msapplication-TileColor" content="#000000" />
 
+    <!-- Configure iOS Safari top bar style -->
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
 
+    <!-- Setup mobile viewport -->
     <meta name="viewport" content="width=device-width" />
+
+    <!-- No Indexing -->
     <meta name="robots" content="noindex,nofollow" />
+
     %sveltekit.head%
   </head>
+
   <body data-sveltekit-preload-data="hover" data-theme="">
     <div style="display: contents">%sveltekit.body%</div>
   </body>
