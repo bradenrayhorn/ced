@@ -12,20 +12,21 @@
 }
 
 @font-face {
-  font-family: "Playfair";
-  src: url("/fonts/Playfair/PlayfairDisplay-VariableFont_wght.ttf");
+  font-family: "Charm";
+  src: url("/fonts/Charm/Charm-Regular.ttf"), url("/fonts/Charm/Charm-Bold.ttf");
   font-display: swap;
 }
 
 @font-face {
-  font-family: "OpenSans";
-  src: url("/fonts/OpenSans/OpenSans-VariableFont_wdth,wght.ttf");
+  font-family: "IBM_Plex_Serif";
+  src: url("/fonts/IBM_Plex_Serif/IBMPlexSerif-Regular.ttf"),
+    url("/fonts/IBM_Plex_Serif/IBMPlexSerif-Bold.ttf");
   font-display: swap;
 }
 
 :root [data-theme="cardstock"] {
-  --theme-font-family-base: "OpenSans", sans-serif;
-  --theme-font-family-heading: "Playfair", serif;
+  --theme-font-family-base: "IBM_Plex_Serif", serif;
+  --theme-font-family-heading: "Charm", cursive;
 }
 
 [data-theme="cardstock"] {
