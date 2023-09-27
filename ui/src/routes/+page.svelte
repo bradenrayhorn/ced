@@ -90,7 +90,9 @@
   {/if}
 {:else}
   <form action="?" autocomplete="off">
-    <p class="mb-2">Please enter your full name to search for your RSVP.</p>
+    <p class="mb-2">
+      Please enter your first and last name to search for your RSVP.
+    </p>
 
     <div class="flex gap-2">
       <input
