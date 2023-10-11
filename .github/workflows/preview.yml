@@ -1,0 +1,73 @@
+name: Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit SHA to build
+        required: true
+        type: string
+      id:
+        description: ID of the build, used to identify the preview environment.
+        required: true
+        type: string
+      pr:
+        description: Whether to comment on a PR. If true, id should be an issue number.
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  # must be same as in preview-cleanup
+  group: preview-${{ inputs.id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+    permissions:
+      packages: write
+    with:
+      server-tags: ghcr.io/bradenrayhorn/ced-server:preview-${{ inputs.ref }}
+      ui-tags: ghcr.io/bradenrayhorn/ced-ui:preview-${{ inputs.ref }}
+      ref: ${{ inputs.ref }}
+
+  deploy:
+    needs: build
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      valuesPath: "./preview/values.yaml"
+      cedVersion: "preview-${{ inputs.ref }}"
+      host: "ced-${{ inputs.id }}.preview.bdrh.dev"
+      namespace: "ced-pr-preview"
+      id: "ced-preview-${{ inputs.id }}"
+    secrets:
+      kubeconfig: ${{ secrets.PREVIEW_DEPLOYER_KUBECTL }}
+
+  comment-complete:
+    if: ${{ inputs.pr }}
+    needs: deploy
+    uses: ./.github/workflows/comment.yml
+    permissions:
+      pull-requests: write
+    with:
+      comment: "Preview site deployed at https://ced-${{inputs.id}}.preview.bdrh.dev!"
+      searchKey: "site"
+      issueNumber: ${{ inputs.id }}
+
+  apply-label:
+    if: ${{ inputs.pr }}
+    needs: deploy
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: '${{inputs.id}}',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: [{name: "has-preview"}],
+            });

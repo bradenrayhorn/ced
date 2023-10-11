@@ -141,7 +141,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: 'v3.12.3'
+          version: '${{vars.HELM_VERSION}}'
 
       - name: Lint helm
         run: helm lint .

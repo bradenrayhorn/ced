@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  workflow_call:
+    secrets:
+      kubeconfig:
+        required: true
+    inputs:
+      valuesPath:
+        required: true
+        type: string
+      cedVersion:
+        required: true
+        type: string
+      host:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string
+      id:
+        required: true
+        type: string
+
+jobs:
+  deploy-to-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '${{vars.HELM_VERSION}}'
+
+      - name: Setup kubectl
+        env:
+          DEPLOYER_KUBECONFIG: "${{secrets.kubeconfig}}"
+        run: |
+          echo "$DEPLOYER_KUBECONFIG" >> ./kubeconfig
+
+      - name: Setup values
+        run: |
+          yq e -i '.image.cedVersion="${{ inputs.cedVersion }}"' values.yaml
+          yq e -i '.ingress.hosts[0].host="${{ inputs.host }}"' values.yaml
+          yq e -i '.ingress.tls[0].secretName="${{ inputs.host }}"' values.yaml
+          yq e -i '.ingress.tls[0].hosts[0]="${{ inputs.host }}"' values.yaml
+
+      - name: Deploy
+        run: |
+          helm upgrade -i ${{ inputs.id }} oci://ghcr.io/bradenrayhorn/ced-helm \
+            --username "${{ github.actor }}" \
+            --password "${{ secrets.GITHUB_TOKEN }}" \
+            --kubeconfig kubeconfig \
+            --atomic \
+            --wait \
+            -f ${{ inputs.valuesPath }} \
+            -n ${{ inputs.namespace }}
