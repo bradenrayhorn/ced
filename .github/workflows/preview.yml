@@ -1,0 +1,155 @@
+name: Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  comment-intro:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@5cf910bf5b0c371fe9045d2738496f3b13b8a9ff
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: site
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@e3645dd16d792dc1461bba740dab47338596a26a
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🛠️ Building preview site, please wait....
+          edit-mode: replace
+
+  build:
+    if: github.event.action != 'closed'
+    needs: comment-intro
+    uses: ./.github/workflows/build.yml
+    permissions:
+      packages: write
+    with:
+      server-tags: ghcr.io/bradenrayhorn/ced-server:pr-${{ github.event.number }}
+      ui-tags: ghcr.io/bradenrayhorn/ced-ui:pr-${{ github.event.number }}
+
+  deploy:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '${{vars.HELM_VERSION}}'
+
+      - name: Setup kubectl
+        working-directory: ./preview
+        env:
+          DEPLOYER_KUBECTL: ${{secrets.PREVIEW_DEPLOYER_KUBECTL}}
+        run: |
+          echo "$DEPLOYER_KUBECTL" >> ./kubeconfig
+
+      - name: Setup values
+        working-directory: ./preview
+        run: |
+          yq e -i '.image.cedVersion="pr-${{ github.event.number }}"' values.yaml
+          yq e -i '.ingress.hosts[0].host="ced-pr-${{ github.event.number }}.preview.bdrh.dev"' values.yaml
+          yq e -i '.ingress.tls[0].secretName="ced-pr-${{ github.event.number }}"' values.yaml
+          yq e -i '.ingress.tls[0].hosts[0]="ced-pr-${{ github.event.number }}.preview.bdrh.dev"' values.yaml
+
+      - name: Deploy
+        working-directory: ./preview
+        run: |
+          helm upgrade -i ced-preview-${{github.event.number}} oci://ghcr.io/bradenrayhorn/ced-helm \
+            --kubeconfig kubeconfig \
+            --atomic \
+            --wait \
+            -f values.yaml \
+            -n ced-pr-preview
+
+  comment-complete:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    needs: deploy
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@5cf910bf5b0c371fe9045d2738496f3b13b8a9ff
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: site
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@e3645dd16d792dc1461bba740dab47338596a26a
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ✅ Preview site deployed at https://ced-pr-${{github.event.number}}.preview.bdrh.dev!
+          edit-mode: replace
+
+  uninstall:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '${{vars.HELM_VERSION}}'
+
+      - name: Setup kubectl
+        working-directory: ./preview
+        env:
+          DEPLOYER_KUBECTL: ${{secrets.PREVIEW_DEPLOYER_KUBECTL}}
+        run: |
+          echo "$DEPLOYER_KUBECTL" >> ./kubeconfig
+
+      - name: Uninstall
+        working-directory: ./preview
+        run: |
+          helm uninstall ced-preview-${{github.event.number}} \
+            --kubeconfig kubeconfig \
+            --wait \
+            --ignore-not-found \
+            -n ced-pr-preview
+
+  comment-closed:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    needs: uninstall
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Find Comment
+        uses: peter-evans/find-comment@5cf910bf5b0c371fe9045d2738496f3b13b8a9ff
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: site
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@e3645dd16d792dc1461bba740dab47338596a26a
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ⛔ Preview site removed.
+          edit-mode: replace

@@ -1,9 +1,14 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      server-tags:
+        required: true
+        type: string
+      ui-tags:
+        required: true
+        type: string
 
 jobs:
   build_server:
@@ -36,7 +41,7 @@ jobs:
           push: true
           provenance: false
           context: "{{defaultContext}}:server"
-          tags: ghcr.io/bradenrayhorn/ced-server:next,ghcr.io/bradenrayhorn/ced-server:next-${{ github.sha }}
+          tags: ${{ inputs.server-tags }}
           platforms: linux/amd64,linux/arm64
 
   build_ui:
@@ -69,6 +74,6 @@ jobs:
           push: true
           provenance: false
           context: "{{defaultContext}}:ui"
-          tags: ghcr.io/bradenrayhorn/ced-ui:next,ghcr.io/bradenrayhorn/ced-ui:next-${{ github.sha }}
+          tags: ${{ inputs.ui-tags }}
           platforms: linux/amd64,linux/arm64
 

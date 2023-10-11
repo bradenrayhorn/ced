@@ -1,0 +1,49 @@
+image:
+  pullPolicy: Always
+  # ced version to use. Can be any valid docker tag.
+  cedVersion: ""
+
+event:
+  title: The Big Event
+  url: https://example.com
+
+ced:
+  trustedIP:
+    enabled: false
+    header: CF-Connecting-IP
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: chart-example.local
+  tls:
+    - secretName: chart-example-tls
+      hosts:
+        - chart-example.local
+
+pvc:
+  storageClassName: local-path
+  storageRequest: 10Mi
+
+litestream:
+  enabled: false
+
+resources:
+  ui: {}
+  server: {}
+
