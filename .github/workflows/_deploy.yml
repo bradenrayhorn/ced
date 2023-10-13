@@ -33,7 +33,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: '${{vars.HELM_VERSION}}'
+          version: v3.13.1
 
       - name: Setup kubectl
         env:
