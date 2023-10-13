@@ -1,4 +1,4 @@
-# ced
+# ced readme update
 
 A small self-hosted RSVP service.
 
