@@ -43,10 +43,10 @@ jobs:
 
       - name: Setup values
         run: |
-          yq e -i '.image.cedVersion="${{ inputs.cedVersion }}"' values.yaml
-          yq e -i '.ingress.hosts[0].host="${{ inputs.host }}"' values.yaml
-          yq e -i '.ingress.tls[0].secretName="${{ inputs.host }}"' values.yaml
-          yq e -i '.ingress.tls[0].hosts[0]="${{ inputs.host }}"' values.yaml
+          yq e -i '.image.cedVersion="${{ inputs.cedVersion }}"' ${{ inputs.valuesPath }}
+          yq e -i '.ingress.hosts[0].host="${{ inputs.host }}"' ${{ inputs.valuesPath }}
+          yq e -i '.ingress.tls[0].secretName="${{ inputs.host }}"' ${{ inputs.valuesPath }}
+          yq e -i '.ingress.tls[0].hosts[0]="${{ inputs.host }}"' ${{ inputs.valuesPath }}
 
       - name: Deploy
         run: |
