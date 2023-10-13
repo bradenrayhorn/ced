@@ -47,7 +47,7 @@ jobs:
   comment-complete:
     if: ${{ inputs.pr }}
     needs: deploy
-    uses: ./.github/workflows/comment.yml
+    uses: ./.github/workflows/_comment.yml
     permissions:
       pull-requests: write
     with:

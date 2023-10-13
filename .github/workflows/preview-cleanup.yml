@@ -17,7 +17,6 @@ concurrency:
 
 jobs:
   uninstall:
-    needs: build
     uses: ./.github/workflows/_undeploy.yml
     with:
       namespace: "ced-pr-preview"
