@@ -1,0 +1,36 @@
+name: Preview Cleanup
+
+on:
+  pull_request_target:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      id:
+        description: ID of preview to cleanup
+        type: string
+        required: true
+
+concurrency:
+  # must be same as in preview
+  group: preview-${{ inputs.id || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  uninstall:
+    needs: build
+    uses: ./.github/workflows/_undeploy.yml
+    with:
+      namespace: "ced-pr-preview"
+      id: "ced-preview-${{ inputs.id || github.event.pull_request.number }}"
+    secrets:
+      kubeconfig: ${{ secrets.PREVIEW_DEPLOYER_KUBECTL }}
+
+  comment-closed:
+    needs: uninstall
+    uses: ./.github/workflows/_comment.yml
+    permissions:
+      pull-requests: write
+    with:
+      comment: ""
+      searchKey: "site"
+

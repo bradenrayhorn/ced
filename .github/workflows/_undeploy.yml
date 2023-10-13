@@ -1,0 +1,37 @@
+name: Undeploy
+
+on:
+  workflow_call:
+    secrets:
+      kubeconfig:
+        required: true
+    inputs:
+      namespace:
+        required: true
+        type: string
+      id:
+        required: true
+        type: string
+
+jobs:
+  undeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '${{vars.HELM_VERSION}}'
+
+      - name: Setup kubectl
+        env:
+          DEPLOYER_KUBECONFIG: ${{secrets.kubeconfig}}
+        run: |
+          echo "$DEPLOYER_KUBECONFIG" >> ./kubeconfig
+
+      - name: Uninstall
+        run: |
+          helm uninstall ${{ inputs.id }} \
+            --kubeconfig kubeconfig \
+            --wait \
+            --ignore-not-found \
+            -n ${{ inputs.namespace }}

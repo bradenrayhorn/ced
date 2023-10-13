@@ -1,9 +1,18 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      server-tags:
+        required: true
+        type: string
+      ui-tags:
+        required: true
+        type: string
+      ref:
+        required: false
+        type: string
+        default: ""
 
 jobs:
   build_server:
@@ -14,6 +23,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: "${{ inputs.ref }}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -36,7 +47,7 @@ jobs:
           push: true
           provenance: false
           context: "{{defaultContext}}:server"
-          tags: ghcr.io/bradenrayhorn/ced-server:next,ghcr.io/bradenrayhorn/ced-server:next-${{ github.sha }}
+          tags: "${{ inputs.server-tags }}"
           platforms: linux/amd64,linux/arm64
 
   build_ui:
@@ -69,6 +80,6 @@ jobs:
           push: true
           provenance: false
           context: "{{defaultContext}}:ui"
-          tags: ghcr.io/bradenrayhorn/ced-ui:next,ghcr.io/bradenrayhorn/ced-ui:next-${{ github.sha }}
+          tags: "${{ inputs.ui-tags }}"
           platforms: linux/amd64,linux/arm64
 

@@ -1,0 +1,16 @@
+name: Build for release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+    permissions:
+      packages: write
+    with:
+      server-tags: ghcr.io/bradenrayhorn/ced-server:next,ghcr.io/bradenrayhorn/ced-server:next-${{ github.sha }}
+      ui-tags: ghcr.io/bradenrayhorn/ced-ui:next,ghcr.io/bradenrayhorn/ced-ui:next-${{ github.sha }}
+
