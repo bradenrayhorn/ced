@@ -3,7 +3,7 @@ module github.com/bradenrayhorn/ced/server
 go 1.21
 
 require (
-	github.com/alecthomas/kong v0.8.0
+	github.com/alecthomas/kong v0.8.1
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/cors v1.2.1
 	github.com/lithammer/fuzzysearch v1.1.8
