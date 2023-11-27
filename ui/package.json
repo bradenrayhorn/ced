@@ -46,7 +46,7 @@
     "svelte-eslint-parser": "^0.33.1",
     "tailwindcss": "^3.3.5",
     "tslib": "^2.4.1",
-    "typescript": "^5.0.0",
+    "typescript": "^5.3.2",
     "unplugin-icons": "^0.17.3",
     "vite": "^4.5.0",
     "vitest": "^0.34.6"
