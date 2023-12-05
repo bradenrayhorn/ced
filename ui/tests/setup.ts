@@ -1,7 +1,7 @@
 import { test as base, type Locator, type Page } from "@playwright/test";
 import { execSync } from "child_process";
 import { createServer, request, type Server } from "http";
-import { rest } from "msw";
+import { http } from "msw";
 import { setupServer } from "msw/node";
 import type { SetupServer } from "msw/node";
 import type { AddressInfo } from "net";
@@ -23,7 +23,7 @@ type MockRequest = ({
 
 type Fixtures = {
   prefix: { prefix: string };
-  rest: typeof rest;
+  http: typeof http;
   mockRequest: MockRequest;
 };
 
@@ -95,17 +95,22 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
       scope: "worker",
     },
   ],
-  rest,
+  http,
   baseURL: async ({ port }, use) => {
     await use(`http://127.0.0.1:${port}/`);
   },
-  mockRequest: async ({ requestInterceptor, rest, page }, use) => {
+  mockRequest: async ({ requestInterceptor, http, page }, use) => {
     await use(async ({ path, method, status, body }): Promise<void> => {
       // apply msw mock (for node server)
       requestInterceptor.use(
-        rest[method](`*${path}`, (_, res, ctx) =>
-          res(ctx.status(status), ctx.json(body)),
-        ),
+        http[method](`*${path}`, () => {
+          return new Response(JSON.stringify(body), {
+            status: status,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        }),
       );
 
       // apply playwright mock (for browser)
