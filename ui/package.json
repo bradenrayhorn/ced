@@ -49,6 +49,6 @@
     "typescript": "^5.0.0",
     "unplugin-icons": "^0.18.1",
     "vite": "^4.5.1",
-    "vitest": "^0.34.6"
+    "vitest": "^1.0.4"
   }
 }
