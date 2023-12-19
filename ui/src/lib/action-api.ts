@@ -24,7 +24,7 @@ export const doRequest = async ({
   });
 
   if (!res.ok) {
-    throw await getError(res);
+    await getError(res);
   }
 
   return res;
