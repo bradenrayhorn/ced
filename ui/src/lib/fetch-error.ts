@@ -1,4 +1,4 @@
-import { error } from "@sveltejs/kit";
+import { error, type NumericRange } from "@sveltejs/kit";
 
 const defaultError = "Unknown error";
 
@@ -7,5 +7,10 @@ export const getError = async (res: Response) => {
     .json()
     .catch(async () => await res.text().catch(() => defaultError));
   const msg = errorJson?.error ?? defaultError;
-  return error(res.status, msg);
+
+  if (res.status >= 400 && res.status <= 599) {
+    error(res.status as NumericRange<400, 599>, msg);
+  }
+
+  error(500, msg);
 };

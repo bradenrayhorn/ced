@@ -7,9 +7,9 @@ export const actions: Actions = {
     const groupID = data.get("group");
 
     if (groupID && groupID !== "0") {
-      throw redirect(303, `/modify/${groupID}`);
+      redirect(303, `/modify/${groupID}`);
     } else {
-      throw redirect(303, `/`);
+      redirect(303, `/`);
     }
   },
 };

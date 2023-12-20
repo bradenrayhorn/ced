@@ -2,8 +2,6 @@ import type { Handle, HandleFetch } from "@sveltejs/kit";
 import { env } from "$env/dynamic/public";
 import { env as privateEnv } from "$env/dynamic/private";
 
-const trustedClientIPHeader = privateEnv.TRUSTED_CLIENT_IP_HEADER;
-
 export const handle: Handle = async ({ event, resolve }) => {
   let theme = env.PUBLIC_THEME ?? "";
   const validThemes = ["hamlindigo", "cardstock"];
@@ -28,6 +26,7 @@ export const handleFetch: HandleFetch = ({ event, request, fetch }) => {
   }
 
   // pass through trusted client ip header if it is set
+  const trustedClientIPHeader = privateEnv.TRUSTED_CLIENT_IP_HEADER;
   if (trustedClientIPHeader) {
     request.headers.set(
       trustedClientIPHeader,

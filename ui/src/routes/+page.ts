@@ -20,7 +20,7 @@ export const load: PageLoad<Output> = async ({ fetch, url }) => {
   if (search) {
     const res = await fetch(api(`/v1/groups/search?search=${search}`));
     if (!res.ok) {
-      throw await getError(res);
+      await getError(res);
     }
 
     const data = await res.json();

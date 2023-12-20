@@ -11,6 +11,6 @@ export const actions: Actions = {
       fetch,
     });
 
-    throw redirect(303, `/modify/${params.id}/complete`);
+    redirect(303, `/modify/${params.id}/complete`);
   },
 };
