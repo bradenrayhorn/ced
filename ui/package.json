@@ -28,7 +28,7 @@
     "@sveltejs/kit": "^2.0.6",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@tailwindcss/forms": "^0.5.7",
-    "@types/node": "^18.19.3",
+    "@types/node": "^18.19.4",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
     "autoprefixer": "^10.4.16",
@@ -49,6 +49,6 @@
     "typescript": "^5.0.0",
     "unplugin-icons": "^0.18.1",
     "vite": "^5.0.10",
-    "vitest": "^1.1.0"
+    "vitest": "^1.1.1"
   }
 }
