@@ -9,7 +9,7 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
   },
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
   //
@@ -22,6 +22,6 @@
     "./[!ambient.d.ts]**",
     "../src/service-worker.js",
     "../src/service-worker.ts",
-    "../src/service-worker.d.ts"
-  ]
+    "../src/service-worker.d.ts",
+  ],
 }
