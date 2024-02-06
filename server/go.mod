@@ -9,7 +9,7 @@ require (
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/matryer/is v1.4.1
 	github.com/segmentio/ksuid v1.0.4
-	zombiezen.com/go/sqlite v1.1.0
+	zombiezen.com/go/sqlite v1.1.1
 )
 
 require (
