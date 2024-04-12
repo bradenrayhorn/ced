@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=18.0.0 <19.0.0"
+    "node": ">=20.0.0 <21.0.0"
   },
   "scripts": {
     "dev": "vite dev",
@@ -28,7 +28,7 @@
     "@sveltejs/kit": "^2.5.5",
     "@sveltejs/vite-plugin-svelte": "^3.0.2",
     "@tailwindcss/forms": "^0.5.7",
-    "@types/node": "^18.19.30",
+    "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
     "autoprefixer": "^10.4.19",
