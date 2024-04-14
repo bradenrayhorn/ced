@@ -30,3 +30,5 @@ ced.db-wal
 ced-e2e.db
 ced-e2e.db-shm
 ced-e2e.db-wal
+ui/static/ui-dependencies.txt
+ui/static/server-dependencies.txt

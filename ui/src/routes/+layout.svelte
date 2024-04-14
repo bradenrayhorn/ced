@@ -19,5 +19,7 @@
 
   <footer class="text-primary-300 text-sm w-full text-center pb-2">
     <a class="anchor" href={env.PUBLIC_EVENT_URL}>{env.PUBLIC_EVENT_TITLE}</a>
+    {" | "}
+    <a class="anchor" href="/about">About ced</a>
   </footer>
 </div>

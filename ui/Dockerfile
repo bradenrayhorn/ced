@@ -7,6 +7,10 @@ RUN mkdir /app
 COPY / app/
 WORKDIR /app
 RUN npm install
+
+# first, build once so that licenses file gets created.
+RUN npm run build
+# build again to include the licenses file in the bundle.
 RUN npm run build
 
 # final image
