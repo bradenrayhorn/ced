@@ -16,5 +16,6 @@
     ":pinDevDependencies"
   ],
   "minimumReleaseAge": "5 days",
-  "internalChecksFilter": "strict"
+  "internalChecksFilter": "strict",
+  "ignorePaths": ["docker/docker-compose.yml"]
 }
