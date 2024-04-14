@@ -24,6 +24,7 @@ jobs:
           go install github.com/gordonklaus/ineffassign@latest
           go install honnef.co/go/tools/cmd/staticcheck@latest
           go install github.com/kisielk/errcheck@latest
+          go install github.com/google/go-licenses@latest
       - name: format
         if: always()
         run: test -z $(gofmt -l ./.. | grep -v vendor)
@@ -39,6 +40,9 @@ jobs:
       - name: staticcheck
         if: always()
         run: staticcheck ./...
+      - name: license
+        if: always()
+        run: go-licenses check --ignore github.com/bradenrayhorn/ced --confidence_threshold 0.85 ./...
 
   test:
     name: Test Go

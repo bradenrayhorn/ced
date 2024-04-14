@@ -14,6 +14,7 @@ RUN apk update && apk add sqlite
 RUN mkdir /app
 COPY --from=buildgo /app/cedd /app/
 COPY --from=buildgo /app/ced-cli /app/
+COPY licenses.txt /app/licenses.txt
 
 ENV DB_PATH=/app/ced.db
 ENV HTTP_PORT=8080

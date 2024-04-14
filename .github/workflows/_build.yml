@@ -26,6 +26,17 @@ jobs:
         with:
           ref: "${{ inputs.ref }}"
 
+      - name: Setup go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        with:
+          go-version-file: "./server/go.mod"
+          cache: false
+      - name: Generate backend license text
+        working-directory: "./server"
+        run: |
+          go install github.com/google/go-licenses@latest
+          go-licenses report --ignore github.com/bradenrayhorn/ced --confidence_threshold 0.85 --template ./licenses.tpl --logtostderr=false ./... > ./licenses.txt
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
         with:
@@ -46,7 +57,7 @@ jobs:
         with:
           push: true
           provenance: false
-          context: "{{defaultContext}}:server"
+          context: "./server"
           tags: "${{ inputs.server-tags }}"
           platforms: linux/amd64,linux/arm64
 
@@ -59,6 +70,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
+      - name: Setup go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+        with:
+          go-version-file: "./server/go.mod"
+          cache: false
+      - name: Generate backend license text
+        run: |
+          go install github.com/google/go-licenses@latest
+          (cd ./server && go-licenses report --ignore github.com/bradenrayhorn/ced --confidence_threshold 0.85 --template ./licenses.tpl --logtostderr=false ./... > ../ui/src/routes/about/server-licenses.txt)
+          ls -lah ./ui/src/routes/about
+          cat ./ui/src/routes/about/server-licenses.txt
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
         with:
@@ -74,12 +97,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3
 
+      - name: check path again
+        run: |
+          ls -lah ./ui/src/routes/about
+          cat ./ui/src/routes/about/server-licenses.txt
+
       - name: Build and push
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5
         with:
           push: true
           provenance: false
-          context: "{{defaultContext}}:ui"
+          context: "./ui"
           tags: "${{ inputs.ui-tags }}"
           platforms: linux/amd64,linux/arm64
 
