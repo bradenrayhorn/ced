@@ -2,7 +2,7 @@ version: '3'
 
 services:
   ced-ui:
-    image: ghcr.io/bradenrayhorn/ced-ui:latest
+    image: ghcr.io/bradenrayhorn/ced-ui:latest@sha256:5720fdc45dff2bc9fafe1de1d422149a1298ecea57171273467191ad0bf04818
     env_file: .env
     environment:
       PUBLIC_BASE_API_URL: http://localhost:${SERVER_PORT}
@@ -13,7 +13,7 @@ services:
     networks:
       - ced
   ced-server:
-    image: ghcr.io/bradenrayhorn/ced-server:latest
+    image: ghcr.io/bradenrayhorn/ced-server:latest@sha256:66013ae6fdeef2b7ed9e870c81055df4bb2dc501c5ff3a0f677c738b48321538
     env_file: .env
     environment:
       HTTP_PORT: ${SERVER_PORT}
