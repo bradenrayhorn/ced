@@ -30,8 +30,40 @@ export default defineConfig({
         },
       }),
       enforce: "post",
-      apply: (_, configEnv) => {
-        return !configEnv.isSsrBuild;
+      apply: (config) => {
+        return (
+          // frontend build has assets limit
+          !!process.env.GENERATE_LICENSES && !!config.build?.assetsInlineLimit
+        );
+      },
+    },
+    {
+      ...license({
+        sourcemap: true,
+        thirdParty: {
+          multipleVersions: true,
+          allow: {
+            test: "MIT",
+            failOnViolation: true,
+            failOnUnlicensed: true,
+          },
+          output: {
+            file: path.join(
+              __dirname,
+              "src",
+              "routes",
+              "about",
+              "ui-server-licenses.txt",
+            ),
+          },
+        },
+      }),
+      enforce: "post",
+      apply: (config) => {
+        return (
+          // server-side build has no assets limit
+          !!process.env.GENERATE_LICENSES && !config.build?.assetsInlineLimit
+        );
       },
     },
   ],

@@ -1,4 +1,4 @@
-FROM node:20-alpine@sha256:ec0c413b1d84f3f7f67ec986ba885930c57b5318d2eb3abc6960ee05d4f2eb28 as base
+FROM node:20-bookworm-slim@sha256:675dea9a60552930462cebee7778c87379fba3e9c1678db3f0fe416ba576c1a6 as base
 
 # build step
 FROM base as build
@@ -9,7 +9,7 @@ WORKDIR /app
 RUN npm install
 
 # first, build once so that licenses file gets created.
-RUN npm run build
+RUN GENERATE_LICENSES=true npm run build
 # build again to include the licenses file in the bundle.
 RUN npm run build
 
@@ -18,6 +18,7 @@ FROM base
 
 RUN mkdir -p /app/build
 COPY --from=build /app/build /app/package.json /app/entry.js /app/
+COPY --from=build /usr/local/LICENSE /app/NODE-LICENSE
 
 ENV NODE_ENV=production PORT=8080
 
