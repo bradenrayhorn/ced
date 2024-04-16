@@ -33,12 +33,5 @@ spec:
                 name: {{ $fullName }}-ui
                 port:
                   number: 8080
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $fullName }}-server
-                port:
-                  number: 8080
     {{- end }}
   {{- end }}

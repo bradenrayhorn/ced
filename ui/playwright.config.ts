@@ -10,7 +10,7 @@ const config: PlaywrightTestConfig = {
       env: {
         HTTP_PORT: "8080",
       },
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
     },
   ],
   testDir: "tests",

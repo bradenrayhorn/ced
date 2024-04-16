@@ -5,8 +5,7 @@ services:
     image: ghcr.io/bradenrayhorn/ced-ui:latest
     env_file: .env
     environment:
-      PUBLIC_BASE_API_URL: http://localhost:${SERVER_PORT}
-      UNPROXIED_BASE_API_URL: http://ced-server:${SERVER_PORT}
+      UNPROXIED_SERVER_URL: http://ced-server:${SERVER_PORT}
       ORIGIN: http://localhost:${UI_PORT}
     ports:
       - "${UI_PORT}:${UI_PORT}"
@@ -18,7 +17,6 @@ services:
     environment:
       HTTP_PORT: ${SERVER_PORT}
       DB_PATH: /app-data/ced.db
-      ORIGIN: http://localhost:${UI_PORT}
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:

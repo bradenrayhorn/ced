@@ -6,12 +6,10 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/bradenrayhorn/ced/server/ced"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/cors"
 )
 
 type Server struct {
@@ -66,9 +64,6 @@ func NewServer(
 
 	s.sv.Handler = s.router
 	s.router.Use(
-		cors.Handler(cors.Options{
-			AllowedOrigins: strings.Split(config.AllowedOrigin, ","),
-		}),
 		RealIP(config),
 	)
 

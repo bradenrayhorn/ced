@@ -1,4 +1,3 @@
-import { api } from "$lib/api";
 import { getError } from "$lib/fetch-error";
 import type { PageLoad } from "./$types";
 
@@ -18,7 +17,7 @@ export const load: PageLoad<Output> = async ({ fetch, url }) => {
   const search = url.searchParams.get("search");
 
   if (search) {
-    const res = await fetch(api(`/v1/groups/search?search=${search}`));
+    const res = await fetch(`/api/v1/groups/search?search=${search}`);
     if (!res.ok) {
       await getError(res);
     }

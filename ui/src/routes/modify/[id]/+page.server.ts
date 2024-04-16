@@ -6,7 +6,7 @@ export const actions: Actions = {
   modify: async ({ fetch, request, params }) => {
     await doRequest({
       method: "PUT",
-      path: `/v1/groups/${params.id}`,
+      path: `/api/v1/groups/${params.id}`,
       request,
       fetch,
     });

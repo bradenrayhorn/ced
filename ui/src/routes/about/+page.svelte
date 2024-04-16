@@ -4,6 +4,10 @@
   export let data: PageData;
 </script>
 
+<svelte:head>
+  <title>About ced</title>
+</svelte:head>
+
 <h2 class="text-3xl font-bold mb-8">About ced</h2>
 
 <p>ced is a self-hosted RSVP service.</p>

@@ -61,7 +61,6 @@ Configuration is done using environment variables.
 | `HTTP_PORT` | Port to run on. | Yes | | Example: `8080` |
 | `DB_PATH` | File path for SQLite file. | Yes | | Example: `ced.db` |
 | `PRETTY_LOG` | If false, logs in JSON format. | No | `false` | `true` `false` |
-| `ORIGIN` | Allowed origin for CORS. | No | | Example: `https://ced.example.com` |
 | `TRUSTED_CLIENT_IP_HEADER` | See [IP Logging](#ip-logging). | No | | Example: `CF-Connecting-IP` |
 
 **ced-ui**
@@ -70,22 +69,10 @@ Configuration is done using environment variables.
 | - | - | - | - | - |
 | `PUBLIC_EVENT_TITLE` | Title of the event. | Yes | | Example: `My Big Event` |
 | `PUBLIC_EVENT_URL` | URL to page with event details. | Yes | | Example: `https://myevent.com/details` |
-| `PUBLIC_BASE_API_URL` | Base URL of ced-server. Can/should go through a proxy. See [Proxies](#proxies). | Yes | | Example: `https://ced.example.com` |
-| `UNPROXIED_BASE_API_URL` | Base URL of ced-server that does not go through a proxy. See [Proxies](#proxies). | Yes | | Example: `http://ced-server.cluster.local` |
+| `UNPROXIED_SERVER_URL` | Base URL of ced-server that does not go through a proxy. See [Proxies](#proxies). | Yes | | Example: `http://ced-server.cluster.local` |
 | `ORIGIN` | Allowed origin for CORS. | No | | Example: `https://ced.example.com` |
 | `PUBLIC_EVENT_THEME` | Theme. | No | `hamlindigo` | `hamlindigo` `cardstock` |
 | `TRUSTED_CLIENT_IP_HEADER` | See [IP Logging](#ip-logging). | No | | Example: `CF-Connecting-IP` |
-
-### Proxies
-
-When ced is **NOT** deployed behind a proxy, the `UNPROXIED_BASE_API_URL` can be
-set to the same value as the `PUBLIC_BASE_API_URL`.
-
-When ced is deployed behind a proxy, the `UNPROXIED_BASE_API_URL` must be set
-to a URL that ced-ui can use to reach ced-server without going through the proxy.
-This is an important step to ensure [IP Logging](#ip-logging) will work properly.
-
-The Docker Compose setup demonstrates an example of this configuration.
 
 ### IP Logging
 

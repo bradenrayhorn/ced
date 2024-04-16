@@ -1,12 +1,9 @@
 import { test as base, type Locator, type Page } from "@playwright/test";
 import { execSync } from "child_process";
-import { createServer, request, type Server } from "http";
+import getPort from "get-port";
 import { http } from "msw";
-import { setupServer } from "msw/node";
 import type { SetupServer } from "msw/node";
-import type { AddressInfo } from "net";
-import { parse } from "url";
-import { handler } from "../build/handler.js";
+import { setupServer } from "msw/node";
 
 type MockRequest = ({
   path,
@@ -42,36 +39,14 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
   port: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
-      const server: Server = await new Promise((resolve) => {
-        const server = createServer((req, res) => {
-          if (req.url?.startsWith("/api")) {
-            const connector = request(
-              {
-                host: "localhost",
-                port: 8080,
-                path: req.url,
-                method: req.method ?? "GET",
-                headers: req.headers,
-              },
-              (resp) => {
-                res.statusCode = resp.statusCode ?? 200;
-                resp.pipe(res);
-              },
-            );
-            req.pipe(connector);
-          } else {
-            const parsedUrl = parse(req.url ?? "", true);
-            req.headers["x-forwarded-proto"] = "http";
-            handler(req, res, parsedUrl);
-          }
-        });
+      const port = `${await getPort()}`;
+      process.env.PORT = port;
+      process.env.ORIGIN = `http://127.0.0.1:${port}`;
+      process.env.PUBLIC_EVENT_TITLE = "An Event";
+      process.env.PUBLIC_EVENT_URL = "http://localhost:5555";
 
-        server.listen(() => {
-          resolve(server);
-        });
-      });
-
-      const port = String((server.address() as AddressInfo).port);
+      // run sveltekit server
+      await import("../build/index.js");
       await use(port);
     },
     { scope: "worker", auto: true },
@@ -99,7 +74,7 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
   baseURL: async ({ port }, use) => {
     await use(`http://127.0.0.1:${port}/`);
   },
-  mockRequest: async ({ requestInterceptor, http, page }, use) => {
+  mockRequest: async ({ requestInterceptor, http }, use) => {
     await use(async ({ path, method, status, body }): Promise<void> => {
       // apply msw mock (for node server)
       requestInterceptor.use(
@@ -111,12 +86,6 @@ export const test = base.extend<Fixtures, WorkerFixtures>({
             },
           });
         }),
-      );
-
-      // apply playwright mock (for browser)
-      await page.route(
-        (url) => url.pathname === path,
-        async (route) => await route.fulfill({ json: body, status: status }),
       );
     });
   },

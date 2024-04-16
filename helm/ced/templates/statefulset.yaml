@@ -132,9 +132,7 @@ spec:
               value: {{ .Values.event.title }}
             - name: PUBLIC_EVENT_URL
               value: {{ .Values.event.url }}
-            - name: PUBLIC_BASE_API_URL
-              value: ""
-            - name: UNPROXIED_BASE_API_URL
+            - name: UNPROXIED_SERVER_URL
               value: http://{{ include "ced.fullname" . }}-server:8080
             {{- if .Values.ced.trustedIP.enabled }}
             - name: TRUSTED_CLIENT_IP_HEADER
