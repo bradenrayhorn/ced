@@ -1,4 +1,3 @@
-import { api } from "$lib/api";
 import { getError } from "$lib/fetch-error";
 import type { PageLoad } from "./$types";
 
@@ -15,7 +14,7 @@ type Group = {
 };
 
 export const load: PageLoad<OutputProps> = async ({ fetch, params }) => {
-  const res = await fetch(api(`/v1/groups/${params.id}`));
+  const res = await fetch(`/api/v1/groups/${params.id}`);
   if (!res.ok) {
     await getError(res);
   }

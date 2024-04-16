@@ -6,8 +6,6 @@ type Config struct {
 	PrettyLog bool
 	DbPath    string
 	HttpPort  string
-	// CORS allowed origins
-	AllowedOrigin string
 
 	// If set, the client IP will be read from this header.
 	TrustedClientIPHeader string

@@ -9,8 +9,8 @@ event:
 
 ced:
   trustedIP:
-    enabled: false
-    header: CF-Connecting-IP
+    enabled: true
+    header: X-Real-Ip
 
 nameOverride: ""
 fullnameOverride: ""

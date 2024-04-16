@@ -1,4 +1,3 @@
-import { api } from "./api";
 import { getError } from "./fetch-error";
 
 export const doRequest = async ({
@@ -18,7 +17,7 @@ export const doRequest = async ({
     obj[key] = value.toString();
   });
 
-  const res = await internalFetch(api(path), {
+  const res = await internalFetch(path, {
     method,
     body: JSON.stringify(obj),
   });
