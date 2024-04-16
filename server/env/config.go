@@ -9,10 +9,9 @@ import (
 
 func LoadConfig() ced.Config {
 	return ced.Config{
-		PrettyLog:             isTrue(os.Getenv("PRETTY_LOG")),
-		DbPath:                GetDbPath(),
-		HttpPort:              os.Getenv("HTTP_PORT"),
-		TrustedClientIPHeader: os.Getenv("TRUSTED_CLIENT_IP_HEADER"),
+		PrettyLog: isTrue(os.Getenv("PRETTY_LOG")),
+		DbPath:    GetDbPath(),
+		HttpPort:  os.Getenv("HTTP_PORT"),
 	}
 }
 

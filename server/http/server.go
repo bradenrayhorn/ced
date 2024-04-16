@@ -64,7 +64,7 @@ func NewServer(
 
 	s.sv.Handler = s.router
 	s.router.Use(
-		RealIP(config),
+		RealIP(),
 	)
 
 	s.router.Route("/api/v1", func(r chi.Router) {
