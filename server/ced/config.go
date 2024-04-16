@@ -6,9 +6,6 @@ type Config struct {
 	PrettyLog bool
 	DbPath    string
 	HttpPort  string
-
-	// If set, the client IP will be read from this header.
-	TrustedClientIPHeader string
 }
 
 func (c Config) Validate() error {

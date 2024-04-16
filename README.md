@@ -31,6 +31,11 @@ ced is released as two Docker images.
 **Note:** ced-server currently supports running a single instance per SQLite database.
 Running multiple instances of ced-server has not been validated.
 
+**Important:** Only ced-ui should be exposed to public traffic. ced-server is designed
+to trust certain headers, particularly, `ced-connecting-ip`, that are set by ced-ui.
+Allowing ced-server to be accessed directly will leave ced-server vulnerable to simple
+IP spoofing.
+
 ### Docker Compose
 
 A Docker Compose file can be found [here](docker/docker-compose.yml).
@@ -61,7 +66,6 @@ Configuration is done using environment variables.
 | `HTTP_PORT` | Port to run on. | Yes | | Example: `8080` |
 | `DB_PATH` | File path for SQLite file. | Yes | | Example: `ced.db` |
 | `PRETTY_LOG` | If false, logs in JSON format. | No | `false` | `true` `false` |
-| `TRUSTED_CLIENT_IP_HEADER` | See [IP Logging](#ip-logging). | No | | Example: `CF-Connecting-IP` |
 
 **ced-ui**
 
@@ -72,7 +76,7 @@ Configuration is done using environment variables.
 | `UNPROXIED_SERVER_URL` | Base URL of ced-server that does not go through a proxy. See [Proxies](#proxies). | Yes | | Example: `http://ced-server.cluster.local` |
 | `ORIGIN` | Allowed origin for CORS. | No | | Example: `https://ced.example.com` |
 | `PUBLIC_EVENT_THEME` | Theme. | No | `hamlindigo` | `hamlindigo` `cardstock` |
-| `TRUSTED_CLIENT_IP_HEADER` | See [IP Logging](#ip-logging). | No | | Example: `CF-Connecting-IP` |
+| `ADDRESS_HEADER` | See [IP Logging](#ip-logging). | No | | Example: `CF-Connecting-IP` |
 
 ### IP Logging
 
@@ -84,7 +88,7 @@ With a default configuration, the IP address is the network address that sent th
 If ced is deployed behind a proxy, this results in misleading IP address information,
 as the IP address will always be the IP address of the proxy.
 
-To fix this, set the `TRUSTED_CLIENT_IP_HEADER` to whichever header contains the
+To fix this, set the `ADDRESS_HEADER` environment variable to whichever header contains the
 IP address of the original client. It is important to make sure this option is set
 **ONLY** when ced is behind a trusted proxy **AND** the proxy is setting the header you specify.
 

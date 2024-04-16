@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bradenrayhorn/ced/server/ced"
 	"github.com/go-chi/chi/v5"
 	"github.com/matryer/is"
 )
@@ -13,16 +12,13 @@ import (
 func TestRealIP(t *testing.T) {
 	var tests = []struct {
 		name               string
-		addConfig          bool
-		xRealIP            string
+		connectingIPHeader string
 		expectedRemoteAddr string
 	}{
-		{"returns remote addr with no config",
-			false, "192.0.0.1", "::1"},
-		{"returns remote addr with config and no value in header",
-			true, "", "::1"},
-		{"returns real ip with config and value in header",
-			true, "192.0.0.1", "192.0.0.1"},
+		{"returns remote addr and no value in header",
+			"", "::1"},
+		{"returns real ip and value in header",
+			"192.0.0.1", "192.0.0.1"},
 	}
 
 	for _, test := range tests {
@@ -30,17 +26,13 @@ func TestRealIP(t *testing.T) {
 			is := is.New(t)
 
 			req, _ := http.NewRequest("GET", "/", nil)
-			req.Header.Add("x-real-ip", test.xRealIP)
+			req.Header.Add("ced-connecting-ip", test.connectingIPHeader)
 			req.RemoteAddr = "[::1]:65713"
 			w := httptest.NewRecorder()
 
 			r := chi.NewRouter()
 
-			header := ""
-			if test.addConfig {
-				header = "x-real-ip"
-			}
-			r.Use(RealIP(ced.Config{TrustedClientIPHeader: header}))
+			r.Use(RealIP())
 
 			realIP := ""
 			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
