@@ -555,6 +555,9 @@ type MockGroupContract struct {
 	// CreateFunc is an instance of a mock function object controlling the
 	// behavior of the method Create.
 	CreateFunc *GroupContractCreateFunc
+	// ExportFunc is an instance of a mock function object controlling the
+	// behavior of the method Export.
+	ExportFunc *GroupContractExportFunc
 	// GetFunc is an instance of a mock function object controlling the
 	// behavior of the method Get.
 	GetFunc *GroupContractGetFunc
@@ -575,6 +578,11 @@ func NewMockGroupContract() *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
 			defaultHook: func(context.Context, ced.Name, uint8, string) (r0 ced.Group, r1 error) {
+				return
+			},
+		},
+		ExportFunc: &GroupContractExportFunc{
+			defaultHook: func(context.Context) (r0 []ced.Group, r1 error) {
 				return
 			},
 		},
@@ -610,6 +618,11 @@ func NewStrictMockGroupContract() *MockGroupContract {
 				panic("unexpected invocation of MockGroupContract.Create")
 			},
 		},
+		ExportFunc: &GroupContractExportFunc{
+			defaultHook: func(context.Context) ([]ced.Group, error) {
+				panic("unexpected invocation of MockGroupContract.Export")
+			},
+		},
 		GetFunc: &GroupContractGetFunc{
 			defaultHook: func(context.Context, ced.ReqContext, ced.ID) (ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Get")
@@ -640,6 +653,9 @@ func NewMockGroupContractFrom(i ced.GroupContract) *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
 			defaultHook: i.Create,
+		},
+		ExportFunc: &GroupContractExportFunc{
+			defaultHook: i.Export,
 		},
 		GetFunc: &GroupContractGetFunc{
 			defaultHook: i.Get,
@@ -766,6 +782,110 @@ func (c GroupContractCreateFuncCall) Args() []interface{} {
 // Results returns an interface slice containing the results of this
 // invocation.
 func (c GroupContractCreateFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupContractExportFunc describes the behavior when the Export method of
+// the parent MockGroupContract instance is invoked.
+type GroupContractExportFunc struct {
+	defaultHook func(context.Context) ([]ced.Group, error)
+	hooks       []func(context.Context) ([]ced.Group, error)
+	history     []GroupContractExportFuncCall
+	mutex       sync.Mutex
+}
+
+// Export delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) Export(v0 context.Context) ([]ced.Group, error) {
+	r0, r1 := m.ExportFunc.nextHook()(v0)
+	m.ExportFunc.appendCall(GroupContractExportFuncCall{v0, r0, r1})
+	return r0, r1
+}
+
+// SetDefaultHook sets function that is called when the Export method of the
+// parent MockGroupContract instance is invoked and the hook queue is empty.
+func (f *GroupContractExportFunc) SetDefaultHook(hook func(context.Context) ([]ced.Group, error)) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Export method of the parent MockGroupContract instance invokes the hook
+// at the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractExportFunc) PushHook(hook func(context.Context) ([]ced.Group, error)) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractExportFunc) SetDefaultReturn(r0 []ced.Group, r1 error) {
+	f.SetDefaultHook(func(context.Context) ([]ced.Group, error) {
+		return r0, r1
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractExportFunc) PushReturn(r0 []ced.Group, r1 error) {
+	f.PushHook(func(context.Context) ([]ced.Group, error) {
+		return r0, r1
+	})
+}
+
+func (f *GroupContractExportFunc) nextHook() func(context.Context) ([]ced.Group, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractExportFunc) appendCall(r0 GroupContractExportFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractExportFuncCall objects
+// describing the invocations of this function.
+func (f *GroupContractExportFunc) History() []GroupContractExportFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractExportFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractExportFuncCall is an object that describes an invocation of
+// method Export on an instance of MockGroupContract.
+type GroupContractExportFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 []ced.Group
+	// Result1 is the value of the 2nd result returned from this method
+	// invocation.
+	Result1 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractExportFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractExportFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
 }
 
@@ -1217,6 +1337,9 @@ type MockGroupRespository struct {
 	// GetFunc is an instance of a mock function object controlling the
 	// behavior of the method Get.
 	GetFunc *GroupRespositoryGetFunc
+	// GetAllFunc is an instance of a mock function object controlling the
+	// behavior of the method GetAll.
+	GetAllFunc *GroupRespositoryGetAllFunc
 	// SearchByNameFunc is an instance of a mock function object controlling
 	// the behavior of the method SearchByName.
 	SearchByNameFunc *GroupRespositorySearchByNameFunc
@@ -1242,6 +1365,11 @@ func NewMockGroupRespository() *MockGroupRespository {
 		},
 		GetFunc: &GroupRespositoryGetFunc{
 			defaultHook: func(context.Context, ced.ID) (r0 ced.Group, r1 error) {
+				return
+			},
+		},
+		GetAllFunc: &GroupRespositoryGetAllFunc{
+			defaultHook: func(context.Context) (r0 []ced.Group, r1 error) {
 				return
 			},
 		},
@@ -1277,6 +1405,11 @@ func NewStrictMockGroupRespository() *MockGroupRespository {
 				panic("unexpected invocation of MockGroupRespository.Get")
 			},
 		},
+		GetAllFunc: &GroupRespositoryGetAllFunc{
+			defaultHook: func(context.Context) ([]ced.Group, error) {
+				panic("unexpected invocation of MockGroupRespository.GetAll")
+			},
+		},
 		SearchByNameFunc: &GroupRespositorySearchByNameFunc{
 			defaultHook: func(context.Context, string) ([]ced.Group, error) {
 				panic("unexpected invocation of MockGroupRespository.SearchByName")
@@ -1303,6 +1436,9 @@ func NewMockGroupRespositoryFrom(i ced.GroupRespository) *MockGroupRespository {
 		},
 		GetFunc: &GroupRespositoryGetFunc{
 			defaultHook: i.Get,
+		},
+		GetAllFunc: &GroupRespositoryGetAllFunc{
+			defaultHook: i.GetAll,
 		},
 		SearchByNameFunc: &GroupRespositorySearchByNameFunc{
 			defaultHook: i.SearchByName,
@@ -1628,6 +1764,111 @@ func (c GroupRespositoryGetFuncCall) Args() []interface{} {
 // Results returns an interface slice containing the results of this
 // invocation.
 func (c GroupRespositoryGetFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupRespositoryGetAllFunc describes the behavior when the GetAll method
+// of the parent MockGroupRespository instance is invoked.
+type GroupRespositoryGetAllFunc struct {
+	defaultHook func(context.Context) ([]ced.Group, error)
+	hooks       []func(context.Context) ([]ced.Group, error)
+	history     []GroupRespositoryGetAllFuncCall
+	mutex       sync.Mutex
+}
+
+// GetAll delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupRespository) GetAll(v0 context.Context) ([]ced.Group, error) {
+	r0, r1 := m.GetAllFunc.nextHook()(v0)
+	m.GetAllFunc.appendCall(GroupRespositoryGetAllFuncCall{v0, r0, r1})
+	return r0, r1
+}
+
+// SetDefaultHook sets function that is called when the GetAll method of the
+// parent MockGroupRespository instance is invoked and the hook queue is
+// empty.
+func (f *GroupRespositoryGetAllFunc) SetDefaultHook(hook func(context.Context) ([]ced.Group, error)) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// GetAll method of the parent MockGroupRespository instance invokes the
+// hook at the front of the queue and discards it. After the queue is empty,
+// the default hook function is invoked for any future action.
+func (f *GroupRespositoryGetAllFunc) PushHook(hook func(context.Context) ([]ced.Group, error)) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupRespositoryGetAllFunc) SetDefaultReturn(r0 []ced.Group, r1 error) {
+	f.SetDefaultHook(func(context.Context) ([]ced.Group, error) {
+		return r0, r1
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupRespositoryGetAllFunc) PushReturn(r0 []ced.Group, r1 error) {
+	f.PushHook(func(context.Context) ([]ced.Group, error) {
+		return r0, r1
+	})
+}
+
+func (f *GroupRespositoryGetAllFunc) nextHook() func(context.Context) ([]ced.Group, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupRespositoryGetAllFunc) appendCall(r0 GroupRespositoryGetAllFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupRespositoryGetAllFuncCall objects
+// describing the invocations of this function.
+func (f *GroupRespositoryGetAllFunc) History() []GroupRespositoryGetAllFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupRespositoryGetAllFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupRespositoryGetAllFuncCall is an object that describes an invocation
+// of method GetAll on an instance of MockGroupRespository.
+type GroupRespositoryGetAllFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 []ced.Group
+	// Result1 is the value of the 2nd result returned from this method
+	// invocation.
+	Result1 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupRespositoryGetAllFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupRespositoryGetAllFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
 }
 

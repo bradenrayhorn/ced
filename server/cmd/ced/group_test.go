@@ -59,3 +59,25 @@ func TestGroupImport(t *testing.T) {
 	is.Equal(group.MaxAttendees, uint8(5))
 	is.Equal(group.SearchHints, "Bob Lob")
 }
+
+func TestGroupExport(t *testing.T) {
+	is := is.New(t)
+	pool, err := newCmdPool(testutils.InMemoryPoolPath)
+	is.NoErr(err)
+	defer pool.close(os.Stdout)
+
+	_, err = pool.groupContract.Create(context.Background(), ced.Name("Bob Lob"), 2, "")
+	is.NoErr(err)
+
+	in := bytes.NewBufferString("")
+	out := bytes.NewBufferString("")
+
+	cmd := GroupExportCmd{}
+	err = cmd.Run(&CmdContext{in, out, pool})
+	is.NoErr(err)
+
+	is.Equal(strings.TrimSpace(out.String()), strings.TrimSpace(`
+Name,Max Attendees,Attendees,Has Responded
+Bob Lob,2,0,false
+	`))
+}

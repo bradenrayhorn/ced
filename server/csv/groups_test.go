@@ -76,3 +76,35 @@ func TestParseGroupImport(t *testing.T) {
 		is.Equal(err.Error(), "failed to parse record on line 1: invalid max_attendees: -1")
 	})
 }
+
+func TestGroupExport(t *testing.T) {
+
+	t.Run("can export groups", func(t *testing.T) {
+		is := is.New(t)
+
+		group1 := ced.Group{
+			Name:         ced.Name("Charlie"),
+			MaxAttendees: 5,
+			Attendees:    3,
+			HasResponded: true,
+		}
+		group2 := ced.Group{
+			Name:         ced.Name("Evelyn"),
+			MaxAttendees: 1,
+			Attendees:    0,
+			HasResponded: false,
+		}
+
+		var out strings.Builder
+		err := GroupsExport(&out, []ced.Group{group1, group2})
+		is.NoErr(err)
+
+		res := out.String()
+		expected := `
+Name,Max Attendees,Attendees,Has Responded
+Charlie,5,3,true
+Evelyn,1,0,false
+		`
+		is.Equal(strings.TrimSpace(expected), strings.TrimSpace(res))
+	})
+}
