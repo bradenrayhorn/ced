@@ -27,14 +27,12 @@
 </script>
 
 <svelte:head>
-  <title>Modify RSVP</title>
+  <title>RSVP - {group.name}</title>
 </svelte:head>
 
-<h1 class="h1">Modify RSVP</h1>
+<h2 class="mt-8 mb-5 h2">{group.name}</h2>
 
-<h3 class="mt-6 mb-2 h3">{group.name}</h3>
-
-<p class="mb-2">Please confirm the number of guests in your party.</p>
+<p class="mb-5">Please confirm the number of guests in your party.</p>
 
 <form
   method="POST"

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.8.0
+
+- Simplify UI of RSVP page
+
+Full changelog: [v0.7.0...v0.8.0](https://github.com/bradenrayhorn/ced/compare/v0.7.0...v0.8.0)
+
 ## v0.7.0
 
 - Add export command to CLI
