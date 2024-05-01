@@ -115,3 +115,7 @@ func (c *groupContract) Import(ctx context.Context, records []ced.GroupImport) e
 
 	return c.groupRepository.CreateMany(ctx, groups)
 }
+
+func (c *groupContract) Export(ctx context.Context) ([]ced.Group, error) {
+	return c.groupRepository.GetAll(ctx)
+}

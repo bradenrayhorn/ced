@@ -80,6 +80,25 @@ func TestGroup(t *testing.T) {
 		testutils.IsCode(t, err, ced.ENOTFOUND)
 	})
 
+	t.Run("can get all groups", func(t *testing.T) {
+		is := is.New(t)
+		defer setup()()
+
+		group := ced.Group{
+			ID:           ced.NewID(),
+			Name:         "George Hoover and family",
+			Attendees:    3,
+			MaxAttendees: 5,
+			HasResponded: true,
+		}
+
+		is.NoErr(groupRepository.Create(context.Background(), group))
+
+		res, err := groupRepository.GetAll(context.Background())
+		is.NoErr(err)
+		is.Equal([]ced.Group{group}, res)
+	})
+
 	t.Run("search", func(t *testing.T) {
 		is := is.New(t)
 		defer setup()()

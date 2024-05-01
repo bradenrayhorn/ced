@@ -181,4 +181,30 @@ func TestGroup(t *testing.T) {
 			is.Equal(err.Error(), "failed to import at record 1: Invalid data provided")
 		})
 	})
+
+	t.Run("export", func(t *testing.T) {
+		t.Run("can export", func(t *testing.T) {
+			defer setup(t)()
+			is := is.New(t)
+
+			res, err := groupContract.Export(context.Background())
+			is.NoErr(err)
+
+			is.Equal(2, len(res))
+
+			var resGroup1 ced.Group
+			var resGroup2 ced.Group
+			for _, group := range res {
+				if group.ID == group1.ID {
+					resGroup1 = group
+				}
+				if group.ID == group2.ID {
+					resGroup2 = group
+				}
+			}
+
+			is.Equal(group1, resGroup1)
+			is.Equal(group2, resGroup2)
+		})
+	})
 }

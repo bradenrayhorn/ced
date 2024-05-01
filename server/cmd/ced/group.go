@@ -43,3 +43,15 @@ func (r *GroupImportCmd) Run(ctx *CmdContext) error {
 
 	return ctx.pool.groupContract.Import(context.Background(), records)
 }
+
+type GroupExportCmd struct {
+}
+
+func (r *GroupExportCmd) Run(ctx *CmdContext) error {
+	groups, err := ctx.pool.groupContract.Export(context.Background())
+	if err != nil {
+		return err
+	}
+
+	return csv.GroupsExport(ctx.out, groups)
+}

@@ -98,6 +98,22 @@ func (r *groupRepository) Get(ctx context.Context, id ced.ID) (ced.Group, error)
 	return mustFindResult(group, err, id.String())
 }
 
+func (r *groupRepository) GetAll(ctx context.Context) ([]ced.Group, error) {
+	query := `SELECT * FROM groups;`
+
+	groups, err := selectList(ctx, r.pool, query,
+		[]any{},
+		func(stmt *sqlite.Stmt) (ced.Group, error) {
+			return mapper.Group(stmt)
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return groups, nil
+}
+
 func (r *groupRepository) SearchByName(ctx context.Context, name string) ([]ced.Group, error) {
 	query := `SELECT * FROM groups;`
 

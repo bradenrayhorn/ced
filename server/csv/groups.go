@@ -9,6 +9,8 @@ import (
 	"github.com/bradenrayhorn/ced/server/ced"
 )
 
+// import
+
 func ParseGroupImport(reader io.Reader) ([]ced.GroupImport, error) {
 	// csv has format, no header line:
 	// {name}, {max_attendees}, {search_hints}
@@ -46,4 +48,24 @@ func parseRecord(record []string) (ced.GroupImport, error) {
 		MaxAttendees: uint8(maxAttendees),
 		SearchHints:  record[2],
 	}, nil
+}
+
+// export
+
+func GroupsExport(writer io.Writer, groups []ced.Group) error {
+	w := csv.NewWriter(writer)
+
+	records := make([][]string, len(groups)+1)
+	records[0] = []string{"Name", "Max Attendees", "Attendees", "Has Responded"}
+
+	for i, g := range groups {
+		records[i+1] = []string{
+			string(g.Name),
+			strconv.FormatUint(uint64(g.MaxAttendees), 10),
+			strconv.FormatUint(uint64(g.Attendees), 10),
+			strconv.FormatBool(g.HasResponded),
+		}
+	}
+
+	return w.WriteAll(records)
 }

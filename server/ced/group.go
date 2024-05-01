@@ -56,6 +56,9 @@ type GroupContract interface {
 
 	// Imports a list of groups.
 	Import(ctx context.Context, groups []GroupImport) error
+
+	// Gets all groups for an export.
+	Export(ctx context.Context) ([]Group, error)
 }
 
 type GroupRespository interface {
@@ -63,6 +66,8 @@ type GroupRespository interface {
 	CreateMany(ctx context.Context, groups []Group) error
 	Update(ctx context.Context, group Group) error
 	Get(ctx context.Context, id ID) (Group, error)
+
+	GetAll(ctx context.Context) ([]Group, error)
 
 	SearchByName(ctx context.Context, search string) ([]Group, error)
 }

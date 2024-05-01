@@ -155,6 +155,15 @@ Example CSV:
 "Jerome and Elaine Johnson",2,"Jerome Johnson, Elaine Johnson"
 ```
 
+### CSV Export
+
+Groups can be exported back to a CSV file using the CLI.
+
+Example:
+```
+/app/ced-cli group export
+```
+
 ### Create Group Command
 
 Groups can also be created individually using the following command.
