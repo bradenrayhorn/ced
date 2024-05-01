@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"errors"
+	"time"
 
 	"zombiezen.com/go/sqlite"
 	"zombiezen.com/go/sqlite/sqlitemigration"
@@ -22,6 +23,8 @@ func CreatePool(ctx context.Context, uri string) (*Pool, error) {
 	pool := sqlitemigration.NewPool(uri, schema, sqlitemigration.Options{
 		PoolSize: 20,
 		PrepareConn: func(conn *sqlite.Conn) error {
+			conn.SetBusyTimeout(time.Second * 10)
+
 			return sqlitex.ExecuteTransient(conn, "PRAGMA foreign_keys = ON;", nil)
 		},
 		OnError: func(err error) {
