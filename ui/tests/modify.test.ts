@@ -26,7 +26,7 @@ test("can complete an rsvp", async ({ prefix: { prefix }, page }) => {
   ).toHaveAttribute("href", "http://localhost:5555");
 
   await page.getByRole("link", { name: "Edit RSVP" }).click();
-  await expect(page).toHaveTitle("Modify RSVP");
+  await expect(page).toHaveTitle(`RSVP - ${prefix}Fred`);
 });
 
 test("can go back to search from modify page", async ({
