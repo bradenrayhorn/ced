@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"zombiezen.com/go/sqlite"
@@ -25,7 +26,10 @@ func CreatePool(ctx context.Context, uri string) (*Pool, error) {
 		PrepareConn: func(conn *sqlite.Conn) error {
 			conn.SetBusyTimeout(time.Second * 10)
 
-			return sqlitex.ExecuteTransient(conn, "PRAGMA foreign_keys = ON;", nil)
+			return errors.Join(
+				sqlitex.ExecuteTransient(conn, "PRAGMA foreign_keys = ON;", nil),
+				sqlitex.ExecuteTransient(conn, "PRAGMA synchronous = NORMAL;", nil),
+			)
 		},
 		OnError: func(err error) {
 			poolError = err
@@ -36,7 +40,8 @@ func CreatePool(ctx context.Context, uri string) (*Pool, error) {
 	conn, err := pool.Get(ctx)
 	if err != nil {
 		// if there is an error, it might have been due to the pool failing to connect for some reason
-		return nil, errors.Join(err, poolError)
+		code := sqlite.ErrCode(err)
+		return nil, errors.Join(err, poolError, fmt.Errorf("sqlite code: %s, msg: %s", code.String(), code.Message()))
 	}
 
 	pool.Put(conn)
