@@ -14,7 +14,7 @@
     ":disableRateLimiting",
     ":pinDevDependencies"
   ],
-  "schedule": ["every 2 week"],
+  "schedule": ["every 2 week on monday"],
   "minimumReleaseAge": "5 days",
   "internalChecksFilter": "strict",
   "ignorePaths": ["docker/docker-compose.yml"],
