@@ -555,6 +555,9 @@ type MockGroupContract struct {
 	// CreateFunc is an instance of a mock function object controlling the
 	// behavior of the method Create.
 	CreateFunc *GroupContractCreateFunc
+	// DeleteFunc is an instance of a mock function object controlling the
+	// behavior of the method Delete.
+	DeleteFunc *GroupContractDeleteFunc
 	// ExportFunc is an instance of a mock function object controlling the
 	// behavior of the method Export.
 	ExportFunc *GroupContractExportFunc
@@ -584,6 +587,11 @@ func NewMockGroupContract() *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
 			defaultHook: func(context.Context, ced.Name, uint8, string) (r0 ced.Group, r1 error) {
+				return
+			},
+		},
+		DeleteFunc: &GroupContractDeleteFunc{
+			defaultHook: func(context.Context, ced.ID) (r0 error) {
 				return
 			},
 		},
@@ -634,6 +642,11 @@ func NewStrictMockGroupContract() *MockGroupContract {
 				panic("unexpected invocation of MockGroupContract.Create")
 			},
 		},
+		DeleteFunc: &GroupContractDeleteFunc{
+			defaultHook: func(context.Context, ced.ID) error {
+				panic("unexpected invocation of MockGroupContract.Delete")
+			},
+		},
 		ExportFunc: &GroupContractExportFunc{
 			defaultHook: func(context.Context) ([]ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Export")
@@ -679,6 +692,9 @@ func NewMockGroupContractFrom(i ced.GroupContract) *MockGroupContract {
 	return &MockGroupContract{
 		CreateFunc: &GroupContractCreateFunc{
 			defaultHook: i.Create,
+		},
+		DeleteFunc: &GroupContractDeleteFunc{
+			defaultHook: i.Delete,
 		},
 		ExportFunc: &GroupContractExportFunc{
 			defaultHook: i.Export,
@@ -815,6 +831,110 @@ func (c GroupContractCreateFuncCall) Args() []interface{} {
 // invocation.
 func (c GroupContractCreateFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupContractDeleteFunc describes the behavior when the Delete method of
+// the parent MockGroupContract instance is invoked.
+type GroupContractDeleteFunc struct {
+	defaultHook func(context.Context, ced.ID) error
+	hooks       []func(context.Context, ced.ID) error
+	history     []GroupContractDeleteFuncCall
+	mutex       sync.Mutex
+}
+
+// Delete delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) Delete(v0 context.Context, v1 ced.ID) error {
+	r0 := m.DeleteFunc.nextHook()(v0, v1)
+	m.DeleteFunc.appendCall(GroupContractDeleteFuncCall{v0, v1, r0})
+	return r0
+}
+
+// SetDefaultHook sets function that is called when the Delete method of the
+// parent MockGroupContract instance is invoked and the hook queue is empty.
+func (f *GroupContractDeleteFunc) SetDefaultHook(hook func(context.Context, ced.ID) error) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Delete method of the parent MockGroupContract instance invokes the hook
+// at the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractDeleteFunc) PushHook(hook func(context.Context, ced.ID) error) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractDeleteFunc) SetDefaultReturn(r0 error) {
+	f.SetDefaultHook(func(context.Context, ced.ID) error {
+		return r0
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractDeleteFunc) PushReturn(r0 error) {
+	f.PushHook(func(context.Context, ced.ID) error {
+		return r0
+	})
+}
+
+func (f *GroupContractDeleteFunc) nextHook() func(context.Context, ced.ID) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractDeleteFunc) appendCall(r0 GroupContractDeleteFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractDeleteFuncCall objects
+// describing the invocations of this function.
+func (f *GroupContractDeleteFunc) History() []GroupContractDeleteFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractDeleteFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractDeleteFuncCall is an object that describes an invocation of
+// method Delete on an instance of MockGroupContract.
+type GroupContractDeleteFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 ced.ID
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractDeleteFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractDeleteFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0}
 }
 
 // GroupContractExportFunc describes the behavior when the Export method of
@@ -1578,6 +1698,9 @@ type MockGroupRespository struct {
 	// CreateManyFunc is an instance of a mock function object controlling
 	// the behavior of the method CreateMany.
 	CreateManyFunc *GroupRespositoryCreateManyFunc
+	// DeleteFunc is an instance of a mock function object controlling the
+	// behavior of the method Delete.
+	DeleteFunc *GroupRespositoryDeleteFunc
 	// GetFunc is an instance of a mock function object controlling the
 	// behavior of the method Get.
 	GetFunc *GroupRespositoryGetFunc
@@ -1604,6 +1727,11 @@ func NewMockGroupRespository() *MockGroupRespository {
 		},
 		CreateManyFunc: &GroupRespositoryCreateManyFunc{
 			defaultHook: func(context.Context, []ced.Group) (r0 error) {
+				return
+			},
+		},
+		DeleteFunc: &GroupRespositoryDeleteFunc{
+			defaultHook: func(context.Context, ced.ID) (r0 error) {
 				return
 			},
 		},
@@ -1644,6 +1772,11 @@ func NewStrictMockGroupRespository() *MockGroupRespository {
 				panic("unexpected invocation of MockGroupRespository.CreateMany")
 			},
 		},
+		DeleteFunc: &GroupRespositoryDeleteFunc{
+			defaultHook: func(context.Context, ced.ID) error {
+				panic("unexpected invocation of MockGroupRespository.Delete")
+			},
+		},
 		GetFunc: &GroupRespositoryGetFunc{
 			defaultHook: func(context.Context, ced.ID) (ced.Group, error) {
 				panic("unexpected invocation of MockGroupRespository.Get")
@@ -1677,6 +1810,9 @@ func NewMockGroupRespositoryFrom(i ced.GroupRespository) *MockGroupRespository {
 		},
 		CreateManyFunc: &GroupRespositoryCreateManyFunc{
 			defaultHook: i.CreateMany,
+		},
+		DeleteFunc: &GroupRespositoryDeleteFunc{
+			defaultHook: i.Delete,
 		},
 		GetFunc: &GroupRespositoryGetFunc{
 			defaultHook: i.Get,
@@ -1900,6 +2036,111 @@ func (c GroupRespositoryCreateManyFuncCall) Args() []interface{} {
 // Results returns an interface slice containing the results of this
 // invocation.
 func (c GroupRespositoryCreateManyFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0}
+}
+
+// GroupRespositoryDeleteFunc describes the behavior when the Delete method
+// of the parent MockGroupRespository instance is invoked.
+type GroupRespositoryDeleteFunc struct {
+	defaultHook func(context.Context, ced.ID) error
+	hooks       []func(context.Context, ced.ID) error
+	history     []GroupRespositoryDeleteFuncCall
+	mutex       sync.Mutex
+}
+
+// Delete delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupRespository) Delete(v0 context.Context, v1 ced.ID) error {
+	r0 := m.DeleteFunc.nextHook()(v0, v1)
+	m.DeleteFunc.appendCall(GroupRespositoryDeleteFuncCall{v0, v1, r0})
+	return r0
+}
+
+// SetDefaultHook sets function that is called when the Delete method of the
+// parent MockGroupRespository instance is invoked and the hook queue is
+// empty.
+func (f *GroupRespositoryDeleteFunc) SetDefaultHook(hook func(context.Context, ced.ID) error) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Delete method of the parent MockGroupRespository instance invokes the
+// hook at the front of the queue and discards it. After the queue is empty,
+// the default hook function is invoked for any future action.
+func (f *GroupRespositoryDeleteFunc) PushHook(hook func(context.Context, ced.ID) error) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupRespositoryDeleteFunc) SetDefaultReturn(r0 error) {
+	f.SetDefaultHook(func(context.Context, ced.ID) error {
+		return r0
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupRespositoryDeleteFunc) PushReturn(r0 error) {
+	f.PushHook(func(context.Context, ced.ID) error {
+		return r0
+	})
+}
+
+func (f *GroupRespositoryDeleteFunc) nextHook() func(context.Context, ced.ID) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupRespositoryDeleteFunc) appendCall(r0 GroupRespositoryDeleteFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupRespositoryDeleteFuncCall objects
+// describing the invocations of this function.
+func (f *GroupRespositoryDeleteFunc) History() []GroupRespositoryDeleteFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupRespositoryDeleteFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupRespositoryDeleteFuncCall is an object that describes an invocation
+// of method Delete on an instance of MockGroupRespository.
+type GroupRespositoryDeleteFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 ced.ID
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupRespositoryDeleteFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupRespositoryDeleteFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0}
 }
 

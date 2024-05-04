@@ -325,6 +325,20 @@ func TestGroup(t *testing.T) {
 		})
 	})
 
+	t.Run("delete", func(t *testing.T) {
+
+		t.Run("can delete group", func(t *testing.T) {
+			defer setup(t)()
+			is := is.New(t)
+
+			err := groupContract.Delete(context.Background(), group2.ID)
+			is.NoErr(err)
+
+			_, err = groupRepository.Get(context.Background(), group2.ID)
+			testutils.IsCode(t, err, ced.ENOTFOUND)
+		})
+	})
+
 	t.Run("import", func(t *testing.T) {
 
 		t.Run("can import", func(t *testing.T) {

@@ -4,6 +4,7 @@
 
 - Simplify UI of RSVP page
 - Add `ced group update` command
+- Add `ced group delete` command
 
 Full changelog: [v0.7.0...v0.8.0](https://github.com/bradenrayhorn/ced/compare/v0.7.0...v0.8.0)
 

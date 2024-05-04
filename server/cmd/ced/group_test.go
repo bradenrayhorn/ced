@@ -50,6 +50,8 @@ func TestGroupUpdate(t *testing.T) {
 	err = cmd.Run(&CmdContext{in, out, pool})
 	is.NoErr(err)
 
+	is.Equal("Are you sure you wish to update 'Barnaby' (0/4) (responded: false)? [y/n]\n", out.String())
+
 	// check results
 
 	res, err := pool.groupContract.FindOne(context.Background(), "Barnaby")
@@ -71,6 +73,11 @@ func TestGroupUpdate(t *testing.T) {
 	err = cmd.Run(&CmdContext{in, out, pool})
 	is.NoErr(err)
 
+	is.Equal(
+		"Are you sure you wish to update 'Barnaby' (0/4) (responded: false)? [y/n]\nGroup updated.\n",
+		out.String(),
+	)
+
 	// check results
 
 	res, err = pool.groupContract.FindOne(context.Background(), "Barnaby")
@@ -84,6 +91,48 @@ func TestGroupUpdate(t *testing.T) {
 		HasResponded: true,
 		SearchHints:  "",
 	}, res)
+}
+
+func TestGroupDelete(t *testing.T) {
+	is := is.New(t)
+	pool, err := newCmdPool(testutils.InMemoryPoolPath)
+	is.NoErr(err)
+	defer pool.close(os.Stdout)
+
+	_, err = pool.groupContract.Create(context.Background(), ced.Name("Barnaby"), 4, "")
+	is.NoErr(err)
+
+	// run cmd and reply no
+	in := bytes.NewBufferString("n")
+	out := bytes.NewBufferString("")
+
+	cmd := GroupDeleteCmd{Name: "Barnaby"}
+	err = cmd.Run(&CmdContext{in, out, pool})
+	is.NoErr(err)
+
+	is.Equal("Are you sure you wish to delete 'Barnaby' (0/4) (responded: false)? [y/n]\n", out.String())
+
+	// check results
+
+	_, err = pool.groupContract.FindOne(context.Background(), "Barnaby")
+	is.NoErr(err)
+
+	// run cmd and reply yes
+	in = bytes.NewBufferString("y")
+	out = bytes.NewBufferString("")
+
+	err = cmd.Run(&CmdContext{in, out, pool})
+	is.NoErr(err)
+
+	is.Equal(
+		"Are you sure you wish to delete 'Barnaby' (0/4) (responded: false)? [y/n]\nGroup deleted.\n",
+		out.String(),
+	)
+
+	// check results
+
+	_, err = pool.groupContract.FindOne(context.Background(), "Barnaby")
+	is.Equal("find one group: no results", err.Error())
 }
 
 func TestGroupImport(t *testing.T) {

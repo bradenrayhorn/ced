@@ -154,6 +154,14 @@ func (c *groupContract) Update(ctx context.Context, update ced.GroupUpdate) erro
 	return nil
 }
 
+func (c *groupContract) Delete(ctx context.Context, id ced.ID) error {
+	err := c.groupRepository.Delete(ctx, id)
+	if err != nil {
+		return fmt.Errorf("delete group: %w", err)
+	}
+	return nil
+}
+
 func (c *groupContract) Import(ctx context.Context, records []ced.GroupImport) error {
 	groups := make([]ced.Group, len(records))
 	for i, record := range records {

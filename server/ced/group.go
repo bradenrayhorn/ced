@@ -82,6 +82,9 @@ type GroupContract interface {
 	// Updates a group's values. Only updates values that are present.
 	Update(ctx context.Context, update GroupUpdate) error
 
+	// Deletes a group.
+	Delete(ctx context.Context, id ID) error
+
 	// Imports a list of groups.
 	Import(ctx context.Context, groups []GroupImport) error
 
@@ -94,6 +97,7 @@ type GroupRespository interface {
 	CreateMany(ctx context.Context, groups []Group) error
 	Update(ctx context.Context, group Group) error
 	Get(ctx context.Context, id ID) (Group, error)
+	Delete(ctx context.Context, id ID) error
 
 	GetAll(ctx context.Context) ([]Group, error)
 
