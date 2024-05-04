@@ -19,6 +19,7 @@ type CmdContext struct {
 var cli struct {
 	Group struct {
 		Create GroupCreateCmd `cmd:"" help:"Creates a group invitation."`
+		Update GroupUpdateCmd `cmd:"" help:"Updates a group invitation."`
 		Import GroupImportCmd `cmd:"" help:"Imports groups from a csv. Pass csv as stdin."`
 		Export GroupExportCmd `cmd:"" help:"Exports all groups to a csv."`
 	} `cmd:""`

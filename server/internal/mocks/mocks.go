@@ -558,6 +558,9 @@ type MockGroupContract struct {
 	// ExportFunc is an instance of a mock function object controlling the
 	// behavior of the method Export.
 	ExportFunc *GroupContractExportFunc
+	// FindOneFunc is an instance of a mock function object controlling the
+	// behavior of the method FindOne.
+	FindOneFunc *GroupContractFindOneFunc
 	// GetFunc is an instance of a mock function object controlling the
 	// behavior of the method Get.
 	GetFunc *GroupContractGetFunc
@@ -570,6 +573,9 @@ type MockGroupContract struct {
 	// SearchFunc is an instance of a mock function object controlling the
 	// behavior of the method Search.
 	SearchFunc *GroupContractSearchFunc
+	// UpdateFunc is an instance of a mock function object controlling the
+	// behavior of the method Update.
+	UpdateFunc *GroupContractUpdateFunc
 }
 
 // NewMockGroupContract creates a new mock of the GroupContract interface.
@@ -583,6 +589,11 @@ func NewMockGroupContract() *MockGroupContract {
 		},
 		ExportFunc: &GroupContractExportFunc{
 			defaultHook: func(context.Context) (r0 []ced.Group, r1 error) {
+				return
+			},
+		},
+		FindOneFunc: &GroupContractFindOneFunc{
+			defaultHook: func(context.Context, string) (r0 ced.Group, r1 error) {
 				return
 			},
 		},
@@ -606,6 +617,11 @@ func NewMockGroupContract() *MockGroupContract {
 				return
 			},
 		},
+		UpdateFunc: &GroupContractUpdateFunc{
+			defaultHook: func(context.Context, ced.GroupUpdate) (r0 error) {
+				return
+			},
+		},
 	}
 }
 
@@ -621,6 +637,11 @@ func NewStrictMockGroupContract() *MockGroupContract {
 		ExportFunc: &GroupContractExportFunc{
 			defaultHook: func(context.Context) ([]ced.Group, error) {
 				panic("unexpected invocation of MockGroupContract.Export")
+			},
+		},
+		FindOneFunc: &GroupContractFindOneFunc{
+			defaultHook: func(context.Context, string) (ced.Group, error) {
+				panic("unexpected invocation of MockGroupContract.FindOne")
 			},
 		},
 		GetFunc: &GroupContractGetFunc{
@@ -643,6 +664,11 @@ func NewStrictMockGroupContract() *MockGroupContract {
 				panic("unexpected invocation of MockGroupContract.Search")
 			},
 		},
+		UpdateFunc: &GroupContractUpdateFunc{
+			defaultHook: func(context.Context, ced.GroupUpdate) error {
+				panic("unexpected invocation of MockGroupContract.Update")
+			},
+		},
 	}
 }
 
@@ -657,6 +683,9 @@ func NewMockGroupContractFrom(i ced.GroupContract) *MockGroupContract {
 		ExportFunc: &GroupContractExportFunc{
 			defaultHook: i.Export,
 		},
+		FindOneFunc: &GroupContractFindOneFunc{
+			defaultHook: i.FindOne,
+		},
 		GetFunc: &GroupContractGetFunc{
 			defaultHook: i.Get,
 		},
@@ -668,6 +697,9 @@ func NewMockGroupContractFrom(i ced.GroupContract) *MockGroupContract {
 		},
 		SearchFunc: &GroupContractSearchFunc{
 			defaultHook: i.Search,
+		},
+		UpdateFunc: &GroupContractUpdateFunc{
+			defaultHook: i.Update,
 		},
 	}
 }
@@ -886,6 +918,114 @@ func (c GroupContractExportFuncCall) Args() []interface{} {
 // Results returns an interface slice containing the results of this
 // invocation.
 func (c GroupContractExportFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupContractFindOneFunc describes the behavior when the FindOne method
+// of the parent MockGroupContract instance is invoked.
+type GroupContractFindOneFunc struct {
+	defaultHook func(context.Context, string) (ced.Group, error)
+	hooks       []func(context.Context, string) (ced.Group, error)
+	history     []GroupContractFindOneFuncCall
+	mutex       sync.Mutex
+}
+
+// FindOne delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) FindOne(v0 context.Context, v1 string) (ced.Group, error) {
+	r0, r1 := m.FindOneFunc.nextHook()(v0, v1)
+	m.FindOneFunc.appendCall(GroupContractFindOneFuncCall{v0, v1, r0, r1})
+	return r0, r1
+}
+
+// SetDefaultHook sets function that is called when the FindOne method of
+// the parent MockGroupContract instance is invoked and the hook queue is
+// empty.
+func (f *GroupContractFindOneFunc) SetDefaultHook(hook func(context.Context, string) (ced.Group, error)) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// FindOne method of the parent MockGroupContract instance invokes the hook
+// at the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractFindOneFunc) PushHook(hook func(context.Context, string) (ced.Group, error)) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractFindOneFunc) SetDefaultReturn(r0 ced.Group, r1 error) {
+	f.SetDefaultHook(func(context.Context, string) (ced.Group, error) {
+		return r0, r1
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractFindOneFunc) PushReturn(r0 ced.Group, r1 error) {
+	f.PushHook(func(context.Context, string) (ced.Group, error) {
+		return r0, r1
+	})
+}
+
+func (f *GroupContractFindOneFunc) nextHook() func(context.Context, string) (ced.Group, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractFindOneFunc) appendCall(r0 GroupContractFindOneFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractFindOneFuncCall objects
+// describing the invocations of this function.
+func (f *GroupContractFindOneFunc) History() []GroupContractFindOneFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractFindOneFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractFindOneFuncCall is an object that describes an invocation of
+// method FindOne on an instance of MockGroupContract.
+type GroupContractFindOneFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 string
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 ced.Group
+	// Result1 is the value of the 2nd result returned from this method
+	// invocation.
+	Result1 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractFindOneFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractFindOneFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
 }
 
@@ -1322,6 +1462,110 @@ func (c GroupContractSearchFuncCall) Args() []interface{} {
 // invocation.
 func (c GroupContractSearchFuncCall) Results() []interface{} {
 	return []interface{}{c.Result0, c.Result1}
+}
+
+// GroupContractUpdateFunc describes the behavior when the Update method of
+// the parent MockGroupContract instance is invoked.
+type GroupContractUpdateFunc struct {
+	defaultHook func(context.Context, ced.GroupUpdate) error
+	hooks       []func(context.Context, ced.GroupUpdate) error
+	history     []GroupContractUpdateFuncCall
+	mutex       sync.Mutex
+}
+
+// Update delegates to the next hook function in the queue and stores the
+// parameter and result values of this invocation.
+func (m *MockGroupContract) Update(v0 context.Context, v1 ced.GroupUpdate) error {
+	r0 := m.UpdateFunc.nextHook()(v0, v1)
+	m.UpdateFunc.appendCall(GroupContractUpdateFuncCall{v0, v1, r0})
+	return r0
+}
+
+// SetDefaultHook sets function that is called when the Update method of the
+// parent MockGroupContract instance is invoked and the hook queue is empty.
+func (f *GroupContractUpdateFunc) SetDefaultHook(hook func(context.Context, ced.GroupUpdate) error) {
+	f.defaultHook = hook
+}
+
+// PushHook adds a function to the end of hook queue. Each invocation of the
+// Update method of the parent MockGroupContract instance invokes the hook
+// at the front of the queue and discards it. After the queue is empty, the
+// default hook function is invoked for any future action.
+func (f *GroupContractUpdateFunc) PushHook(hook func(context.Context, ced.GroupUpdate) error) {
+	f.mutex.Lock()
+	f.hooks = append(f.hooks, hook)
+	f.mutex.Unlock()
+}
+
+// SetDefaultReturn calls SetDefaultHook with a function that returns the
+// given values.
+func (f *GroupContractUpdateFunc) SetDefaultReturn(r0 error) {
+	f.SetDefaultHook(func(context.Context, ced.GroupUpdate) error {
+		return r0
+	})
+}
+
+// PushReturn calls PushHook with a function that returns the given values.
+func (f *GroupContractUpdateFunc) PushReturn(r0 error) {
+	f.PushHook(func(context.Context, ced.GroupUpdate) error {
+		return r0
+	})
+}
+
+func (f *GroupContractUpdateFunc) nextHook() func(context.Context, ced.GroupUpdate) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if len(f.hooks) == 0 {
+		return f.defaultHook
+	}
+
+	hook := f.hooks[0]
+	f.hooks = f.hooks[1:]
+	return hook
+}
+
+func (f *GroupContractUpdateFunc) appendCall(r0 GroupContractUpdateFuncCall) {
+	f.mutex.Lock()
+	f.history = append(f.history, r0)
+	f.mutex.Unlock()
+}
+
+// History returns a sequence of GroupContractUpdateFuncCall objects
+// describing the invocations of this function.
+func (f *GroupContractUpdateFunc) History() []GroupContractUpdateFuncCall {
+	f.mutex.Lock()
+	history := make([]GroupContractUpdateFuncCall, len(f.history))
+	copy(history, f.history)
+	f.mutex.Unlock()
+
+	return history
+}
+
+// GroupContractUpdateFuncCall is an object that describes an invocation of
+// method Update on an instance of MockGroupContract.
+type GroupContractUpdateFuncCall struct {
+	// Arg0 is the value of the 1st argument passed to this method
+	// invocation.
+	Arg0 context.Context
+	// Arg1 is the value of the 2nd argument passed to this method
+	// invocation.
+	Arg1 ced.GroupUpdate
+	// Result0 is the value of the 1st result returned from this method
+	// invocation.
+	Result0 error
+}
+
+// Args returns an interface slice containing the arguments of this
+// invocation.
+func (c GroupContractUpdateFuncCall) Args() []interface{} {
+	return []interface{}{c.Arg0, c.Arg1}
+}
+
+// Results returns an interface slice containing the results of this
+// invocation.
+func (c GroupContractUpdateFuncCall) Results() []interface{} {
+	return []interface{}{c.Result0}
 }
 
 // MockGroupRespository is a mock implementation of the GroupRespository

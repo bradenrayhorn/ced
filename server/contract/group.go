@@ -81,12 +81,12 @@ func (c *groupContract) Respond(ctx context.Context, req ced.ReqContext, id ced.
 		return err
 	}
 
-	if attendees > group.MaxAttendees {
-		return ced.NewError(ced.EINVALID, fmt.Sprintf("group can have at most %d attendees", group.MaxAttendees))
-	}
-
 	group.Attendees = attendees
 	group.HasResponded = true
+
+	if err = group.Validate(); err != nil {
+		return err
+	}
 
 	slog.Info("group updated",
 		"attendees", attendees,
@@ -98,6 +98,58 @@ func (c *groupContract) Respond(ctx context.Context, req ced.ReqContext, id ced.
 	err = c.groupRepository.Update(ctx, group)
 	if err != nil {
 		return fmt.Errorf("respond %+v to group %+v: %w", request, group, err)
+	}
+	return nil
+}
+
+func (c *groupContract) FindOne(ctx context.Context, search string) (ced.Group, error) {
+	res, err := c.groupRepository.SearchByName(ctx, search)
+	if err != nil {
+		return ced.Group{}, fmt.Errorf("find one group %s: %w", search, err)
+	}
+
+	if len(res) == 0 {
+		return ced.Group{}, fmt.Errorf("find one group: no results")
+	}
+
+	if len(res) > 1 {
+		return ced.Group{}, fmt.Errorf("find one group: too many results, try narrowing the search")
+	}
+
+	return res[0], nil
+}
+
+func (c *groupContract) Update(ctx context.Context, update ced.GroupUpdate) error {
+	group, err := c.groupRepository.Get(ctx, update.ID)
+	if err != nil {
+		return fmt.Errorf("update group: %w", err)
+	}
+
+	if update.Attendees != nil {
+		group.Attendees = *update.Attendees
+		group.HasResponded = true
+	}
+	if update.MaxAttendees != nil {
+		group.MaxAttendees = *update.MaxAttendees
+	}
+	if update.Name != nil {
+		group.Name = *update.Name
+	}
+	if update.SearchHints != nil {
+		group.SearchHints = *update.SearchHints
+	}
+
+	if err := group.Validate(); err != nil {
+		var cedError ced.Error
+		if errors.As(err, &cedError) {
+			_, msg := cedError.CedError()
+			return fmt.Errorf("update group: %s", msg)
+		}
+		return err
+	}
+
+	if err := c.groupRepository.Update(ctx, group); err != nil {
+		return fmt.Errorf("update group: %w", err)
 	}
 	return nil
 }

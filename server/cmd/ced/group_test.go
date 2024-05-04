@@ -32,6 +32,60 @@ func TestGroupCreate(t *testing.T) {
 	is.Equal(group.SearchHints, "Max Hoover, Tod Frog")
 }
 
+func TestGroupUpdate(t *testing.T) {
+	is := is.New(t)
+	pool, err := newCmdPool(testutils.InMemoryPoolPath)
+	is.NoErr(err)
+	defer pool.close(os.Stdout)
+
+	group, err := pool.groupContract.Create(context.Background(), ced.Name("Barnaby"), 4, "")
+	is.NoErr(err)
+
+	// run cmd and reply no
+	in := bytes.NewBufferString("n")
+	out := bytes.NewBufferString("")
+
+	a := uint8(2)
+	cmd := GroupUpdateCmd{CurrentName: "Barnaby", Attendees: &a}
+	err = cmd.Run(&CmdContext{in, out, pool})
+	is.NoErr(err)
+
+	// check results
+
+	res, err := pool.groupContract.FindOne(context.Background(), "Barnaby")
+	is.NoErr(err)
+
+	is.Equal(ced.Group{
+		ID:           group.ID,
+		Name:         ced.Name("Barnaby"),
+		MaxAttendees: uint8(4),
+		Attendees:    uint8(0),
+		HasResponded: false,
+		SearchHints:  "",
+	}, res)
+
+	// run cmd and reply yes
+	in = bytes.NewBufferString("y")
+	out = bytes.NewBufferString("")
+
+	err = cmd.Run(&CmdContext{in, out, pool})
+	is.NoErr(err)
+
+	// check results
+
+	res, err = pool.groupContract.FindOne(context.Background(), "Barnaby")
+	is.NoErr(err)
+
+	is.Equal(ced.Group{
+		ID:           group.ID,
+		Name:         ced.Name("Barnaby"),
+		MaxAttendees: uint8(4),
+		Attendees:    uint8(2),
+		HasResponded: true,
+		SearchHints:  "",
+	}, res)
+}
+
 func TestGroupImport(t *testing.T) {
 	is := is.New(t)
 	pool, err := newCmdPool(testutils.InMemoryPoolPath)
