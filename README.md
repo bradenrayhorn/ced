@@ -164,13 +164,13 @@ Example:
 /app/ced-cli group export
 ```
 
-### Create Group Command
+### Group Commands
 
-Groups can also be created individually using the following command.
+Groups can also be interacted with manually using the CLI.
 See usage by passing `--help` flag.
 
 ```
-/app/ced-cli group create
+/app/ced-cli group --help
 ```
 
 ## Contributing

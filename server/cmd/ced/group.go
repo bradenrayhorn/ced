@@ -28,6 +28,56 @@ func (r *GroupCreateCmd) Run(ctx *CmdContext) error {
 	return nil
 }
 
+type GroupUpdateCmd struct {
+	CurrentName string `arg:"" help:"Current name of the group."`
+
+	Name         *string `optional:"" help:"New name of the group."`
+	MaxAttendees *uint8  `optional:"" help:"Max number of guests in the group."`
+	Attendees    *uint8  `optional:"" help:"Number of attendees in the group. Changing this will mark the group as reserved."`
+	SearchHints  *string `optional:"" help:"Comma separated list of people in the group."`
+}
+
+func (r *GroupUpdateCmd) Run(ctx *CmdContext) error {
+	group, err := ctx.pool.groupContract.FindOne(context.Background(), r.CurrentName)
+	if err != nil {
+		return err
+	}
+
+	proceed, err := askYesNo(fmt.Sprintf(
+		"Are you sure you wish to update '%s' (%d/%d) (responded: %t)? [y/n]",
+		group.Name,
+		group.Attendees,
+		group.MaxAttendees,
+		group.HasResponded,
+	), ctx.in, ctx.out)
+	if err != nil {
+		return err
+	}
+
+	if proceed {
+		update := ced.GroupUpdate{
+			ID:           group.ID,
+			MaxAttendees: r.MaxAttendees,
+			Attendees:    r.Attendees,
+			SearchHints:  r.SearchHints,
+		}
+		if r.Name != nil {
+			name := ced.Name(*r.Name)
+			update.Name = &name
+		}
+
+		if err := ctx.pool.groupContract.Update(context.Background(), update); err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprint(ctx.out, "group updated!"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 type GroupImportCmd struct {
 }
 

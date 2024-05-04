@@ -2,6 +2,7 @@ package ced
 
 import (
 	"context"
+	"fmt"
 	"strings"
 )
 
@@ -14,11 +15,18 @@ type Group struct {
 	SearchHints  string
 }
 
-func NewGroup(name Name, maxAttendees uint8, searchHints string) (Group, error) {
-	if err := ValidateFields(Field("Name", name)); err != nil {
-		return Group{}, err
+func (g Group) Validate() error {
+	if err := ValidateFields(Field("Name", g.Name)); err != nil {
+		return err
 	}
 
+	if g.Attendees > g.MaxAttendees {
+		return NewError(EINVALID, fmt.Sprintf("group can have at most %d attendees, has %d", g.MaxAttendees, g.Attendees))
+	}
+	return nil
+}
+
+func NewGroup(name Name, maxAttendees uint8, searchHints string) (Group, error) {
 	group := Group{
 		ID:           NewID(),
 		Name:         Name(strings.TrimSpace(string(name))),
@@ -28,6 +36,10 @@ func NewGroup(name Name, maxAttendees uint8, searchHints string) (Group, error) 
 		SearchHints:  strings.TrimSpace(searchHints),
 	}
 
+	if err := group.Validate(); err != nil {
+		return Group{}, err
+	}
+
 	return group, nil
 }
 
@@ -35,6 +47,14 @@ type GroupImport struct {
 	Name         Name
 	MaxAttendees uint8
 	SearchHints  string
+}
+
+type GroupUpdate struct {
+	ID           ID
+	Name         *Name
+	Attendees    *uint8
+	MaxAttendees *uint8
+	SearchHints  *string
 }
 
 type ReqContext struct {
@@ -53,6 +73,14 @@ type GroupContract interface {
 
 	// Updates response for a group.
 	Respond(ctx context.Context, req ReqContext, id ID, attendees uint8) error
+
+	// ADMIN ACTIONS
+
+	// Finds a group by name. This is a fuzzy search so should confirm before taking actions.
+	FindOne(ctx context.Context, search string) (Group, error)
+
+	// Updates a group's values. Only updates values that are present.
+	Update(ctx context.Context, update GroupUpdate) error
 
 	// Imports a list of groups.
 	Import(ctx context.Context, groups []GroupImport) error
