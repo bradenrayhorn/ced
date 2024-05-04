@@ -70,7 +70,41 @@ func (r *GroupUpdateCmd) Run(ctx *CmdContext) error {
 			return err
 		}
 
-		if _, err := fmt.Fprint(ctx.out, "group updated!"); err != nil {
+		if _, err := fmt.Fprint(ctx.out, "Group updated.\n"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type GroupDeleteCmd struct {
+	Name string `arg:"" help:"Name of the group."`
+}
+
+func (r *GroupDeleteCmd) Run(ctx *CmdContext) error {
+	group, err := ctx.pool.groupContract.FindOne(context.Background(), r.Name)
+	if err != nil {
+		return err
+	}
+
+	proceed, err := askYesNo(fmt.Sprintf(
+		"Are you sure you wish to delete '%s' (%d/%d) (responded: %t)? [y/n]",
+		group.Name,
+		group.Attendees,
+		group.MaxAttendees,
+		group.HasResponded,
+	), ctx.in, ctx.out)
+	if err != nil {
+		return err
+	}
+
+	if proceed {
+		if err := ctx.pool.groupContract.Delete(context.Background(), group.ID); err != nil {
+			return err
+		}
+
+		if _, err := fmt.Fprint(ctx.out, "Group deleted.\n"); err != nil {
 			return err
 		}
 	}

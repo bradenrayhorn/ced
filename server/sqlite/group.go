@@ -98,6 +98,12 @@ func (r *groupRepository) Get(ctx context.Context, id ced.ID) (ced.Group, error)
 	return mustFindResult(group, err, id.String())
 }
 
+func (r *groupRepository) Delete(ctx context.Context, id ced.ID) error {
+	query := `DELETE FROM groups WHERE id = ?;`
+
+	return execute(ctx, r.pool, query, []any{id.String()})
+}
+
 func (r *groupRepository) GetAll(ctx context.Context) ([]ced.Group, error) {
 	query := `SELECT * FROM groups;`
 

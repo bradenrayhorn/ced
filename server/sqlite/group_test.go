@@ -80,6 +80,24 @@ func TestGroup(t *testing.T) {
 		testutils.IsCode(t, err, ced.ENOTFOUND)
 	})
 
+	t.Run("can delete group", func(t *testing.T) {
+		is := is.New(t)
+		defer setup()()
+
+		group := ced.Group{
+			ID:   ced.NewID(),
+			Name: "George Hoover and family",
+		}
+		err := groupRepository.Create(context.Background(), group)
+		is.NoErr(err)
+
+		err = groupRepository.Delete(context.Background(), group.ID)
+		is.NoErr(err)
+
+		_, err = groupRepository.Get(context.Background(), group.ID)
+		testutils.IsCode(t, err, ced.ENOTFOUND)
+	})
+
 	t.Run("can get all groups", func(t *testing.T) {
 		is := is.New(t)
 		defer setup()()
