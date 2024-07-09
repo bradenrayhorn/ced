@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/alecthomas/kong v0.9.0
-	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/matryer/is v1.4.1
 	github.com/segmentio/ksuid v1.0.4
