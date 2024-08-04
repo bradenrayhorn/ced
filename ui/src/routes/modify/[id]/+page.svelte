@@ -11,16 +11,16 @@
 
   $: options = [
     "Decline to attend",
-    "One guest",
-    "Two guests",
-    "Three guests",
-    "Four guests",
-    "Five guests",
-    "Six guests",
-    "Seven guests",
-    "Eight guests",
-    "Nine guests",
-    "Ten guests",
+    "One attendee",
+    "Two attendees",
+    "Three attendees",
+    "Four attendees",
+    "Five attendees",
+    "Six attendees",
+    "Seven attendees",
+    "Eight attendees",
+    "Nine attendees",
+    "Ten attendees",
   ].slice(0, group.max_attendees + 1);
 
   $: isLoading = isSaving || !!$navigating;
@@ -32,7 +32,7 @@
 
 <h2 class="mt-8 mb-5 h2">{group.name}</h2>
 
-<p class="mb-5">Please confirm the number of guests in your party.</p>
+<p class="mb-5">Please confirm the number of attendees in your party.</p>
 
 <form
   method="POST"
