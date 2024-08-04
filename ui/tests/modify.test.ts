@@ -14,7 +14,7 @@ test("can complete an rsvp", async ({ prefix: { prefix }, page }) => {
   await page.getByRole("link", { name: "Yes" }).click();
 
   // modify page
-  await page.getByLabel("Two guests").click();
+  await page.getByLabel("Two attendees").click();
   await page.getByRole("button", { name: "Confirm" }).click();
 
   // confirmed page
@@ -70,7 +70,7 @@ test("can complete rsvp with two results", async ({
   await page.getByRole("button", { name: "Continue" }).click();
 
   // modify page
-  await page.getByLabel("Two guests").click();
+  await page.getByLabel("Two attendees").click();
   await page.getByRole("button", { name: "Confirm" }).click();
 
   // confirmed page
@@ -129,7 +129,7 @@ test("can handle modify put failure", async ({
   });
 
   // modify page
-  await page.getByLabel("Two guests").click();
+  await page.getByLabel("Two attendees").click();
   await page.getByRole("button", { name: "Confirm" }).click();
 
   await expect(
