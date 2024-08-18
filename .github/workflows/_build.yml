@@ -22,12 +22,12 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
           ref: "${{ inputs.ref }}"
 
       - name: Setup go
-        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
         with:
           go-version-file: "./server/go.mod"
           cache: false
@@ -38,19 +38,19 @@ jobs:
           go-licenses report --ignore github.com/bradenrayhorn/ced --confidence_threshold 0.85 --template ./licenses.tpl --logtostderr=false ./... > ./licenses.txt
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
         with:
           platforms: 'arm64,amd64'
 
       - name: Login to registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3
 
       - name: Build and push
         uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # v6
@@ -68,10 +68,10 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
       - name: Setup go
-        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5
+        uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
         with:
           go-version-file: "./server/go.mod"
           cache: false
@@ -83,19 +83,19 @@ jobs:
           cat ./ui/src/routes/about/server-licenses.txt
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # v3
         with:
           platforms: 'arm64,amd64'
 
       - name: Login to registry
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@d70bba72b1f3fd22344832f00baa16ece964efeb # v3
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # v3
 
       - name: check path again
         run: |
