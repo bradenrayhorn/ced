@@ -38,7 +38,7 @@
     "globals": "15.11.0",
     "msw": "2.5.1",
     "postcss": "8.4.47",
-    "postcss-load-config": "5.1.0",
+    "postcss-load-config": "6.0.1",
     "prettier": "3.3.3",
     "prettier-plugin-svelte": "3.2.7",
     "rollup-plugin-license": "3.5.3",
