@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim@sha256:28fbbb764069c698ead61d6a739a7615e8f0e07a4b8fe1473ceca70c1c3d6aaa as base
+FROM node:20-bookworm-slim@sha256:a0196893dffad1f1a5723a8c817b45681402be549a8f196bf9c93a5bc30628e3 as base
 
 # build step
 FROM base as build
