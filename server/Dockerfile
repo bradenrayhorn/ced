@@ -7,7 +7,7 @@ WORKDIR /app
 RUN CGO_ENABLED=0 go build ./cmd/cedd
 RUN CGO_ENABLED=0 go build -o ced-cli ./cmd/ced
 
-FROM alpine@sha256:1e42bbe2508154c9126d48c2b8a75420c3544343bf86fd041fb7527e017a4b4a
+FROM alpine@sha256:21dc6063fd678b478f57c0e13f47560d0ea4eeba26dfc947b2a4f81f686b9f45
 
 RUN mkdir /app
 COPY --from=buildgo /app/cedd /app/
