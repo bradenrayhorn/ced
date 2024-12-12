@@ -3,7 +3,7 @@ module github.com/bradenrayhorn/ced/server
 go 1.22
 
 require (
-	github.com/alecthomas/kong v0.9.0
+	github.com/alecthomas/kong v1.6.0
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/matryer/is v1.4.1
