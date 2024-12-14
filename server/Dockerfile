@@ -1,4 +1,4 @@
-FROM golang:1.22@sha256:829eff99a4b2abffe68f6a3847337bf6455d69d17e49ec1a97dac78834754bd6 as buildgo
+FROM golang:1.23@sha256:70031844b8c225351d0bb63e2c383f80db85d92ba894e3da7e13bcf80efa9a37 as buildgo
 
 RUN mkdir /app
 COPY . /app
@@ -7,7 +7,7 @@ WORKDIR /app
 RUN CGO_ENABLED=0 go build ./cmd/cedd
 RUN CGO_ENABLED=0 go build -o ced-cli ./cmd/ced
 
-FROM alpine@sha256:1e42bbe2508154c9126d48c2b8a75420c3544343bf86fd041fb7527e017a4b4a
+FROM alpine@sha256:21dc6063fd678b478f57c0e13f47560d0ea4eeba26dfc947b2a4f81f686b9f45
 
 RUN mkdir /app
 COPY --from=buildgo /app/cedd /app/
